@@ -1,0 +1,15 @@
+<metaverse skybox=''>
+  <room width=''>
+    <left-wall>
+      <poster src='VRcollab.png'></poster>
+    </leftwall>
+
+    <table>
+      <tr>
+        <td>
+          <item src='best-game-ever-trophy.obj' alt='this is a trophy won by us on 2013' pickup='true'>
+        </td>
+      </tr>
+    </table>
+  </room>
+</metaverse>
