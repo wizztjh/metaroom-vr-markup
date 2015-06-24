@@ -1,0 +1,41 @@
+<!-- Imports polymer -->
+<link rel="import" href="../bower_components/polymer/polymer.html">
+
+<dom-module id="meta-verse">
+    <template>
+      <content></content>
+      <canvas class='webgl-canvas'></canvas>
+    </template>
+  <script>
+    Polymer({
+        is: 'meta-verse',
+
+        created: function() {
+          console.log('meta-verse created');
+        },
+
+        properties: {
+        },
+
+        ready: function() {},
+        attached: function() {},
+        detached: function() {},
+        attributeChanged: function(name, type) {}
+    });
+  </script>
+</dom-module>
+
+<dom-module id="meta-room">
+    <template>
+      <content></content>
+    </template>
+  <script>
+    Polymer({
+        is: 'meta-room',
+
+        created: function() {
+          console.log('room created');
+        }
+    });
+  </script>
+</dom-module>

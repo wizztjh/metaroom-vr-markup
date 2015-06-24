@@ -1,5 +1,5 @@
 {
-  "name": "Metaverse Markup Language",
+  "name": "Hyperpage Markup Language",
   "version": "0.0.0",
   "authors": [
     "jiahen <wizztjh@gmail.com>"
@@ -16,6 +16,8 @@
     "tests"
   ],
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.0.0"
+    "polymer": "Polymer/polymer#^1.0.0",
+    "three.js": "*",
+    "webvr-polyfill": "https://raw.githubusercontent.com/borismus/webvr-polyfill/master/build/webvr-polyfill.js"
   }
 }

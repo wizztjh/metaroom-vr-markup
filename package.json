@@ -1,0 +1,26 @@
+{
+  "name": "Hyperpage-markup-language",
+  "version": "0.0.0",
+  "description": "",
+  "main": "build/meta-verse.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "web-components",
+    "virtual-reality",
+    "webgl"
+  ],
+  "author": "wizztjh@gmail.com",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "gulp": "^3.9.0"
+  }
+}

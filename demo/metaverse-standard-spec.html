@@ -1,23 +1,22 @@
 <html>
   <head>
-    <script src="bower_components/webcomponentsjs/webcomponents.js"></script>
-    <link rel="import" href="meta-verse.html">
+    <script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="../src/hp-ml.html">
   </head>
 
   <body>
     <meta-verse skybox=''>
-      <room width='300px' height='600px'>
-        <leftwall>
+      <meta-room width='300px' height='600px'>
+        <left-wall>
           <poster src='VRcollab.png'></poster>
-        </leftwall>
+        </left-wall>
 
-        <frontwall controller='logoSpinner.js'>
+        <meta-frontwall controller='logoSpinner.js'>
           <item src='VRcollab-logo.obj'></item>
-        </frontwall>
+        </meta-frontwall>
 
-        <wall x='10px' y='10px' width='100px'></wall>
-
-        <floor>
+        <meta-wall x='10px' y='10px' width='100px'></wall>
+        <meta-floor>
           <table>
             <!-- <tleft></tleft> -->
             <!-- <tright></tright> -->
@@ -49,9 +48,9 @@
               </tr>
             </tbody>
           </table>
-        </floor>
+        </meta-floor>
 
-      </room>
-    </metaverse>
+      </meta-room>
+    </meta-verse>
   </body>
 </html>
