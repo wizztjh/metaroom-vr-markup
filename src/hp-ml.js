@@ -1,5 +1,6 @@
 class GameObject{
   constructor(){
+    var self = this;
     this.objects = {};
 
     this.renderer = new THREE.WebGLRenderer({ antialias: false });
@@ -22,6 +23,13 @@ class GameObject{
     this.clock = new THREE.Clock(true)
     this.clock.start()
 
+    function animate() {
+      self.controls.update();
+      // Render the scene through the manager.
+      self.manager.render(self.scene, self.camera);
+      requestAnimationFrame(animate);
+    }
+    animate();
     // Object.keys(initObjs).forEach(function(name){
     //   returnObject = initObjs[name].apply(self)
     //   self.add(name, returnObject);
@@ -37,6 +45,10 @@ class GameObject{
     return window.innerHeight;
   }
 
+  add(metaObject){
+    this.scene.add(metaObject.mesh);
+    this.objects[metaObject.mesh.uuid] = metaObject;
+  }
 }
 
 Polymer({
@@ -57,8 +69,13 @@ Polymer({
     },
 
     handleChildrenAttachment: function(e){
+      var target = e.detail.target
+
+      target.metaVerse = this
+      //TODO: need to find a better way to store the objects, it should be tree form
+      this.gameObject.add(target.metaObject)
+
       console.log('trigged',e.type, e)
-      e.detail.target.metaVerse = this
     },
 
     handleChildrenDetachment: function(e){
@@ -70,11 +87,31 @@ Polymer({
     is: 'meta-room',
 
     properties: {
-      metaVerse: Object
+      metaVerse: Object,
+      metaObject: Object
     },
 
-    created: {
-    }
+    created: function(){
+      var boxWidth = 10;
+      var texture = THREE.ImageUtils.loadTexture(
+        'img/box.png'
+      );
+      texture.wrapS = THREE.RepeatWrapping;
+      texture.wrapT = THREE.RepeatWrapping;
+      texture.repeat.set(boxWidth, boxWidth);
+      var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth);
+      var material = new THREE.MeshBasicMaterial({
+        map: texture,
+        color: 0x333333,
+        side: THREE.BackSide
+      });
+
+      var mesh = new THREE.Mesh(geometry, material);
+
+      this.metaObject = {
+        mesh: mesh
+      }
+    },
 
     attached: function() {
       this.fire('meta-attached', {
