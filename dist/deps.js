@@ -35132,3 +35132,3824 @@ THREE.MorphBlendMesh.prototype.update = function ( delta ) {
 
 };
 
+
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * The base class for all VR devices.
+ */
+function VRDevice() {
+  this.hardwareUnitId = 'webvr-polyfill hardwareUnitId';
+  this.deviceId = 'webvr-polyfill deviceId';
+  this.deviceName = 'webvr-polyfill deviceName';
+}
+
+/**
+ * The base class for all VR HMD devices.
+ */
+function HMDVRDevice() {
+}
+HMDVRDevice.prototype = new VRDevice();
+
+/**
+ * The base class for all VR position sensor devices.
+ */
+function PositionSensorVRDevice() {
+}
+PositionSensorVRDevice.prototype = new VRDevice();
+
+module.exports.VRDevice = VRDevice;
+module.exports.HMDVRDevice = HMDVRDevice;
+module.exports.PositionSensorVRDevice = PositionSensorVRDevice;
+
+},{}],2:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var HMDVRDevice = require('./base.js').HMDVRDevice;
+
+// Constants from vrtoolkit: https://github.com/googlesamples/cardboard-java.
+var INTERPUPILLARY_DISTANCE = 0.06;
+var DEFAULT_MAX_FOV_LEFT_RIGHT = 40;
+var DEFAULT_MAX_FOV_BOTTOM = 40;
+var DEFAULT_MAX_FOV_TOP = 40;
+
+/**
+ * The HMD itself, providing rendering parameters.
+ */
+function CardboardHMDVRDevice() {
+  // From com/google/vrtoolkit/cardboard/FieldOfView.java.
+  this.fov = {
+    upDegrees: DEFAULT_MAX_FOV_TOP,
+    downDegrees: DEFAULT_MAX_FOV_BOTTOM,
+    leftDegrees: DEFAULT_MAX_FOV_LEFT_RIGHT,
+    rightDegrees: DEFAULT_MAX_FOV_LEFT_RIGHT
+  };
+  // Set display constants.
+  this.eyeTranslationLeft = {
+    x: INTERPUPILLARY_DISTANCE * -0.5,
+    y: 0,
+    z: 0
+  };
+  this.eyeTranslationRight = {
+    x: INTERPUPILLARY_DISTANCE * 0.5,
+    y: 0,
+    z: 0
+  };
+}
+CardboardHMDVRDevice.prototype = new HMDVRDevice();
+
+CardboardHMDVRDevice.prototype.getEyeParameters = function(whichEye) {
+  var eyeTranslation;
+  if (whichEye == 'left') {
+    eyeTranslation = this.eyeTranslationLeft;
+  } else if (whichEye == 'right') {
+    eyeTranslation = this.eyeTranslationRight;
+  } else {
+    console.error('Invalid eye provided: %s', whichEye);
+    return null;
+  }
+  return {
+    recommendedFieldOfView: this.fov,
+    eyeTranslation: eyeTranslation
+  };
+};
+
+module.exports = CardboardHMDVRDevice;
+
+},{"./base.js":1}],3:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var PositionSensorVRDevice = require('./base.js').PositionSensorVRDevice;
+var THREE = require('./three-math.js');
+
+// How much to interpolate between the current orientation estimate and the
+// previous estimate position. This is helpful for devices with low
+// deviceorientation firing frequency (eg. on iOS, it is 20 Hz).
+// The larger this value (in [0, 1]), the smoother but more delayed the
+// head tracking is.
+var SMOOTHING_FACTOR = 0.4;
+
+/**
+ * The positional sensor, implemented using web DeviceOrientation APIs.
+ */
+function GyroPositionSensorVRDevice() {
+  this.deviceId = 'webvr-polyfill:gyro';
+  this.deviceName = 'VR Position Device (webvr-polyfill:gyro)';
+
+  // Subscribe to deviceorientation events.
+  window.addEventListener('deviceorientation', this.onDeviceOrientationChange.bind(this));
+  window.addEventListener('orientationchange', this.onScreenOrientationChange.bind(this));
+  this.deviceOrientation = null;
+  this.screenOrientation = window.orientation;
+
+  // The last orientation (for smooth interpolation).
+  this.lastOrientation = new THREE.Quaternion();
+
+  // Helper objects for calculating orientation.
+  this.finalQuaternion = new THREE.Quaternion();
+  this.tmpQuaternion = new THREE.Quaternion();
+  this.deviceEuler = new THREE.Euler();
+  this.screenTransform = new THREE.Quaternion();
+  // -PI/2 around the x-axis.
+  this.worldTransform = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
+}
+GyroPositionSensorVRDevice.prototype = new PositionSensorVRDevice();
+
+/**
+ * Returns {orientation: {x,y,z,w}, position: null}.
+ * Position is not supported since we can't do 6DOF.
+ */
+GyroPositionSensorVRDevice.prototype.getState = function() {
+  return {
+    hasOrientation: true,
+    orientation: this.getOrientation(),
+    hasPosition: false,
+    position: null
+  }
+};
+
+GyroPositionSensorVRDevice.prototype.onDeviceOrientationChange =
+    function(deviceOrientation) {
+  this.deviceOrientation = deviceOrientation;
+};
+
+GyroPositionSensorVRDevice.prototype.onScreenOrientationChange =
+    function(screenOrientation) {
+  this.screenOrientation = window.orientation;
+};
+
+GyroPositionSensorVRDevice.prototype.getOrientation = function() {
+  if (this.deviceOrientation == null) {
+    return null;
+  }
+
+  // Rotation around the z-axis.
+  var alpha = THREE.Math.degToRad(this.deviceOrientation.alpha);
+  // Front-to-back (in portrait) rotation (x-axis).
+  var beta = THREE.Math.degToRad(this.deviceOrientation.beta);
+  // Left to right (in portrait) rotation (y-axis).
+  var gamma = THREE.Math.degToRad(this.deviceOrientation.gamma);
+  var orient = THREE.Math.degToRad(this.screenOrientation);
+
+  // Use three.js to convert to quaternion. Lifted from
+  // https://github.com/richtr/threeVR/blob/master/js/DeviceOrientationController.js
+  this.deviceEuler.set(beta, alpha, -gamma, 'YXZ');
+  this.finalQuaternion.setFromEuler(this.deviceEuler);
+  this.minusHalfAngle = -orient / 2;
+  this.screenTransform.set(0, Math.sin(this.minusHalfAngle), 0, Math.cos(this.minusHalfAngle));
+  this.finalQuaternion.multiply(this.screenTransform);
+  this.finalQuaternion.multiply(this.worldTransform);
+
+  // Get the last orientation ready for use.
+  this.tmpQuaternion.copy(this.lastOrientation);
+
+  // Save this result as the last orientation.
+  this.lastOrientation.copy(this.finalQuaternion);
+
+  // Interpolate between the new estimate and the last quaternion.
+  this.finalQuaternion.slerp(this.tmpQuaternion, SMOOTHING_FACTOR);
+
+  return this.finalQuaternion;
+};
+
+
+module.exports = GyroPositionSensorVRDevice;
+
+},{"./base.js":1,"./three-math.js":6}],4:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var WebVRPolyfill = require('./webvr-polyfill.js');
+
+new WebVRPolyfill();
+
+},{"./webvr-polyfill.js":7}],5:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+var PositionSensorVRDevice = require('./base.js').PositionSensorVRDevice;
+var THREE = require('./three-math.js');
+
+// How much to rotate per key stroke.
+var KEY_SPEED = 0.15;
+var KEY_ANIMATION_DURATION = 80;
+
+// How much to rotate for mouse events.
+var MOUSE_SPEED_X = 0.5;
+var MOUSE_SPEED_Y = 0.3;
+
+/**
+ * A virtual position sensor, implemented using keyboard and
+ * mouse APIs. This is designed as for desktops/laptops where no Device*
+ * events work.
+ */
+function MouseKeyboardPositionSensorVRDevice() {
+  this.deviceId = 'webvr-polyfill:mouse-keyboard';
+  this.deviceName = 'VR Position Device (webvr-polyfill:mouse-keyboard)';
+
+  // Attach to mouse and keyboard events.
+  window.addEventListener('keydown', this.onKeyDown_.bind(this));
+  window.addEventListener('mousemove', this.onMouseMove_.bind(this));
+  window.addEventListener('mousedown', this.onMouseDown_.bind(this));
+  window.addEventListener('mouseup', this.onMouseUp_.bind(this));
+
+  this.phi = 0;
+  this.theta = 0;
+
+  // Variables for keyboard-based rotation animation.
+  this.targetAngle = null;
+
+  // State variables for calculations.
+  this.euler = new THREE.Euler();
+  this.orientation = new THREE.Quaternion();
+
+  // Variables for mouse-based rotation.
+  this.rotateStart = new THREE.Vector2();
+  this.rotateEnd = new THREE.Vector2();
+  this.rotateDelta = new THREE.Vector2();
+}
+MouseKeyboardPositionSensorVRDevice.prototype = new PositionSensorVRDevice();
+
+/**
+ * Returns {orientation: {x,y,z,w}, position: null}.
+ * Position is not supported for parity with other PositionSensors.
+ */
+MouseKeyboardPositionSensorVRDevice.prototype.getState = function() {
+  this.euler.set(this.phi, this.theta, 0, 'YXZ');
+  this.orientation.setFromEuler(this.euler);
+
+  return {
+    hasOrientation: true,
+    orientation: this.orientation,
+    hasPosition: false,
+    position: null
+  }
+};
+
+MouseKeyboardPositionSensorVRDevice.prototype.onKeyDown_ = function(e) {
+  // Track WASD and arrow keys.
+  if (e.keyCode == 38 || e.keyCode == 87) { // W or Up key.
+    this.animatePhi_(this.phi + KEY_SPEED);
+  } else if (e.keyCode == 39 || e.keyCode == 68) { // D or Right key.
+    this.animateTheta_(this.theta - KEY_SPEED);
+  } else if (e.keyCode == 40 || e.keyCode == 83) { // S or Down key.
+    this.animatePhi_(this.phi - KEY_SPEED);
+  } else if (e.keyCode == 37 || e.keyCode == 65) { // A or Left key.
+    this.animateTheta_(this.theta + KEY_SPEED);
+  }
+};
+
+MouseKeyboardPositionSensorVRDevice.prototype.animateTheta_ = function(targetAngle) {
+  this.animateKeyTransitions_('theta', targetAngle);
+};
+
+MouseKeyboardPositionSensorVRDevice.prototype.animatePhi_ = function(targetAngle) {
+  // Prevent looking too far up or down.
+  targetAngle = this.clamp_(targetAngle, -Math.PI/2, Math.PI/2);
+  this.animateKeyTransitions_('phi', targetAngle);
+};
+
+/**
+ * Start an animation to transition an angle from one value to another.
+ */
+MouseKeyboardPositionSensorVRDevice.prototype.animateKeyTransitions_ = function(angleName, targetAngle) {
+  // If an animation is currently running, cancel it.
+  if (this.angleAnimation) {
+    clearInterval(this.angleAnimation);
+  }
+  var startAngle = this[angleName];
+  var startTime = new Date();
+  // Set up an interval timer to perform the animation.
+  this.angleAnimation = setInterval(function() {
+    // Once we're finished the animation, we're done.
+    var elapsed = new Date() - startTime;
+    if (elapsed >= KEY_ANIMATION_DURATION) {
+      this[angleName] = targetAngle;
+      clearInterval(this.angleAnimation);
+      return;
+    }
+    // Linearly interpolate the angle some amount.
+    var percent = elapsed / KEY_ANIMATION_DURATION;
+    this[angleName] = startAngle + (targetAngle - startAngle) * percent;
+  }.bind(this), 1000/60);
+};
+
+MouseKeyboardPositionSensorVRDevice.prototype.onMouseDown_ = function(e) {
+  this.rotateStart.set(e.clientX, e.clientY);
+  this.isDragging = true;
+};
+
+// Very similar to https://gist.github.com/mrflix/8351020
+MouseKeyboardPositionSensorVRDevice.prototype.onMouseMove_ = function(e) {
+  if (!this.isDragging && !this.isPointerLocked_()) {
+    return;
+  }
+  // Support pointer lock API.
+  if (this.isPointerLocked_()) {
+    var movementX = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
+    var movementY = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
+    this.rotateEnd.set(this.rotateStart.x - movementX, this.rotateStart.y - movementY);
+  } else {
+    this.rotateEnd.set(e.clientX, e.clientY);
+  }
+  // Calculate how much we moved in mouse space.
+  this.rotateDelta.subVectors(this.rotateEnd, this.rotateStart);
+  this.rotateStart.copy(this.rotateEnd);
+
+  // Keep track of the cumulative euler angles.
+  var element = document.body;
+  this.phi += 2 * Math.PI * this.rotateDelta.y / element.clientHeight * MOUSE_SPEED_Y;
+  this.theta += 2 * Math.PI * this.rotateDelta.x / element.clientWidth * MOUSE_SPEED_X;
+
+  // Prevent looking too far up or down.
+  this.phi = this.clamp_(this.phi, -Math.PI/2, Math.PI/2);
+};
+
+MouseKeyboardPositionSensorVRDevice.prototype.onMouseUp_ = function(e) {
+  this.isDragging = false;
+};
+
+MouseKeyboardPositionSensorVRDevice.prototype.clamp_ = function(value, min, max) {
+  return Math.min(Math.max(min, value), max);
+};
+
+MouseKeyboardPositionSensorVRDevice.prototype.isPointerLocked_ = function() {
+  var el = document.pointerLockElement || document.mozPointerLockElement ||
+      document.webkitPointerLockElement;
+  return el !== undefined;
+};
+
+module.exports = MouseKeyboardPositionSensorVRDevice;
+
+},{"./base.js":1,"./three-math.js":6}],6:[function(require,module,exports){
+/*
+ * A subset of THREE.js, providing mostly quaternion and euler-related
+ * operations, manually lifted from
+ * https://github.com/mrdoob/three.js/tree/master/src/math, as of 9c30286b38df039fca389989ff06ea1c15d6bad1
+ */
+
+// Only use if the real THREE is not provided.
+var THREE = window.THREE || {};
+
+// If some piece of THREE is missing, fill it in here.
+if (!THREE.Quaternion || !THREE.Vector3 || !THREE.Vector2 || !THREE.Euler) {
+console.log('No THREE.js found.');
+
+
+/*** START Quaternion ***/
+
+/**
+ * @author mikael emtinger / http://gomo.se/
+ * @author alteredq / http://alteredqualia.com/
+ * @author WestLangley / http://github.com/WestLangley
+ * @author bhouston / http://exocortex.com
+ */
+
+THREE.Quaternion = function ( x, y, z, w ) {
+
+	this._x = x || 0;
+	this._y = y || 0;
+	this._z = z || 0;
+	this._w = ( w !== undefined ) ? w : 1;
+
+};
+
+THREE.Quaternion.prototype = {
+
+	constructor: THREE.Quaternion,
+
+	_x: 0,_y: 0, _z: 0, _w: 0,
+
+	get x () {
+
+		return this._x;
+
+	},
+
+	set x ( value ) {
+
+		this._x = value;
+		this.onChangeCallback();
+
+	},
+
+	get y () {
+
+		return this._y;
+
+	},
+
+	set y ( value ) {
+
+		this._y = value;
+		this.onChangeCallback();
+
+	},
+
+	get z () {
+
+		return this._z;
+
+	},
+
+	set z ( value ) {
+
+		this._z = value;
+		this.onChangeCallback();
+
+	},
+
+	get w () {
+
+		return this._w;
+
+	},
+
+	set w ( value ) {
+
+		this._w = value;
+		this.onChangeCallback();
+
+	},
+
+	set: function ( x, y, z, w ) {
+
+		this._x = x;
+		this._y = y;
+		this._z = z;
+		this._w = w;
+
+		this.onChangeCallback();
+
+		return this;
+
+	},
+
+	copy: function ( quaternion ) {
+
+		this._x = quaternion.x;
+		this._y = quaternion.y;
+		this._z = quaternion.z;
+		this._w = quaternion.w;
+
+		this.onChangeCallback();
+
+		return this;
+
+	},
+
+	setFromEuler: function ( euler, update ) {
+
+		if ( euler instanceof THREE.Euler === false ) {
+
+			throw new Error( 'THREE.Quaternion: .setFromEuler() now expects a Euler rotation rather than a Vector3 and order.' );
+		}
+
+		// http://www.mathworks.com/matlabcentral/fileexchange/
+		// 	20696-function-to-convert-between-dcm-euler-angles-quaternions-and-euler-vectors/
+		//	content/SpinCalc.m
+
+		var c1 = Math.cos( euler._x / 2 );
+		var c2 = Math.cos( euler._y / 2 );
+		var c3 = Math.cos( euler._z / 2 );
+		var s1 = Math.sin( euler._x / 2 );
+		var s2 = Math.sin( euler._y / 2 );
+		var s3 = Math.sin( euler._z / 2 );
+
+		if ( euler.order === 'XYZ' ) {
+
+			this._x = s1 * c2 * c3 + c1 * s2 * s3;
+			this._y = c1 * s2 * c3 - s1 * c2 * s3;
+			this._z = c1 * c2 * s3 + s1 * s2 * c3;
+			this._w = c1 * c2 * c3 - s1 * s2 * s3;
+
+		} else if ( euler.order === 'YXZ' ) {
+
+			this._x = s1 * c2 * c3 + c1 * s2 * s3;
+			this._y = c1 * s2 * c3 - s1 * c2 * s3;
+			this._z = c1 * c2 * s3 - s1 * s2 * c3;
+			this._w = c1 * c2 * c3 + s1 * s2 * s3;
+
+		} else if ( euler.order === 'ZXY' ) {
+
+			this._x = s1 * c2 * c3 - c1 * s2 * s3;
+			this._y = c1 * s2 * c3 + s1 * c2 * s3;
+			this._z = c1 * c2 * s3 + s1 * s2 * c3;
+			this._w = c1 * c2 * c3 - s1 * s2 * s3;
+
+		} else if ( euler.order === 'ZYX' ) {
+
+			this._x = s1 * c2 * c3 - c1 * s2 * s3;
+			this._y = c1 * s2 * c3 + s1 * c2 * s3;
+			this._z = c1 * c2 * s3 - s1 * s2 * c3;
+			this._w = c1 * c2 * c3 + s1 * s2 * s3;
+
+		} else if ( euler.order === 'YZX' ) {
+
+			this._x = s1 * c2 * c3 + c1 * s2 * s3;
+			this._y = c1 * s2 * c3 + s1 * c2 * s3;
+			this._z = c1 * c2 * s3 - s1 * s2 * c3;
+			this._w = c1 * c2 * c3 - s1 * s2 * s3;
+
+		} else if ( euler.order === 'XZY' ) {
+
+			this._x = s1 * c2 * c3 - c1 * s2 * s3;
+			this._y = c1 * s2 * c3 - s1 * c2 * s3;
+			this._z = c1 * c2 * s3 + s1 * s2 * c3;
+			this._w = c1 * c2 * c3 + s1 * s2 * s3;
+
+		}
+
+		if ( update !== false ) this.onChangeCallback();
+
+		return this;
+
+	},
+
+	setFromAxisAngle: function ( axis, angle ) {
+
+		// http://www.euclideanspace.com/maths/geometry/rotations/conversions/angleToQuaternion/index.htm
+
+		// assumes axis is normalized
+
+		var halfAngle = angle / 2, s = Math.sin( halfAngle );
+
+		this._x = axis.x * s;
+		this._y = axis.y * s;
+		this._z = axis.z * s;
+		this._w = Math.cos( halfAngle );
+
+		this.onChangeCallback();
+
+		return this;
+
+	},
+
+	setFromRotationMatrix: function ( m ) {
+
+		// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+
+		// assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+
+		var te = m.elements,
+
+			m11 = te[ 0 ], m12 = te[ 4 ], m13 = te[ 8 ],
+			m21 = te[ 1 ], m22 = te[ 5 ], m23 = te[ 9 ],
+			m31 = te[ 2 ], m32 = te[ 6 ], m33 = te[ 10 ],
+
+			trace = m11 + m22 + m33,
+			s;
+
+		if ( trace > 0 ) {
+
+			s = 0.5 / Math.sqrt( trace + 1.0 );
+
+			this._w = 0.25 / s;
+			this._x = ( m32 - m23 ) * s;
+			this._y = ( m13 - m31 ) * s;
+			this._z = ( m21 - m12 ) * s;
+
+		} else if ( m11 > m22 && m11 > m33 ) {
+
+			s = 2.0 * Math.sqrt( 1.0 + m11 - m22 - m33 );
+
+			this._w = ( m32 - m23 ) / s;
+			this._x = 0.25 * s;
+			this._y = ( m12 + m21 ) / s;
+			this._z = ( m13 + m31 ) / s;
+
+		} else if ( m22 > m33 ) {
+
+			s = 2.0 * Math.sqrt( 1.0 + m22 - m11 - m33 );
+
+			this._w = ( m13 - m31 ) / s;
+			this._x = ( m12 + m21 ) / s;
+			this._y = 0.25 * s;
+			this._z = ( m23 + m32 ) / s;
+
+		} else {
+
+			s = 2.0 * Math.sqrt( 1.0 + m33 - m11 - m22 );
+
+			this._w = ( m21 - m12 ) / s;
+			this._x = ( m13 + m31 ) / s;
+			this._y = ( m23 + m32 ) / s;
+			this._z = 0.25 * s;
+
+		}
+
+		this.onChangeCallback();
+
+		return this;
+
+	},
+
+	setFromUnitVectors: function () {
+
+		// http://lolengine.net/blog/2014/02/24/quaternion-from-two-vectors-final
+
+		// assumes direction vectors vFrom and vTo are normalized
+
+		var v1, r;
+
+		var EPS = 0.000001;
+
+		return function ( vFrom, vTo ) {
+
+			if ( v1 === undefined ) v1 = new THREE.Vector3();
+
+			r = vFrom.dot( vTo ) + 1;
+
+			if ( r < EPS ) {
+
+				r = 0;
+
+				if ( Math.abs( vFrom.x ) > Math.abs( vFrom.z ) ) {
+
+					v1.set( - vFrom.y, vFrom.x, 0 );
+
+				} else {
+
+					v1.set( 0, - vFrom.z, vFrom.y );
+
+				}
+
+			} else {
+
+				v1.crossVectors( vFrom, vTo );
+
+			}
+
+			this._x = v1.x;
+			this._y = v1.y;
+			this._z = v1.z;
+			this._w = r;
+
+			this.normalize();
+
+			return this;
+
+		}
+
+	}(),
+
+	inverse: function () {
+
+		this.conjugate().normalize();
+
+		return this;
+
+	},
+
+	conjugate: function () {
+
+		this._x *= - 1;
+		this._y *= - 1;
+		this._z *= - 1;
+
+		this.onChangeCallback();
+
+		return this;
+
+	},
+
+	dot: function ( v ) {
+
+		return this._x * v._x + this._y * v._y + this._z * v._z + this._w * v._w;
+
+	},
+
+	lengthSq: function () {
+
+		return this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w;
+
+	},
+
+	length: function () {
+
+		return Math.sqrt( this._x * this._x + this._y * this._y + this._z * this._z + this._w * this._w );
+
+	},
+
+	normalize: function () {
+
+		var l = this.length();
+
+		if ( l === 0 ) {
+
+			this._x = 0;
+			this._y = 0;
+			this._z = 0;
+			this._w = 1;
+
+		} else {
+
+			l = 1 / l;
+
+			this._x = this._x * l;
+			this._y = this._y * l;
+			this._z = this._z * l;
+			this._w = this._w * l;
+
+		}
+
+		this.onChangeCallback();
+
+		return this;
+
+	},
+
+	multiply: function ( q, p ) {
+
+		if ( p !== undefined ) {
+
+			console.warn( 'THREE.Quaternion: .multiply() now only accepts one argument. Use .multiplyQuaternions( a, b ) instead.' );
+			return this.multiplyQuaternions( q, p );
+
+		}
+
+		return this.multiplyQuaternions( this, q );
+
+	},
+
+	multiplyQuaternions: function ( a, b ) {
+
+		// from http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/code/index.htm
+
+		var qax = a._x, qay = a._y, qaz = a._z, qaw = a._w;
+		var qbx = b._x, qby = b._y, qbz = b._z, qbw = b._w;
+
+		this._x = qax * qbw + qaw * qbx + qay * qbz - qaz * qby;
+		this._y = qay * qbw + qaw * qby + qaz * qbx - qax * qbz;
+		this._z = qaz * qbw + qaw * qbz + qax * qby - qay * qbx;
+		this._w = qaw * qbw - qax * qbx - qay * qby - qaz * qbz;
+
+		this.onChangeCallback();
+
+		return this;
+
+	},
+
+	multiplyVector3: function ( vector ) {
+
+		console.warn( 'THREE.Quaternion: .multiplyVector3() has been removed. Use is now vector.applyQuaternion( quaternion ) instead.' );
+		return vector.applyQuaternion( this );
+
+	},
+
+	slerp: function ( qb, t ) {
+
+		if ( t === 0 ) return this;
+		if ( t === 1 ) return this.copy( qb );
+
+		var x = this._x, y = this._y, z = this._z, w = this._w;
+
+		// http://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/slerp/
+
+		var cosHalfTheta = w * qb._w + x * qb._x + y * qb._y + z * qb._z;
+
+		if ( cosHalfTheta < 0 ) {
+
+			this._w = - qb._w;
+			this._x = - qb._x;
+			this._y = - qb._y;
+			this._z = - qb._z;
+
+			cosHalfTheta = - cosHalfTheta;
+
+		} else {
+
+			this.copy( qb );
+
+		}
+
+		if ( cosHalfTheta >= 1.0 ) {
+
+			this._w = w;
+			this._x = x;
+			this._y = y;
+			this._z = z;
+
+			return this;
+
+		}
+
+		var halfTheta = Math.acos( cosHalfTheta );
+		var sinHalfTheta = Math.sqrt( 1.0 - cosHalfTheta * cosHalfTheta );
+
+		if ( Math.abs( sinHalfTheta ) < 0.001 ) {
+
+			this._w = 0.5 * ( w + this._w );
+			this._x = 0.5 * ( x + this._x );
+			this._y = 0.5 * ( y + this._y );
+			this._z = 0.5 * ( z + this._z );
+
+			return this;
+
+		}
+
+		var ratioA = Math.sin( ( 1 - t ) * halfTheta ) / sinHalfTheta,
+		ratioB = Math.sin( t * halfTheta ) / sinHalfTheta;
+
+		this._w = ( w * ratioA + this._w * ratioB );
+		this._x = ( x * ratioA + this._x * ratioB );
+		this._y = ( y * ratioA + this._y * ratioB );
+		this._z = ( z * ratioA + this._z * ratioB );
+
+		this.onChangeCallback();
+
+		return this;
+
+	},
+
+	equals: function ( quaternion ) {
+
+		return ( quaternion._x === this._x ) && ( quaternion._y === this._y ) && ( quaternion._z === this._z ) && ( quaternion._w === this._w );
+
+	},
+
+	fromArray: function ( array, offset ) {
+
+		if ( offset === undefined ) offset = 0;
+
+		this._x = array[ offset ];
+		this._y = array[ offset + 1 ];
+		this._z = array[ offset + 2 ];
+		this._w = array[ offset + 3 ];
+
+		this.onChangeCallback();
+
+		return this;
+
+	},
+
+	toArray: function ( array, offset ) {
+
+		if ( array === undefined ) array = [];
+		if ( offset === undefined ) offset = 0;
+
+		array[ offset ] = this._x;
+		array[ offset + 1 ] = this._y;
+		array[ offset + 2 ] = this._z;
+		array[ offset + 3 ] = this._w;
+
+		return array;
+
+	},
+
+	onChange: function ( callback ) {
+
+		this.onChangeCallback = callback;
+
+		return this;
+
+	},
+
+	onChangeCallback: function () {},
+
+	clone: function () {
+
+		return new THREE.Quaternion( this._x, this._y, this._z, this._w );
+
+	}
+
+};
+
+THREE.Quaternion.slerp = function ( qa, qb, qm, t ) {
+
+	return qm.copy( qa ).slerp( qb, t );
+
+}
+
+/*** END Quaternion ***/
+/*** START Vector2 ***/
+/**
+ * @author mrdoob / http://mrdoob.com/
+ * @author philogb / http://blog.thejit.org/
+ * @author egraether / http://egraether.com/
+ * @author zz85 / http://www.lab4games.net/zz85/blog
+ */
+
+THREE.Vector2 = function ( x, y ) {
+
+	this.x = x || 0;
+	this.y = y || 0;
+
+};
+
+THREE.Vector2.prototype = {
+
+	constructor: THREE.Vector2,
+
+	set: function ( x, y ) {
+
+		this.x = x;
+		this.y = y;
+
+		return this;
+
+	},
+
+	setX: function ( x ) {
+
+		this.x = x;
+
+		return this;
+
+	},
+
+	setY: function ( y ) {
+
+		this.y = y;
+
+		return this;
+
+	},
+
+	setComponent: function ( index, value ) {
+
+		switch ( index ) {
+
+			case 0: this.x = value; break;
+			case 1: this.y = value; break;
+			default: throw new Error( 'index is out of range: ' + index );
+
+		}
+
+	},
+
+	getComponent: function ( index ) {
+
+		switch ( index ) {
+
+			case 0: return this.x;
+			case 1: return this.y;
+			default: throw new Error( 'index is out of range: ' + index );
+
+		}
+
+	},
+
+	copy: function ( v ) {
+
+		this.x = v.x;
+		this.y = v.y;
+
+		return this;
+
+	},
+
+	add: function ( v, w ) {
+
+		if ( w !== undefined ) {
+
+			console.warn( 'THREE.Vector2: .add() now only accepts one argument. Use .addVectors( a, b ) instead.' );
+			return this.addVectors( v, w );
+
+		}
+
+		this.x += v.x;
+		this.y += v.y;
+
+		return this;
+
+	},
+
+	addVectors: function ( a, b ) {
+
+		this.x = a.x + b.x;
+		this.y = a.y + b.y;
+
+		return this;
+
+	},
+
+	addScalar: function ( s ) {
+
+		this.x += s;
+		this.y += s;
+
+		return this;
+
+	},
+
+	sub: function ( v, w ) {
+
+		if ( w !== undefined ) {
+
+			console.warn( 'THREE.Vector2: .sub() now only accepts one argument. Use .subVectors( a, b ) instead.' );
+			return this.subVectors( v, w );
+
+		}
+
+		this.x -= v.x;
+		this.y -= v.y;
+
+		return this;
+
+	},
+
+	subVectors: function ( a, b ) {
+
+		this.x = a.x - b.x;
+		this.y = a.y - b.y;
+
+		return this;
+
+	},
+
+	multiply: function ( v ) {
+
+		this.x *= v.x;
+		this.y *= v.y;
+
+		return this;
+
+	},
+
+	multiplyScalar: function ( s ) {
+
+		this.x *= s;
+		this.y *= s;
+
+		return this;
+
+	},
+
+	divide: function ( v ) {
+
+		this.x /= v.x;
+		this.y /= v.y;
+
+		return this;
+
+	},
+
+	divideScalar: function ( scalar ) {
+
+		if ( scalar !== 0 ) {
+
+			var invScalar = 1 / scalar;
+
+			this.x *= invScalar;
+			this.y *= invScalar;
+
+		} else {
+
+			this.x = 0;
+			this.y = 0;
+
+		}
+
+		return this;
+
+	},
+
+	min: function ( v ) {
+
+		if ( this.x > v.x ) {
+
+			this.x = v.x;
+
+		}
+
+		if ( this.y > v.y ) {
+
+			this.y = v.y;
+
+		}
+
+		return this;
+
+	},
+
+	max: function ( v ) {
+
+		if ( this.x < v.x ) {
+
+			this.x = v.x;
+
+		}
+
+		if ( this.y < v.y ) {
+
+			this.y = v.y;
+
+		}
+
+		return this;
+
+	},
+
+	clamp: function ( min, max ) {
+
+		// This function assumes min < max, if this assumption isn't true it will not operate correctly
+
+		if ( this.x < min.x ) {
+
+			this.x = min.x;
+
+		} else if ( this.x > max.x ) {
+
+			this.x = max.x;
+
+		}
+
+		if ( this.y < min.y ) {
+
+			this.y = min.y;
+
+		} else if ( this.y > max.y ) {
+
+			this.y = max.y;
+
+		}
+
+		return this;
+	},
+
+	clampScalar: ( function () {
+
+		var min, max;
+
+		return function ( minVal, maxVal ) {
+
+			if ( min === undefined ) {
+
+				min = new THREE.Vector2();
+				max = new THREE.Vector2();
+
+			}
+
+			min.set( minVal, minVal );
+			max.set( maxVal, maxVal );
+
+			return this.clamp( min, max );
+
+		};
+
+	} )(),
+
+	floor: function () {
+
+		this.x = Math.floor( this.x );
+		this.y = Math.floor( this.y );
+
+		return this;
+
+	},
+
+	ceil: function () {
+
+		this.x = Math.ceil( this.x );
+		this.y = Math.ceil( this.y );
+
+		return this;
+
+	},
+
+	round: function () {
+
+		this.x = Math.round( this.x );
+		this.y = Math.round( this.y );
+
+		return this;
+
+	},
+
+	roundToZero: function () {
+
+		this.x = ( this.x < 0 ) ? Math.ceil( this.x ) : Math.floor( this.x );
+		this.y = ( this.y < 0 ) ? Math.ceil( this.y ) : Math.floor( this.y );
+
+		return this;
+
+	},
+
+	negate: function () {
+
+		this.x = - this.x;
+		this.y = - this.y;
+
+		return this;
+
+	},
+
+	dot: function ( v ) {
+
+		return this.x * v.x + this.y * v.y;
+
+	},
+
+	lengthSq: function () {
+
+		return this.x * this.x + this.y * this.y;
+
+	},
+
+	length: function () {
+
+		return Math.sqrt( this.x * this.x + this.y * this.y );
+
+	},
+
+	normalize: function () {
+
+		return this.divideScalar( this.length() );
+
+	},
+
+	distanceTo: function ( v ) {
+
+		return Math.sqrt( this.distanceToSquared( v ) );
+
+	},
+
+	distanceToSquared: function ( v ) {
+
+		var dx = this.x - v.x, dy = this.y - v.y;
+		return dx * dx + dy * dy;
+
+	},
+
+	setLength: function ( l ) {
+
+		var oldLength = this.length();
+
+		if ( oldLength !== 0 && l !== oldLength ) {
+
+			this.multiplyScalar( l / oldLength );
+		}
+
+		return this;
+
+	},
+
+	lerp: function ( v, alpha ) {
+
+		this.x += ( v.x - this.x ) * alpha;
+		this.y += ( v.y - this.y ) * alpha;
+
+		return this;
+
+	},
+
+	equals: function ( v ) {
+
+		return ( ( v.x === this.x ) && ( v.y === this.y ) );
+
+	},
+
+	fromArray: function ( array, offset ) {
+
+		if ( offset === undefined ) offset = 0;
+
+		this.x = array[ offset ];
+		this.y = array[ offset + 1 ];
+
+		return this;
+
+	},
+
+	toArray: function ( array, offset ) {
+
+		if ( array === undefined ) array = [];
+		if ( offset === undefined ) offset = 0;
+
+		array[ offset ] = this.x;
+		array[ offset + 1 ] = this.y;
+
+		return array;
+
+	},
+
+	fromAttribute: function ( attribute, index, offset ) {
+
+	    if ( offset === undefined ) offset = 0;
+
+	    index = index * attribute.itemSize + offset;
+
+	    this.x = attribute.array[ index ];
+	    this.y = attribute.array[ index + 1 ];
+
+	    return this;
+
+	},
+
+	clone: function () {
+
+		return new THREE.Vector2( this.x, this.y );
+
+	}
+
+};
+/*** END Vector2 ***/
+/*** START Vector3 ***/
+
+/**
+ * @author mrdoob / http://mrdoob.com/
+ * @author *kile / http://kile.stravaganza.org/
+ * @author philogb / http://blog.thejit.org/
+ * @author mikael emtinger / http://gomo.se/
+ * @author egraether / http://egraether.com/
+ * @author WestLangley / http://github.com/WestLangley
+ */
+
+THREE.Vector3 = function ( x, y, z ) {
+
+	this.x = x || 0;
+	this.y = y || 0;
+	this.z = z || 0;
+
+};
+
+THREE.Vector3.prototype = {
+
+	constructor: THREE.Vector3,
+
+	set: function ( x, y, z ) {
+
+		this.x = x;
+		this.y = y;
+		this.z = z;
+
+		return this;
+
+	},
+
+	setX: function ( x ) {
+
+		this.x = x;
+
+		return this;
+
+	},
+
+	setY: function ( y ) {
+
+		this.y = y;
+
+		return this;
+
+	},
+
+	setZ: function ( z ) {
+
+		this.z = z;
+
+		return this;
+
+	},
+
+	setComponent: function ( index, value ) {
+
+		switch ( index ) {
+
+			case 0: this.x = value; break;
+			case 1: this.y = value; break;
+			case 2: this.z = value; break;
+			default: throw new Error( 'index is out of range: ' + index );
+
+		}
+
+	},
+
+	getComponent: function ( index ) {
+
+		switch ( index ) {
+
+			case 0: return this.x;
+			case 1: return this.y;
+			case 2: return this.z;
+			default: throw new Error( 'index is out of range: ' + index );
+
+		}
+
+	},
+
+	copy: function ( v ) {
+
+		this.x = v.x;
+		this.y = v.y;
+		this.z = v.z;
+
+		return this;
+
+	},
+
+	add: function ( v, w ) {
+
+		if ( w !== undefined ) {
+
+			console.warn( 'THREE.Vector3: .add() now only accepts one argument. Use .addVectors( a, b ) instead.' );
+			return this.addVectors( v, w );
+
+		}
+
+		this.x += v.x;
+		this.y += v.y;
+		this.z += v.z;
+
+		return this;
+
+	},
+
+	addScalar: function ( s ) {
+
+		this.x += s;
+		this.y += s;
+		this.z += s;
+
+		return this;
+
+	},
+
+	addVectors: function ( a, b ) {
+
+		this.x = a.x + b.x;
+		this.y = a.y + b.y;
+		this.z = a.z + b.z;
+
+		return this;
+
+	},
+
+	sub: function ( v, w ) {
+
+		if ( w !== undefined ) {
+
+			console.warn( 'THREE.Vector3: .sub() now only accepts one argument. Use .subVectors( a, b ) instead.' );
+			return this.subVectors( v, w );
+
+		}
+
+		this.x -= v.x;
+		this.y -= v.y;
+		this.z -= v.z;
+
+		return this;
+
+	},
+
+	subVectors: function ( a, b ) {
+
+		this.x = a.x - b.x;
+		this.y = a.y - b.y;
+		this.z = a.z - b.z;
+
+		return this;
+
+	},
+
+	multiply: function ( v, w ) {
+
+		if ( w !== undefined ) {
+
+			console.warn( 'THREE.Vector3: .multiply() now only accepts one argument. Use .multiplyVectors( a, b ) instead.' );
+			return this.multiplyVectors( v, w );
+
+		}
+
+		this.x *= v.x;
+		this.y *= v.y;
+		this.z *= v.z;
+
+		return this;
+
+	},
+
+	multiplyScalar: function ( scalar ) {
+
+		this.x *= scalar;
+		this.y *= scalar;
+		this.z *= scalar;
+
+		return this;
+
+	},
+
+	multiplyVectors: function ( a, b ) {
+
+		this.x = a.x * b.x;
+		this.y = a.y * b.y;
+		this.z = a.z * b.z;
+
+		return this;
+
+	},
+
+	applyEuler: function () {
+
+		var quaternion;
+
+		return function ( euler ) {
+
+			if ( euler instanceof THREE.Euler === false ) {
+
+				console.error( 'THREE.Vector3: .applyEuler() now expects a Euler rotation rather than a Vector3 and order.' );
+
+			}
+
+			if ( quaternion === undefined ) quaternion = new THREE.Quaternion();
+
+			this.applyQuaternion( quaternion.setFromEuler( euler ) );
+
+			return this;
+
+		};
+
+	}(),
+
+	applyAxisAngle: function () {
+
+		var quaternion;
+
+		return function ( axis, angle ) {
+
+			if ( quaternion === undefined ) quaternion = new THREE.Quaternion();
+
+			this.applyQuaternion( quaternion.setFromAxisAngle( axis, angle ) );
+
+			return this;
+
+		};
+
+	}(),
+
+	applyMatrix3: function ( m ) {
+
+		var x = this.x;
+		var y = this.y;
+		var z = this.z;
+
+		var e = m.elements;
+
+		this.x = e[ 0 ] * x + e[ 3 ] * y + e[ 6 ] * z;
+		this.y = e[ 1 ] * x + e[ 4 ] * y + e[ 7 ] * z;
+		this.z = e[ 2 ] * x + e[ 5 ] * y + e[ 8 ] * z;
+
+		return this;
+
+	},
+
+	applyMatrix4: function ( m ) {
+
+		// input: THREE.Matrix4 affine matrix
+
+		var x = this.x, y = this.y, z = this.z;
+
+		var e = m.elements;
+
+		this.x = e[ 0 ] * x + e[ 4 ] * y + e[ 8 ]  * z + e[ 12 ];
+		this.y = e[ 1 ] * x + e[ 5 ] * y + e[ 9 ]  * z + e[ 13 ];
+		this.z = e[ 2 ] * x + e[ 6 ] * y + e[ 10 ] * z + e[ 14 ];
+
+		return this;
+
+	},
+
+	applyProjection: function ( m ) {
+
+		// input: THREE.Matrix4 projection matrix
+
+		var x = this.x, y = this.y, z = this.z;
+
+		var e = m.elements;
+		var d = 1 / ( e[ 3 ] * x + e[ 7 ] * y + e[ 11 ] * z + e[ 15 ] ); // perspective divide
+
+		this.x = ( e[ 0 ] * x + e[ 4 ] * y + e[ 8 ]  * z + e[ 12 ] ) * d;
+		this.y = ( e[ 1 ] * x + e[ 5 ] * y + e[ 9 ]  * z + e[ 13 ] ) * d;
+		this.z = ( e[ 2 ] * x + e[ 6 ] * y + e[ 10 ] * z + e[ 14 ] ) * d;
+
+		return this;
+
+	},
+
+	applyQuaternion: function ( q ) {
+
+		var x = this.x;
+		var y = this.y;
+		var z = this.z;
+
+		var qx = q.x;
+		var qy = q.y;
+		var qz = q.z;
+		var qw = q.w;
+
+		// calculate quat * vector
+
+		var ix =  qw * x + qy * z - qz * y;
+		var iy =  qw * y + qz * x - qx * z;
+		var iz =  qw * z + qx * y - qy * x;
+		var iw = - qx * x - qy * y - qz * z;
+
+		// calculate result * inverse quat
+
+		this.x = ix * qw + iw * - qx + iy * - qz - iz * - qy;
+		this.y = iy * qw + iw * - qy + iz * - qx - ix * - qz;
+		this.z = iz * qw + iw * - qz + ix * - qy - iy * - qx;
+
+		return this;
+
+	},
+
+	project: function () {
+
+		var matrix;
+
+		return function ( camera ) {
+
+			if ( matrix === undefined ) matrix = new THREE.Matrix4();
+
+			matrix.multiplyMatrices( camera.projectionMatrix, matrix.getInverse( camera.matrixWorld ) );
+			return this.applyProjection( matrix );
+
+		};
+
+	}(),
+
+	unproject: function () {
+
+		var matrix;
+
+		return function ( camera ) {
+
+			if ( matrix === undefined ) matrix = new THREE.Matrix4();
+
+			matrix.multiplyMatrices( camera.matrixWorld, matrix.getInverse( camera.projectionMatrix ) );
+			return this.applyProjection( matrix );
+
+		};
+
+	}(),
+
+	transformDirection: function ( m ) {
+
+		// input: THREE.Matrix4 affine matrix
+		// vector interpreted as a direction
+
+		var x = this.x, y = this.y, z = this.z;
+
+		var e = m.elements;
+
+		this.x = e[ 0 ] * x + e[ 4 ] * y + e[ 8 ]  * z;
+		this.y = e[ 1 ] * x + e[ 5 ] * y + e[ 9 ]  * z;
+		this.z = e[ 2 ] * x + e[ 6 ] * y + e[ 10 ] * z;
+
+		this.normalize();
+
+		return this;
+
+	},
+
+	divide: function ( v ) {
+
+		this.x /= v.x;
+		this.y /= v.y;
+		this.z /= v.z;
+
+		return this;
+
+	},
+
+	divideScalar: function ( scalar ) {
+
+		if ( scalar !== 0 ) {
+
+			var invScalar = 1 / scalar;
+
+			this.x *= invScalar;
+			this.y *= invScalar;
+			this.z *= invScalar;
+
+		} else {
+
+			this.x = 0;
+			this.y = 0;
+			this.z = 0;
+
+		}
+
+		return this;
+
+	},
+
+	min: function ( v ) {
+
+		if ( this.x > v.x ) {
+
+			this.x = v.x;
+
+		}
+
+		if ( this.y > v.y ) {
+
+			this.y = v.y;
+
+		}
+
+		if ( this.z > v.z ) {
+
+			this.z = v.z;
+
+		}
+
+		return this;
+
+	},
+
+	max: function ( v ) {
+
+		if ( this.x < v.x ) {
+
+			this.x = v.x;
+
+		}
+
+		if ( this.y < v.y ) {
+
+			this.y = v.y;
+
+		}
+
+		if ( this.z < v.z ) {
+
+			this.z = v.z;
+
+		}
+
+		return this;
+
+	},
+
+	clamp: function ( min, max ) {
+
+		// This function assumes min < max, if this assumption isn't true it will not operate correctly
+
+		if ( this.x < min.x ) {
+
+			this.x = min.x;
+
+		} else if ( this.x > max.x ) {
+
+			this.x = max.x;
+
+		}
+
+		if ( this.y < min.y ) {
+
+			this.y = min.y;
+
+		} else if ( this.y > max.y ) {
+
+			this.y = max.y;
+
+		}
+
+		if ( this.z < min.z ) {
+
+			this.z = min.z;
+
+		} else if ( this.z > max.z ) {
+
+			this.z = max.z;
+
+		}
+
+		return this;
+
+	},
+
+	clampScalar: ( function () {
+
+		var min, max;
+
+		return function ( minVal, maxVal ) {
+
+			if ( min === undefined ) {
+
+				min = new THREE.Vector3();
+				max = new THREE.Vector3();
+
+			}
+
+			min.set( minVal, minVal, minVal );
+			max.set( maxVal, maxVal, maxVal );
+
+			return this.clamp( min, max );
+
+		};
+
+	} )(),
+
+	floor: function () {
+
+		this.x = Math.floor( this.x );
+		this.y = Math.floor( this.y );
+		this.z = Math.floor( this.z );
+
+		return this;
+
+	},
+
+	ceil: function () {
+
+		this.x = Math.ceil( this.x );
+		this.y = Math.ceil( this.y );
+		this.z = Math.ceil( this.z );
+
+		return this;
+
+	},
+
+	round: function () {
+
+		this.x = Math.round( this.x );
+		this.y = Math.round( this.y );
+		this.z = Math.round( this.z );
+
+		return this;
+
+	},
+
+	roundToZero: function () {
+
+		this.x = ( this.x < 0 ) ? Math.ceil( this.x ) : Math.floor( this.x );
+		this.y = ( this.y < 0 ) ? Math.ceil( this.y ) : Math.floor( this.y );
+		this.z = ( this.z < 0 ) ? Math.ceil( this.z ) : Math.floor( this.z );
+
+		return this;
+
+	},
+
+	negate: function () {
+
+		this.x = - this.x;
+		this.y = - this.y;
+		this.z = - this.z;
+
+		return this;
+
+	},
+
+	dot: function ( v ) {
+
+		return this.x * v.x + this.y * v.y + this.z * v.z;
+
+	},
+
+	lengthSq: function () {
+
+		return this.x * this.x + this.y * this.y + this.z * this.z;
+
+	},
+
+	length: function () {
+
+		return Math.sqrt( this.x * this.x + this.y * this.y + this.z * this.z );
+
+	},
+
+	lengthManhattan: function () {
+
+		return Math.abs( this.x ) + Math.abs( this.y ) + Math.abs( this.z );
+
+	},
+
+	normalize: function () {
+
+		return this.divideScalar( this.length() );
+
+	},
+
+	setLength: function ( l ) {
+
+		var oldLength = this.length();
+
+		if ( oldLength !== 0 && l !== oldLength  ) {
+
+			this.multiplyScalar( l / oldLength );
+		}
+
+		return this;
+
+	},
+
+	lerp: function ( v, alpha ) {
+
+		this.x += ( v.x - this.x ) * alpha;
+		this.y += ( v.y - this.y ) * alpha;
+		this.z += ( v.z - this.z ) * alpha;
+
+		return this;
+
+	},
+
+	cross: function ( v, w ) {
+
+		if ( w !== undefined ) {
+
+			console.warn( 'THREE.Vector3: .cross() now only accepts one argument. Use .crossVectors( a, b ) instead.' );
+			return this.crossVectors( v, w );
+
+		}
+
+		var x = this.x, y = this.y, z = this.z;
+
+		this.x = y * v.z - z * v.y;
+		this.y = z * v.x - x * v.z;
+		this.z = x * v.y - y * v.x;
+
+		return this;
+
+	},
+
+	crossVectors: function ( a, b ) {
+
+		var ax = a.x, ay = a.y, az = a.z;
+		var bx = b.x, by = b.y, bz = b.z;
+
+		this.x = ay * bz - az * by;
+		this.y = az * bx - ax * bz;
+		this.z = ax * by - ay * bx;
+
+		return this;
+
+	},
+
+	projectOnVector: function () {
+
+		var v1, dot;
+
+		return function ( vector ) {
+
+			if ( v1 === undefined ) v1 = new THREE.Vector3();
+
+			v1.copy( vector ).normalize();
+
+			dot = this.dot( v1 );
+
+			return this.copy( v1 ).multiplyScalar( dot );
+
+		};
+
+	}(),
+
+	projectOnPlane: function () {
+
+		var v1;
+
+		return function ( planeNormal ) {
+
+			if ( v1 === undefined ) v1 = new THREE.Vector3();
+
+			v1.copy( this ).projectOnVector( planeNormal );
+
+			return this.sub( v1 );
+
+		}
+
+	}(),
+
+	reflect: function () {
+
+		// reflect incident vector off plane orthogonal to normal
+		// normal is assumed to have unit length
+
+		var v1;
+
+		return function ( normal ) {
+
+			if ( v1 === undefined ) v1 = new THREE.Vector3();
+
+			return this.sub( v1.copy( normal ).multiplyScalar( 2 * this.dot( normal ) ) );
+
+		}
+
+	}(),
+
+	angleTo: function ( v ) {
+
+		var theta = this.dot( v ) / ( this.length() * v.length() );
+
+		// clamp, to handle numerical problems
+
+		return Math.acos( THREE.Math.clamp( theta, - 1, 1 ) );
+
+	},
+
+	distanceTo: function ( v ) {
+
+		return Math.sqrt( this.distanceToSquared( v ) );
+
+	},
+
+	distanceToSquared: function ( v ) {
+
+		var dx = this.x - v.x;
+		var dy = this.y - v.y;
+		var dz = this.z - v.z;
+
+		return dx * dx + dy * dy + dz * dz;
+
+	},
+
+	setEulerFromRotationMatrix: function ( m, order ) {
+
+		console.error( 'THREE.Vector3: .setEulerFromRotationMatrix() has been removed. Use Euler.setFromRotationMatrix() instead.' );
+
+	},
+
+	setEulerFromQuaternion: function ( q, order ) {
+
+		console.error( 'THREE.Vector3: .setEulerFromQuaternion() has been removed. Use Euler.setFromQuaternion() instead.' );
+
+	},
+
+	getPositionFromMatrix: function ( m ) {
+
+		console.warn( 'THREE.Vector3: .getPositionFromMatrix() has been renamed to .setFromMatrixPosition().' );
+
+		return this.setFromMatrixPosition( m );
+
+	},
+
+	getScaleFromMatrix: function ( m ) {
+
+		console.warn( 'THREE.Vector3: .getScaleFromMatrix() has been renamed to .setFromMatrixScale().' );
+
+		return this.setFromMatrixScale( m );
+	},
+
+	getColumnFromMatrix: function ( index, matrix ) {
+
+		console.warn( 'THREE.Vector3: .getColumnFromMatrix() has been renamed to .setFromMatrixColumn().' );
+
+		return this.setFromMatrixColumn( index, matrix );
+
+	},
+
+	setFromMatrixPosition: function ( m ) {
+
+		this.x = m.elements[ 12 ];
+		this.y = m.elements[ 13 ];
+		this.z = m.elements[ 14 ];
+
+		return this;
+
+	},
+
+	setFromMatrixScale: function ( m ) {
+
+		var sx = this.set( m.elements[ 0 ], m.elements[ 1 ], m.elements[  2 ] ).length();
+		var sy = this.set( m.elements[ 4 ], m.elements[ 5 ], m.elements[  6 ] ).length();
+		var sz = this.set( m.elements[ 8 ], m.elements[ 9 ], m.elements[ 10 ] ).length();
+
+		this.x = sx;
+		this.y = sy;
+		this.z = sz;
+
+		return this;
+	},
+
+	setFromMatrixColumn: function ( index, matrix ) {
+
+		var offset = index * 4;
+
+		var me = matrix.elements;
+
+		this.x = me[ offset ];
+		this.y = me[ offset + 1 ];
+		this.z = me[ offset + 2 ];
+
+		return this;
+
+	},
+
+	equals: function ( v ) {
+
+		return ( ( v.x === this.x ) && ( v.y === this.y ) && ( v.z === this.z ) );
+
+	},
+
+	fromArray: function ( array, offset ) {
+
+		if ( offset === undefined ) offset = 0;
+
+		this.x = array[ offset ];
+		this.y = array[ offset + 1 ];
+		this.z = array[ offset + 2 ];
+
+		return this;
+
+	},
+
+	toArray: function ( array, offset ) {
+
+		if ( array === undefined ) array = [];
+		if ( offset === undefined ) offset = 0;
+
+		array[ offset ] = this.x;
+		array[ offset + 1 ] = this.y;
+		array[ offset + 2 ] = this.z;
+
+		return array;
+
+	},
+
+	fromAttribute: function ( attribute, index, offset ) {
+
+	    if ( offset === undefined ) offset = 0;
+
+	    index = index * attribute.itemSize + offset;
+
+	    this.x = attribute.array[ index ];
+	    this.y = attribute.array[ index + 1 ];
+	    this.z = attribute.array[ index + 2 ];
+
+	    return this;
+
+	},
+
+	clone: function () {
+
+		return new THREE.Vector3( this.x, this.y, this.z );
+
+	}
+
+};
+/*** END Vector3 ***/
+/*** START Euler ***/
+/**
+ * @author mrdoob / http://mrdoob.com/
+ * @author WestLangley / http://github.com/WestLangley
+ * @author bhouston / http://exocortex.com
+ */
+
+THREE.Euler = function ( x, y, z, order ) {
+
+	this._x = x || 0;
+	this._y = y || 0;
+	this._z = z || 0;
+	this._order = order || THREE.Euler.DefaultOrder;
+
+};
+
+THREE.Euler.RotationOrders = [ 'XYZ', 'YZX', 'ZXY', 'XZY', 'YXZ', 'ZYX' ];
+
+THREE.Euler.DefaultOrder = 'XYZ';
+
+THREE.Euler.prototype = {
+
+	constructor: THREE.Euler,
+
+	_x: 0, _y: 0, _z: 0, _order: THREE.Euler.DefaultOrder,
+
+	get x () {
+
+		return this._x;
+
+	},
+
+	set x ( value ) {
+
+		this._x = value;
+		this.onChangeCallback();
+
+	},
+
+	get y () {
+
+		return this._y;
+
+	},
+
+	set y ( value ) {
+
+		this._y = value;
+		this.onChangeCallback();
+
+	},
+
+	get z () {
+
+		return this._z;
+
+	},
+
+	set z ( value ) {
+
+		this._z = value;
+		this.onChangeCallback();
+
+	},
+
+	get order () {
+
+		return this._order;
+
+	},
+
+	set order ( value ) {
+
+		this._order = value;
+		this.onChangeCallback();
+
+	},
+
+	set: function ( x, y, z, order ) {
+
+		this._x = x;
+		this._y = y;
+		this._z = z;
+		this._order = order || this._order;
+
+		this.onChangeCallback();
+
+		return this;
+
+	},
+
+	copy: function ( euler ) {
+
+		this._x = euler._x;
+		this._y = euler._y;
+		this._z = euler._z;
+		this._order = euler._order;
+
+		this.onChangeCallback();
+
+		return this;
+
+	},
+
+	setFromRotationMatrix: function ( m, order, update ) {
+
+		var clamp = THREE.Math.clamp;
+
+		// assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+
+		var te = m.elements;
+		var m11 = te[ 0 ], m12 = te[ 4 ], m13 = te[ 8 ];
+		var m21 = te[ 1 ], m22 = te[ 5 ], m23 = te[ 9 ];
+		var m31 = te[ 2 ], m32 = te[ 6 ], m33 = te[ 10 ];
+
+		order = order || this._order;
+
+		if ( order === 'XYZ' ) {
+
+			this._y = Math.asin( clamp( m13, - 1, 1 ) );
+
+			if ( Math.abs( m13 ) < 0.99999 ) {
+
+				this._x = Math.atan2( - m23, m33 );
+				this._z = Math.atan2( - m12, m11 );
+
+			} else {
+
+				this._x = Math.atan2( m32, m22 );
+				this._z = 0;
+
+			}
+
+		} else if ( order === 'YXZ' ) {
+
+			this._x = Math.asin( - clamp( m23, - 1, 1 ) );
+
+			if ( Math.abs( m23 ) < 0.99999 ) {
+
+				this._y = Math.atan2( m13, m33 );
+				this._z = Math.atan2( m21, m22 );
+
+			} else {
+
+				this._y = Math.atan2( - m31, m11 );
+				this._z = 0;
+
+			}
+
+		} else if ( order === 'ZXY' ) {
+
+			this._x = Math.asin( clamp( m32, - 1, 1 ) );
+
+			if ( Math.abs( m32 ) < 0.99999 ) {
+
+				this._y = Math.atan2( - m31, m33 );
+				this._z = Math.atan2( - m12, m22 );
+
+			} else {
+
+				this._y = 0;
+				this._z = Math.atan2( m21, m11 );
+
+			}
+
+		} else if ( order === 'ZYX' ) {
+
+			this._y = Math.asin( - clamp( m31, - 1, 1 ) );
+
+			if ( Math.abs( m31 ) < 0.99999 ) {
+
+				this._x = Math.atan2( m32, m33 );
+				this._z = Math.atan2( m21, m11 );
+
+			} else {
+
+				this._x = 0;
+				this._z = Math.atan2( - m12, m22 );
+
+			}
+
+		} else if ( order === 'YZX' ) {
+
+			this._z = Math.asin( clamp( m21, - 1, 1 ) );
+
+			if ( Math.abs( m21 ) < 0.99999 ) {
+
+				this._x = Math.atan2( - m23, m22 );
+				this._y = Math.atan2( - m31, m11 );
+
+			} else {
+
+				this._x = 0;
+				this._y = Math.atan2( m13, m33 );
+
+			}
+
+		} else if ( order === 'XZY' ) {
+
+			this._z = Math.asin( - clamp( m12, - 1, 1 ) );
+
+			if ( Math.abs( m12 ) < 0.99999 ) {
+
+				this._x = Math.atan2( m32, m22 );
+				this._y = Math.atan2( m13, m11 );
+
+			} else {
+
+				this._x = Math.atan2( - m23, m33 );
+				this._y = 0;
+
+			}
+
+		} else {
+
+			console.warn( 'THREE.Euler: .setFromRotationMatrix() given unsupported order: ' + order )
+
+		}
+
+		this._order = order;
+
+		if ( update !== false ) this.onChangeCallback();
+
+		return this;
+
+	},
+
+	setFromQuaternion: function () {
+
+		var matrix;
+
+		return function ( q, order, update ) {
+
+			if ( matrix === undefined ) matrix = new THREE.Matrix4();
+			matrix.makeRotationFromQuaternion( q );
+			this.setFromRotationMatrix( matrix, order, update );
+
+			return this;
+
+		};
+
+	}(),
+
+	setFromVector3: function ( v, order ) {
+
+		return this.set( v.x, v.y, v.z, order || this._order );
+
+	},
+
+	reorder: function () {
+
+		// WARNING: this discards revolution information -bhouston
+
+		var q = new THREE.Quaternion();
+
+		return function ( newOrder ) {
+
+			q.setFromEuler( this );
+			this.setFromQuaternion( q, newOrder );
+
+		};
+
+	}(),
+
+	equals: function ( euler ) {
+
+		return ( euler._x === this._x ) && ( euler._y === this._y ) && ( euler._z === this._z ) && ( euler._order === this._order );
+
+	},
+
+	fromArray: function ( array ) {
+
+		this._x = array[ 0 ];
+		this._y = array[ 1 ];
+		this._z = array[ 2 ];
+		if ( array[ 3 ] !== undefined ) this._order = array[ 3 ];
+
+		this.onChangeCallback();
+
+		return this;
+
+	},
+
+	toArray: function () {
+
+		return [ this._x, this._y, this._z, this._order ];
+
+	},
+
+	toVector3: function ( optionalResult ) {
+
+		if ( optionalResult ) {
+
+			return optionalResult.set( this._x, this._y, this._z );
+
+		} else {
+
+			return new THREE.Vector3( this._x, this._y, this._z );
+
+		}
+
+	},
+
+	onChange: function ( callback ) {
+
+		this.onChangeCallback = callback;
+
+		return this;
+
+	},
+
+	onChangeCallback: function () {},
+
+	clone: function () {
+
+		return new THREE.Euler( this._x, this._y, this._z, this._order );
+
+	}
+
+};
+/*** END Euler ***/
+
+}
+
+module.exports = THREE;
+
+},{}],7:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var CardboardHMDVRDevice = require('./cardboard-hmd-vr-device.js');
+var GyroPositionSensorVRDevice = require('./gyro-position-sensor-vr-device.js');
+var MouseKeyboardPositionSensorVRDevice = require('./mouse-keyboard-position-sensor-vr-device.js');
+// Uncomment to add positional tracking via webcam.
+//var WebcamPositionSensorVRDevice = require('./webcam-position-sensor-vr-device.js');
+var HMDVRDevice = require('./base.js').HMDVRDevice;
+var PositionSensorVRDevice = require('./base.js').PositionSensorVRDevice;
+
+function WebVRPolyfill() {
+  this.devices = [];
+
+  if (!this.isWebVRAvailable()) {
+    this.enablePolyfill();
+  }
+}
+
+WebVRPolyfill.prototype.isWebVRAvailable = function() {
+  return ('getVRDevices' in navigator) || ('mozGetVRDevices' in navigator);
+};
+
+
+WebVRPolyfill.prototype.enablePolyfill = function() {
+  // Initialize our virtual VR devices.
+  if (this.isCardboardCompatible()) {
+    this.devices.push(new CardboardHMDVRDevice());
+  }
+
+  // Polyfill using the right position sensor.
+  if (this.isMobile()) {
+    this.devices.push(new GyroPositionSensorVRDevice());
+  } else {
+    this.devices.push(new MouseKeyboardPositionSensorVRDevice());
+    // Uncomment to add positional tracking via webcam.
+    //this.devices.push(new WebcamPositionSensorVRDevice());
+  }
+
+  // Provide navigator.getVRDevices.
+  navigator.getVRDevices = this.getVRDevices.bind(this);
+
+  // Provide the CardboardHMDVRDevice and PositionSensorVRDevice objects.
+  window.HMDVRDevice = HMDVRDevice;
+  window.PositionSensorVRDevice = PositionSensorVRDevice;
+};
+
+WebVRPolyfill.prototype.getVRDevices = function() {
+  var devices = this.devices;
+  return new Promise(function(resolve, reject) {
+    try {
+      resolve(devices);
+    } catch (e) {
+      reject(e);
+    }
+  });
+};
+
+/**
+ * Determine if a device is mobile.
+ */
+WebVRPolyfill.prototype.isMobile = function() {
+  return /Android/i.test(navigator.userAgent) ||
+      /iPhone|iPad|iPod/i.test(navigator.userAgent);
+};
+
+WebVRPolyfill.prototype.isCardboardCompatible = function() {
+  // For now, support all iOS and Android devices.
+  // Also enable the global CARDBOARD_DEBUG flag.
+  return this.isMobile() || window.CARDBOARD_DEBUG;
+};
+
+module.exports = WebVRPolyfill;
+
+},{"./base.js":1,"./cardboard-hmd-vr-device.js":2,"./gyro-position-sensor-vr-device.js":3,"./mouse-keyboard-position-sensor-vr-device.js":5}]},{},[4]);
+
+(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var DeviceInfo = require('./device-info.js');
+
+var deviceInfo = new DeviceInfo();
+
+var BarrelDistortion = {
+  uniforms: {
+    'tDiffuse': {type: 't', value: null},
+    'distortion': {type: 'v2', value: new THREE.Vector2(0.441, 0.156)},
+    'leftCenter': {type: 'v2', value: new THREE.Vector2(0.5, 0.5)},
+    'rightCenter': {type: 'v2', value: new THREE.Vector2(0.5, 0.5)},
+    'background': {type: 'v4', value: new THREE.Vector4(0.0, 0.0, 0.0, 1.0)},
+  },
+
+  vertexShader: [
+    'varying vec2 vUV;',
+
+    'void main() {',
+      'vUV = uv;',
+      'gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);',
+    '}'
+
+  ].join('\n'),
+
+  fragmentShader: [
+    'uniform sampler2D tDiffuse;',
+
+    'uniform vec2 distortion;',
+    'uniform vec2 leftCenter;',
+    'uniform vec2 rightCenter;',
+    'uniform vec4 background;',
+
+    'varying vec2 vUV;',
+
+    'float poly(float val) {',
+      'return 1.0 + (distortion.x + distortion.y * val) * val;',
+    '}',
+
+    'vec2 barrel(vec2 v, vec2 center) {',
+      'vec2 w = v - center;',
+      'return poly(dot(w, w)) * w + center;',
+    '}',
+
+    'void main() {',
+      'bool isLeft = (vUV.x < 0.5);',
+      'float offset = isLeft ? 0.0 : 0.5;',
+      'vec2 a = barrel(vec2((vUV.x - offset) / 0.5, vUV.y), isLeft ? leftCenter : rightCenter);',
+      'if (a.x < 0.0 || a.x > 1.0 || a.y < 0.0 || a.y > 1.0) {',
+        'gl_FragColor = background;',
+      '} else {',
+        'gl_FragColor = texture2D(tDiffuse, vec2(a.x * 0.5 + offset, a.y));',
+      '}',
+    '}'
+
+  ].join('\n')
+};
+
+// Show a red background if Cardboard is in debug mode.
+if (window.CARDBOARD_DEBUG) {
+  BarrelDistortion.uniforms.background =
+      {type: 'v4', value: new THREE.Vector4(1.00, 0.00, 0.00, 1.0)};
+}
+
+
+var ShaderPass = function(shader) {
+  this.uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+
+  this.material = new THREE.ShaderMaterial({
+    defines: shader.defines || {},
+    uniforms: this.uniforms,
+    vertexShader: shader.vertexShader,
+    fragmentShader: shader.fragmentShader
+  });
+
+  this.camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+  this.scene  = new THREE.Scene();
+  this.quad = new THREE.Mesh(new THREE.PlaneBufferGeometry(2, 2), null);
+  this.scene.add(this.quad);
+
+  this.render = function(renderFunc, buffer) {
+    this.uniforms['tDiffuse'].value = buffer;
+    this.quad.material = this.material;
+    renderFunc(this.scene, this.camera);
+  }
+};
+
+function createRenderTarget(renderer) {
+  var width  = renderer.context.canvas.width;
+  var height = renderer.context.canvas.height;
+  var parameters = {minFilter: THREE.LinearFilter,
+                    magFilter: THREE.LinearFilter,
+                    format: THREE.RGBFormat,
+                    stencilBuffer: false};
+
+  return new THREE.WebGLRenderTarget(width, height, parameters);
+}
+
+// TODO: Refactor into prototype-style classes.
+function CardboardDistorter(renderer) {
+  var left = deviceInfo.getLeftEyeCenter();
+  var right = deviceInfo.getRightEyeCenter();
+
+  // Pass in left and right eye centers into the shader.
+  BarrelDistortion.leftCenter = {type: 'v2', value: new THREE.Vector2(left.x, left.y)};
+  BarrelDistortion.rightCenter = {type: 'v2', value: new THREE.Vector2(right.x, right.y)};
+
+  var shaderPass = new ShaderPass(BarrelDistortion);
+
+  var textureTarget = null;
+  var genuineRender = renderer.render;
+  var genuineSetSize = renderer.setSize;
+  var isActive = false || window.CARDBOARD_DEBUG;
+
+  this.patch = function() {
+    if (!isActive) {
+      return;
+    }
+    textureTarget = createRenderTarget(renderer);
+
+    renderer.render = function(scene, camera, renderTarget, forceClear) {
+      genuineRender.call(renderer, scene, camera, textureTarget, forceClear);
+    }
+
+    renderer.setSize = function (width, height) {
+      genuineSetSize.call(renderer, width, height);
+      textureTarget = createRenderTarget(renderer);
+    };
+  }
+
+  this.unpatch = function() {
+    if (!isActive) {
+      return;
+    }
+    renderer.render = genuineRender;
+    renderer.setSize = genuineSetSize;
+  }
+
+  this.preRender = function() {
+    if (!isActive) {
+      return;
+    }
+    renderer.setRenderTarget(textureTarget);
+  }
+
+  this.postRender = function() {
+    if (!isActive) {
+      return;
+    }
+    var size = renderer.getSize();
+    renderer.setViewport(0, 0, size.width, size.height);
+    shaderPass.render(genuineRender.bind(renderer), textureTarget);
+  }
+
+  /**
+   * Toggles distortion. This is called externally by the boilerplate.
+   * It should be enabled only if WebVR is provided by polyfill.
+   */
+  this.setActive = function(state) {
+    isActive = state;
+  }
+}
+
+module.exports = CardboardDistorter;
+
+},{"./device-info.js":2}],2:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var Util = require('./util.js');
+
+// Width, height and bevel measurements done on real iPhones.
+// Resolutions from http://www.paintcodeapp.com/news/ultimate-guide-to-iphone-resolutions
+// Note: iPhone pixels are not square, so relying on diagonal is not enough.
+var Devices = {
+  iPhone5: new Device({
+    width: 640,
+    height: 1136,
+    widthMm: 51.27,
+    heightMm: 90.11,
+    bevelMm: 3.96
+  }),
+  iPhone6: new Device({
+    width: 750,
+    height: 1334,
+    widthMm: 58.4,
+    heightMm: 103.8,
+    bevelMm: 3.71
+  }),
+  iPhone6Plus: new Device({
+    width: 1242,
+    height: 2208,
+    widthMm: 69.54,
+    heightMm: 122.35,
+    bevelMm: 4.62
+  })
+};
+
+var Enclosures = {
+  CardboardV1: new CardboardEnclosure({
+    ipdMm: 61,
+    baselineLensCenterMm: 37.26
+  }),
+  FunkyMonkey: new CardboardEnclosure({
+  })
+};
+
+
+var DEFAULT_LEFT_CENTER = {x: 0.5, y: 0.5};
+var DEFAULT_RIGHT_CENTER = {x: 0.5, y: 0.5};
+
+/**
+ * Gives the correct device DPI based on screen dimensions and user agent.
+ * For now, only iOS is supported.
+ */
+function DeviceInfo() {
+  this.device = this.determineDevice_();
+  this.enclosure = Enclosures.CardboardV1;
+}
+
+/**
+ * Gets the coordinates (in [0, 1]) for the left eye.
+ */
+DeviceInfo.prototype.getLeftEyeCenter = function() {
+  if (!this.device) {
+    return DEFAULT_LEFT_CENTER;
+  }
+  // Get parameters from the enclosure.
+  var eyeToMid = this.enclosure.ipdMm / 2;
+  var eyeToBase = this.enclosure.baselineLensCenterMm;
+
+  // Get parameters from the phone.
+  var halfWidthMm = this.device.heightMm / 2;
+  var heightMm = this.device.widthMm;
+
+  // Do calculations.
+  // Measure the distance between bottom of screen and center.
+  var eyeToBevel = eyeToBase - this.device.bevelMm;
+  var px = 1 - (eyeToMid / halfWidthMm);
+  var py = 1 - (eyeToBevel / heightMm);
+
+  return {x: px, y: py};
+};
+
+DeviceInfo.prototype.getRightEyeCenter = function() {
+  if (!this.device) {
+    return DEFAULT_RIGHT_CENTER;
+  }
+  var left = this.getLeftEyeCenter();
+  return {x: 1 - left.x, y: left.y};
+};
+
+DeviceInfo.prototype.determineDevice_ = function() {
+  // Only support iPhones.
+  if (!Util.isIOS()) {
+    return null;
+  }
+
+  // On iOS, use screen dimensions to determine iPhone/iPad model.
+  var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+  // Check both width and height since the phone may be in landscape.
+  var width = screen.availWidth;
+  var height = screen.availHeight;
+  var pixelWidth = width * window.devicePixelRatio;
+  var pixelHeight = height * window.devicePixelRatio;
+
+  // Match the screen dimension to the correct device.
+  for (var id in Devices) {
+    var device = Devices[id];
+    // Expect an exact match on width.
+    if (device.width == pixelWidth || device.width == pixelHeight) {
+      console.log('Detected iPhone: %s', id);
+      // This is the right device.
+      return device;
+    }
+  }
+  return null;
+};
+
+
+function Device(params) {
+  this.width = params.width;
+  this.height = params.height;
+  this.widthMm = params.widthMm;
+  this.heightMm = params.heightMm;
+  this.bevelMm = params.bevelMm;
+}
+
+
+function CardboardEnclosure(params) {
+  // Distortion coefficients.
+  this.k1 = params.k1;
+  this.k2 = params.k2;
+  // IPD in millimeters.
+  this.ipdMm = params.ipdMm;
+  // Distance between baseline and lens.
+  this.baselineLensCenterMm = params.baselineLensCenterMm;
+}
+
+module.exports = DeviceInfo;
+
+},{"./util.js":6}],3:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+function Emitter() {
+  this.callbacks = {};
+}
+
+Emitter.prototype.emit = function(eventName) {
+  var callbacks = this.callbacks[eventName];
+  if (!callbacks) {
+    console.log('No valid callback specified.');
+    return;
+  }
+  var args = [].slice.call(arguments)
+  // Eliminate the first param (the callback).
+  args.shift();
+  for (var i = 0; i < callbacks.length; i++) {
+    callbacks[i].apply(this, args);
+  }
+};
+
+Emitter.prototype.on = function(eventName, callback) {
+  if (eventName in this.callbacks) {
+    this.callbacks[eventName].push(callback);
+  } else {
+    this.callbacks[eventName] = [callback];
+  }
+};
+
+module.exports = Emitter;
+
+},{}],4:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var WebVRManager = require('./webvr-manager.js');
+
+window.WebVRManager = WebVRManager;
+
+},{"./webvr-manager.js":9}],5:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var Modes = {
+  UNKNOWN: 0,
+  // Incompatible with WebVR.
+  INCOMPATIBLE: 1,
+  // Compatible with WebVR.
+  COMPATIBLE: 2,
+  // In virtual reality via WebVR.
+  VR: 3,
+};
+
+module.exports = Modes;
+
+},{}],6:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var Util = {};
+
+Util.base64 = function(mimeType, base64) {
+  return 'data:' + mimeType + ';base64,' + base64;
+};
+
+Util.isMobile = function() {
+  var check = false;
+  (function(a){if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a)||/1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0,4)))check = true})(navigator.userAgent||navigator.vendor||window.opera);
+  return check;
+};
+
+Util.isIOS = function() {
+  return /(iPad|iPhone|iPod)/g.test(navigator.userAgent);
+};
+
+module.exports = Util;
+
+},{}],7:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var Util = require('./util.js');
+
+/**
+ * Android and iOS compatible wakelock implementation.
+ *
+ * Thanks to dkovalev@.
+ */
+function AndroidWakeLock() {
+  var video = document.createElement('video');
+
+  video.addEventListener('ended', function() {
+    video.play();
+  });
+
+  this.request = function() {
+    if (video.paused) {
+      // Base64 version of videos_src/no-sleep.webm.
+      video.src = Util.base64('video/webm', 'GkXfowEAAAAAAAAfQoaBAUL3gQFC8oEEQvOBCEKChHdlYm1Ch4ECQoWBAhhTgGcBAAAAAAACWxFNm3RALE27i1OrhBVJqWZTrIHfTbuMU6uEFlSua1OsggEuTbuMU6uEHFO7a1OsggI+7AEAAAAAAACkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAVSalmAQAAAAAAAEMq17GDD0JATYCMTGF2ZjU2LjQuMTAxV0GMTGF2ZjU2LjQuMTAxc6SQ20Yv/Elws73A/+KfEjM11ESJiEBkwAAAAAAAFlSuawEAAAAAAABHrgEAAAAAAAA+14EBc8WBAZyBACK1nIN1bmSGhVZfVlA4g4EBI+ODhAT3kNXgAQAAAAAAABKwgRC6gRBTwIEBVLCBEFS6gRAfQ7Z1AQAAAAAAALHngQCgAQAAAAAAAFyho4EAAIAQAgCdASoQABAAAEcIhYWIhYSIAgIADA1gAP7/q1CAdaEBAAAAAAAALaYBAAAAAAAAJO6BAaWfEAIAnQEqEAAQAABHCIWFiIWEiAICAAwNYAD+/7r/QKABAAAAAAAAQKGVgQBTALEBAAEQEAAYABhYL/QACAAAdaEBAAAAAAAAH6YBAAAAAAAAFu6BAaWRsQEAARAQABgAGFgv9AAIAAAcU7trAQAAAAAAABG7j7OBALeK94EB8YIBgfCBAw==');
+      video.play();
+    }
+  };
+
+  this.release = function() {
+    video.pause();
+    video.src = '';
+  };
+}
+
+function iOSWakeLock() {
+  var timer = null;
+
+  this.request = function() {
+    if (!timer) {
+      timer = setInterval(function() {
+        window.location = window.location;
+        setTimeout(window.stop, 0);
+      }, 30000);
+    }
+  }
+
+  this.release = function() {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+  }
+}
+
+
+function getWakeLock() {
+  var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+  if (userAgent.match(/iPhone/i) || userAgent.match(/iPod/i)) {
+    return iOSWakeLock;
+  } else {
+    return AndroidWakeLock;
+  }
+}
+
+module.exports = getWakeLock();
+
+},{"./util.js":6}],8:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var Modes = require('./modes.js');
+var Emitter = require('./emitter.js');
+var Util = require('./util.js');
+
+/**
+ * Everything having to do with the WebVR button.
+ * Emits a 'click' event when it's clicked.
+ */
+function WebVRButton() {
+  var button = this.createButton();
+  document.body.appendChild(button);
+  button.addEventListener('click', this.onClick_.bind(this));
+
+  this.button = button;
+  this.isVisible = true;
+
+  // Preload some hard-coded SVG.
+  this.logo = Util.base64('image/svg+xml', 'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOC4xLjEsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgMTkyIDE5MiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTkyIDE5MiIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8Zz4NCgk8Zz4NCgkJPHBhdGggZmlsbD0iZ3JheSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIxIiBpZD0iX3gzQ19QYXRoX3gzRV9fOV8iIGQ9Ik0xNzEuMiwxNDQuMmMwLTUuNi0zLjYtNy4yLTguOC03LjJIMTU1djI2aDZ2LTExaC0wLjRsNi40LDExaDYuMmwtNy40LTExLjMNCgkJCUMxNjkuMywxNTEuMSwxNzEuMiwxNDcuNiwxNzEuMiwxNDQuMnogTTE2MS4yLDE0OUgxNjF2LTloMC4zYzIuNywwLDQuOCwxLjIsNC44LDQuNEMxNjYsMTQ3LjYsMTY0LjEsMTQ5LDE2MS4yLDE0OXoiLz4NCgkJPHBvbHlnb24gZmlsbD0iZ3JheSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIxIiBwb2ludHM9IjEzMi4zLDE1MyAxMzIuMiwxNTMgMTI1LjksMTM3IDEyMC40LDEzNyAxMzAuNCwxNjMgMTMzLjQsMTYzIDE0My42LDEzNyAxMzguMSwxMzcgCQkiLz4NCgkJPHBhdGggZmlsbD0iZ3JheSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIxIiBpZD0iX3gzQ19QYXRoX3gzRV9fOF8iIGQ9Ik0xMDUsMTQ3LjljMS42LTEsMi4zLTIuNSwyLjMtNC40YzAtNS4yLTMtNi41LTcuOS02LjVIOTN2MjZoOC4xYzQuOCwwLDguNC0yLjksOC40LTgNCgkJCUMxMDkuNSwxNTIuMSwxMDguMSwxNDguNCwxMDUsMTQ3Ljl6IE05OCwxNDBoMC44YzIuMiwwLDMuNywwLjgsMy43LDMuNWMwLDIuNy0xLjIsMy41LTMuNywzLjVIOThWMTQweiBNOTkuMywxNThIOTh2LTdoMQ0KCQkJYzIuNiwwLDUuNCwwLDUuNCwzLjRTMTAyLDE1OCw5OS4zLDE1OHoiLz4NCgkJPHBvbHlnb24gZmlsbD0iZ3JheSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIxIiBwb2ludHM9IjY1LDE2MyA3OSwxNjMgNzksMTU4IDcxLDE1OCA3MSwxNTEgNzksMTUxIDc5LDE0NyA3MSwxNDcgNzEsMTQwIDc5LDE0MCA3OSwxMzcgNjUsMTM3IAkJIi8+DQoJCTxwb2x5Z29uIGZpbGw9ImdyYXkiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMSIgcG9pbnRzPSI0My4zLDE1NCA0My4yLDE1NCAzNy44LDEzNyAzNC43LDEzNyAyOS41LDE1NCAyOS40LDE1NCAyNC4xLDEzNyAxOC44LDEzNyAyNy4xLDE2MyAzMC45LDE2MyAzNS44LDE0NiAzNS45LDE0NiANCgkJCTQxLjEsMTYzIDQ0LjksMTYzIDUzLjgsMTM3IDQ4LjQsMTM3ICIvPg0KCTwvZz4NCgk8Y2lyY2xlIGZpbGw9ImdyYXkiIHN0cm9rZT0iYmxhY2siIHN0cm9rZS13aWR0aD0iMyIgY3g9IjYyLjQiIGN5PSI3My41IiByPSIxMy45Ii8+DQoJPGNpcmNsZSBmaWxsPSJncmF5IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjMiIGN4PSIxMzAiIGN5PSI3My41IiByPSIxMy45Ii8+DQoJPHBhdGggZmlsbD0iZ3JheSIgc3Ryb2tlPSJibGFjayIgc3Ryb2tlLXdpZHRoPSIzIiBpZD0iX3gzQ19QYXRoX3gzRV9fNV8iIGQ9Ik0xMjkuNiwxMTdjMzQuNSwwLDU2LjEtNDMuOSw1Ni4xLTQzLjlzLTIxLjYtNDMuOC01Ni4xLTQzLjljMCwwLTY3LjIsMC4xLTY3LjMsMC4xDQoJCWMtMzQuNSwwLTU2LjEsNDMuOC01Ni4xLDQzLjhTMjcuOCwxMTcsNjIuNCwxMTdjMTMuMywwLDI0LjctNi41LDMzLjYtMTQuNUMxMDUsMTEwLjUsMTE2LjMsMTE3LDEyOS42LDExN3ogTTg1LjcsOTEuNw0KCQljLTYuMiw1LjctMTQuMSwxMC42LTIzLjUsMTAuNmMtMjMuMiwwLTM3LjctMjkuMy0zNy43LTI5LjNzMTQuNS0yOS4zLDM3LjctMjkuM2M5LjYsMCwxNy42LDUsMjMuOCwxMC44YzQuMSwzLjksNy40LDguMiw5LjgsMTEuNw0KCQljMi40LTMuNSw1LjgtOCwxMC4xLTExLjljNi4yLTUuNywxNC4xLTEwLjYsMjMuNi0xMC42YzIzLjIsMCwzNy43LDI5LjMsMzcuNywyOS4zcy0xNC41LDI5LjMtMzcuNywyOS4zYy05LjMsMC0xNy4xLTQuNy0yMy4zLTEwLjMNCgkJYy00LjQtNC4xLTcuOS04LjYtMTAuNC0xMi4yQzkzLjQsODMuMiw5MCw4Ny43LDg1LjcsOTEuN3oiLz4NCgk8cGF0aCBmaWxsPSJub25lIiBkPSJNMCwwaDE5MnYxOTJIMFYweiIvPg0KPC9nPg0KPC9zdmc+DQo=');
+  this.logoDisabled = Util.base64('image/svg+xml', 'PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjwhLS0gR2VuZXJhdG9yOiBBZG9iZSBJbGx1c3RyYXRvciAxOC4xLjEsIFNWRyBFeHBvcnQgUGx1Zy1JbiAuIFNWRyBWZXJzaW9uOiA2LjAwIEJ1aWxkIDApICAtLT4NCjwhRE9DVFlQRSBzdmcgUFVCTElDICItLy9XM0MvL0RURCBTVkcgMS4xLy9FTiIgImh0dHA6Ly93d3cudzMub3JnL0dyYXBoaWNzL1NWRy8xLjEvRFREL3N2ZzExLmR0ZCI+DQo8c3ZnIHZlcnNpb249IjEuMSIgaWQ9IkxheWVyXzEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgeG1sbnM6eGxpbms9Imh0dHA6Ly93d3cudzMub3JnLzE5OTkveGxpbmsiIHg9IjBweCIgeT0iMHB4Ig0KCSB2aWV3Qm94PSIwIDAgMTkyIDE5MiIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgMTkyIDE5MiIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSI+DQo8Zz4NCgk8cGF0aCBmaWxsPSJncmF5IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjMiIGQ9Ik0xNDMuOSw5Ni40YzAtNy42LTYuMi0xMy45LTEzLjktMTMuOWMtNy41LDAtMTMuNSw1LjktMTMuOCwxMy4zbDE0LjQsMTQuNEMxMzgsMTA5LjksMTQzLjksMTAzLjksMTQzLjksOTYuNHoiLz4NCgk8cGF0aCBmaWxsPSJncmF5IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjMiIGQ9Ik0xMDUuOCw3N2M2LjItNS43LDE0LjEtMTAuNiwyMy42LTEwLjZjMjMuMiwwLDM3LjcsMjkuMywzNy43LDI5LjNzLTkuMiwxOC43LTI0LjgsMjYuMmwxMC45LDEwLjkNCgkJYzIwLjUtMTIuNCwzMi41LTM2LjksMzIuNS0zNi45cy0yMS42LTQzLjgtNTYuMS00My45YzAsMC0zOC4zLDAtNTcuMiwwLjFsMjkuMSwyOS4xQzEwMi45LDc5LjksMTA0LjMsNzguNCwxMDUuOCw3N3oiLz4NCgk8cGF0aCBmaWxsPSJncmF5IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjMiIGQ9Ik0xNjIuOSwxNjIuOWwtMjQtMjRjMCwwLDAsMCwwLDBsLTE0LjItMTQuMmMwLDAsMCwwLDAsMEw2Ni45LDY2LjljMCwwLDAsMCwwLDBMNTMuMyw1My4yYzAsMCwwLDAsMCwwTDIzLjEsMjMuMUwxMywzMy4zDQoJCWwyNS45LDI1LjlDMTguMyw3MS41LDYuMiw5Niw2LjIsOTZzMjEuNiw0My44LDU2LjEsNDMuOGMxMy4zLDAsMjQuNy02LjUsMzMuNi0xNC41YzYuMiw1LjUsMTMuNSwxMC4zLDIxLjgsMTIuN2wzNC45LDM0LjkNCgkJTDE2Mi45LDE2Mi45eiBNODUuNywxMTQuNWMtNi4yLDUuNy0xNC4xLDEwLjYtMjMuNSwxMC42Yy0yMy4yLDAtMzcuNy0yOS4zLTM3LjctMjkuM3M5LjMtMTguNywyNC44LTI2LjJsMTMsMTMNCgkJYy03LjYsMC4xLTEzLjcsNi4yLTEzLjcsMTMuOGMwLDcuNyw2LjIsMTMuOSwxMy45LDEzLjljNy42LDAsMTMuOC02LjEsMTMuOC0xMy43bDEzLjYsMTMuNkM4OC42LDExMS43LDg3LjIsMTEzLjEsODUuNywxMTQuNXoiLz4NCgk8cGF0aCBmaWxsPSJub25lIiBkPSJNMCwwaDE5MnYxOTJIMFYweiIvPg0KPC9nPg0KPC9zdmc+DQo=');
+}
+WebVRButton.prototype = new Emitter();
+
+WebVRButton.prototype.createButton = function() {
+  var button = document.createElement('img');
+  var s = button.style;
+  s.position = 'absolute';
+  s.bottom = '5px';
+  s.left = 0;
+  s.right = 0;
+  s.marginLeft = 'auto';
+  s.marginRight = 'auto';
+  s.width = '64px'
+  s.height = '64px';
+  s.backgroundSize = 'cover';
+  s.backgroundColor = 'transparent';
+  s.border = 0;
+  s.userSelect = 'none';
+  s.webkitUserSelect = 'none';
+  s.MozUserSelect = 'none';
+  s.cursor = 'pointer';
+  // Prevent button from being dragged.
+  button.draggable = false;
+  button.addEventListener('dragstart', function(e) {
+    e.preventDefault();
+  });
+  return button;
+};
+
+WebVRButton.prototype.setMode = function(mode) {
+  if (!this.isVisible) {
+    return;
+  }
+  switch (mode) {
+    case Modes.INCOMPATIBLE:
+      this.button.src = this.logo;
+      this.button.title = 'Open in immersive mode';
+      break;
+    case Modes.COMPATIBLE:
+      this.button.src = this.logo;
+      this.button.title = 'Open in VR mode';
+      break;
+    case Modes.VR:
+      this.button.src = this.logoDisabled;
+      this.button.title = 'Leave VR mode';
+      break;
+  }
+
+  // Hack for Safari Mac/iOS to force relayout (svg-specific issue)
+  // http://goo.gl/hjgR6r
+  this.button.style.display = 'inline-block';
+  this.button.offsetHeight;
+  this.button.style.display = 'block';
+};
+
+WebVRButton.prototype.setVisibility = function(isVisible) {
+  this.isVisible = isVisible;
+  this.button.style.display = isVisible ? 'block' : 'none';
+};
+
+WebVRButton.prototype.onClick_ = function(e) {
+  e.stopPropagation();
+  e.preventDefault();
+  this.emit('click');
+}
+
+module.exports = WebVRButton;
+
+},{"./emitter.js":3,"./modes.js":5,"./util.js":6}],9:[function(require,module,exports){
+/*
+ * Copyright 2015 Google Inc. All Rights Reserved.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+var Wakelock = require('./wakelock.js');
+var CardboardDistorter = require('./cardboard-distorter.js');
+var WebVRButton = require('./webvr-button.js');
+var Modes = require('./modes.js');
+var Util = require('./util.js');
+
+/**
+ * Helper for getting in and out of VR mode.
+ * Here we assume VR mode == full screen mode.
+ *
+ * 1. Detects whether or not VR mode is possible by feature detecting for
+ * WebVR (or polyfill).
+ *
+ * 2. If WebVR is available, shows a button that lets you enter VR mode.
+ *
+ * 3. Provides Cardboard-style distortion if the webvr-polyfill is being used.
+ *
+ * 4. Provides best practices while in VR mode.
+ * - Full screen
+ * - Wake lock
+ * - Orientation lock (mobile only)
+ */
+function WebVRManager(renderer, effect, params) {
+  this.params = params || {};
+
+  this.mode = Modes.UNKNOWN;
+
+  // Set option to hide the button.
+  var hideButton = this.params.hideButton || false;
+
+  // Save the THREE.js renderer and effect for later.
+  this.renderer = renderer;
+  this.effect = effect;
+  this.distorter = new CardboardDistorter(renderer);
+
+  this.button = new WebVRButton();
+  if (hideButton) {
+    this.button.setVisibility(false);
+  }
+
+  // Check if the browser is compatible with WebVR.
+  this.getHMD_().then(function(hmd) {
+    // If Cardboard debug flag is enabled, force cardboard compat mode.
+    hmd = hmd || window.CARDBOARD_DEBUG;
+    // Activate either VR or Immersive mode.
+    if (hmd) {
+      this.activateVR_();
+      // Only enable distortion if we are dealing using the polyfill and this is iOS.
+      if (hmd.deviceName.indexOf('webvr-polyfill') == 0 && Util.isIOS()) {
+        this.distorter.setActive(true);
+      }
+    } else {
+      this.activateImmersive_();
+    }
+    // Set the right mode.
+    this.defaultMode = hmd ? Modes.COMPATIBLE : Modes.INCOMPATIBLE;
+    this.button.setMode(this.defaultMode);
+  }.bind(this));
+}
+
+/**
+ * Promise returns true if there is at least one HMD device available.
+ */
+WebVRManager.prototype.getHMD_ = function() {
+  return new Promise(function(resolve, reject) {
+    navigator.getVRDevices().then(function(devices) {
+      // Promise succeeds, but check if there are any devices actually.
+      for (var i = 0; i < devices.length; i++) {
+        if (devices[i] instanceof HMDVRDevice) {
+          resolve(devices[i]);
+          break;
+        }
+      }
+      resolve(null);
+    }, function() {
+      // No devices are found.
+      resolve(null);
+    });
+  });
+};
+
+WebVRManager.prototype.isVRMode = function() {
+  return this.mode == Modes.VR;
+};
+
+WebVRManager.prototype.render = function(scene, camera) {
+  if (this.isVRMode()) {
+    this.distorter.preRender();
+    this.effect.render(scene, camera);
+    this.distorter.postRender();
+  } else {
+    this.renderer.render(scene, camera);
+  }
+};
+
+/**
+ * Makes it possible to go into VR mode.
+ */
+WebVRManager.prototype.activateVR_ = function() {
+  // Or via clicking on the VR button.
+  this.button.on('click', this.toggleVRMode.bind(this));
+
+  // Whenever we enter fullscreen, we are entering VR or immersive mode.
+  document.addEventListener('webkitfullscreenchange',
+      this.onFullscreenChange_.bind(this));
+  document.addEventListener('mozfullscreenchange',
+      this.onFullscreenChange_.bind(this));
+
+  // Create the necessary elements for wake lock to work.
+  this.wakelock = new Wakelock();
+};
+
+WebVRManager.prototype.activateImmersive_ = function() {
+  // Next time a user does anything with their mouse, we trigger immersive mode.
+  this.button.on('click', this.enterImmersive.bind(this));
+};
+
+WebVRManager.prototype.enterImmersive = function() {
+  this.requestPointerLock_();
+  this.requestFullscreen_();
+};
+
+WebVRManager.prototype.toggleVRMode = function() {
+  if (!this.isVRMode()) {
+    // Enter VR mode.
+    this.enterVR();
+  } else {
+    this.exitVR();
+  }
+};
+
+WebVRManager.prototype.onFullscreenChange_ = function(e) {
+  // If we leave full-screen, also exit VR mode.
+  if (document.webkitFullscreenElement === null ||
+      document.mozFullScreenElement === null) {
+    this.exitVR();
+  }
+};
+
+WebVRManager.prototype.requestPointerLock_ = function() {
+  var canvas = this.renderer.domElement;
+  canvas.requestPointerLock = canvas.requestPointerLock ||
+      canvas.mozRequestPointerLock ||
+      canvas.webkitRequestPointerLock;
+
+  if (canvas.requestPointerLock) {
+    canvas.requestPointerLock();
+  }
+};
+
+WebVRManager.prototype.releasePointerLock_ = function() {
+  document.exitPointerLock = document.exitPointerLock ||
+      document.mozExitPointerLock ||
+      document.webkitExitPointerLock;
+
+  if (document.exitPointerLock) {
+    document.exitPointerLock();
+  }
+};
+
+WebVRManager.prototype.requestOrientationLock_ = function() {
+  if (screen.orientation && Util.isMobile()) {
+    screen.orientation.lock('landscape');
+  }
+};
+
+WebVRManager.prototype.releaseOrientationLock_ = function() {
+  if (screen.orientation) {
+    screen.orientation.unlock();
+  }
+};
+
+WebVRManager.prototype.requestFullscreen_ = function() {
+  var canvas = this.renderer.domElement;
+  if (canvas.mozRequestFullScreen) {
+    canvas.mozRequestFullScreen();
+  } else if (canvas.webkitRequestFullscreen) {
+    canvas.webkitRequestFullscreen();
+  }
+};
+
+WebVRManager.prototype.enterVR = function() {
+  console.log('Entering VR.');
+  // Enter fullscreen mode (note: this doesn't work in iOS).
+  this.effect.setFullScreen(true);
+  // Lock down orientation and wakelock.
+  this.requestOrientationLock_();
+  this.wakelock.request();
+
+  this.mode = Modes.VR;
+  // Set style on button.
+  this.button.setMode(this.mode);
+
+  this.distorter.patch();
+};
+
+WebVRManager.prototype.exitVR = function() {
+  console.log('Exiting VR.');
+  // Leave fullscreen mode (note: this doesn't work in iOS).
+  this.effect.setFullScreen(false);
+  // Release all locks.
+  this.releaseOrientationLock_();
+  this.releasePointerLock_();
+  this.wakelock.release();
+  // Also, work around a problem in VREffect and resize the window.
+  this.effect.setSize(window.innerWidth, window.innerHeight);
+
+  this.mode = this.defaultMode;
+  // Go back to the default mode.
+  this.button.setMode(this.mode);
+
+  this.distorter.unpatch();
+};
+
+module.exports = WebVRManager;
+
+},{"./cardboard-distorter.js":1,"./modes.js":5,"./util.js":6,"./wakelock.js":7,"./webvr-button.js":8}]},{},[4]);
+
+/**
+ * @author dmarcos / https://github.com/dmarcos
+ *
+ * It handles stereo rendering
+ * If mozGetVRDevices and getVRDevices APIs are not available it gracefuly falls back to a
+ * regular renderer
+ *
+ * The HMD supported is the Oculus DK1 and The Web API doesn't currently allow
+ * to query for the display resolution (only the chrome API allows it).
+ * The dimensions of the screen are temporarly hardcoded (1280 x 800).
+ *
+ * For VR mode to work it has to be used with the Oculus enabled builds of Firefox or Chrome:
+ *
+ * Firefox:
+ *
+ * http://mozvr.com/downloads.html
+ *
+ * Chrome builds:
+ *
+ * https://drive.google.com/a/google.com/folderview?id=0BzudLt22BqGRbW9WTHMtOWMzNjQ&usp=sharing#list
+ *
+ */
+THREE.VREffect = function ( renderer, done ) {
+
+	var cameraLeft = new THREE.PerspectiveCamera();
+	var cameraRight = new THREE.PerspectiveCamera();
+
+	this._renderer = renderer;
+
+	this._init = function() {
+		var self = this;
+		if ( !navigator.mozGetVRDevices && !navigator.getVRDevices ) {
+			if ( done ) {
+				done("Your browser is not VR Ready");
+			}
+			return;
+		}
+		if ( navigator.getVRDevices ) {
+			navigator.getVRDevices().then( gotVRDevices );
+		} else {
+			navigator.mozGetVRDevices( gotVRDevices );
+		}
+		function gotVRDevices( devices ) {
+			var vrHMD;
+			var error;
+			for ( var i = 0; i < devices.length; ++ i ) {
+				if ( devices[i] instanceof HMDVRDevice ) {
+					vrHMD = devices[i];
+					self._vrHMD = vrHMD;
+					self.leftEyeTranslation = vrHMD.getEyeTranslation( "left" );
+					self.rightEyeTranslation = vrHMD.getEyeTranslation( "right" );
+					self.leftEyeFOV = vrHMD.getRecommendedEyeFieldOfView( "left" );
+					self.rightEyeFOV = vrHMD.getRecommendedEyeFieldOfView( "right" );
+					break; // We keep the first we encounter
+				}
+			}
+			if ( done ) {
+				if ( !vrHMD ) {
+					error = 'HMD not available';
+				}
+				done( error );
+			}
+		}
+	};
+
+	this._init();
+
+	this.render = function ( scene, camera ) {
+		var renderer = this._renderer;
+		var vrHMD = this._vrHMD;
+		// VR render mode if HMD is available
+		if ( vrHMD ) {
+			this.renderStereo.apply( this, arguments );
+			return;
+		}
+		// Regular render mode if not HMD
+		if ( scene instanceof Array ) scene = scene[ 0 ];
+		renderer.render.apply( this._renderer, arguments );
+	};
+
+	this.renderStereo = function( scene, camera, renderTarget, forceClear ) {
+
+		var sceneLeft, sceneRight;
+
+		if ( scene instanceof Array ) {
+
+			sceneLeft = scene[ 0 ];
+			sceneRight = scene[ 1 ];
+
+		} else {
+
+			sceneLeft = scene;
+			sceneRight = scene;
+
+		}
+
+		var leftEyeTranslation = this.leftEyeTranslation;
+		var rightEyeTranslation = this.rightEyeTranslation;
+		var renderer = this._renderer;
+		var rendererWidth = renderer.context.drawingBufferWidth;
+		var rendererHeight = renderer.context.drawingBufferHeight;
+		var eyeDivisionLine = rendererWidth / 2;
+
+		renderer.enableScissorTest( true );
+		renderer.clear();
+
+		if ( camera.parent === undefined ) {
+			camera.updateMatrixWorld();
+		}
+
+		cameraLeft.projectionMatrix = this.FovToProjection( this.leftEyeFOV, true, camera.near, camera.far );
+		cameraRight.projectionMatrix = this.FovToProjection( this.rightEyeFOV, true, camera.near, camera.far );
+
+		camera.matrixWorld.decompose( cameraLeft.position, cameraLeft.quaternion, cameraLeft.scale );
+		camera.matrixWorld.decompose( cameraRight.position, cameraRight.quaternion, cameraRight.scale );
+
+		cameraLeft.translateX( leftEyeTranslation.x );
+		cameraRight.translateX( rightEyeTranslation.x );
+
+		// render left eye
+		renderer.setViewport( 0, 0, eyeDivisionLine, rendererHeight );
+		renderer.setScissor( 0, 0, eyeDivisionLine, rendererHeight );
+		renderer.render( sceneLeft, cameraLeft );
+
+		// render right eye
+		renderer.setViewport( eyeDivisionLine, 0, eyeDivisionLine, rendererHeight );
+		renderer.setScissor( eyeDivisionLine, 0, eyeDivisionLine, rendererHeight );
+		renderer.render( sceneRight, cameraRight );
+
+		renderer.enableScissorTest( false );
+
+	};
+
+	this.setSize = function( width, height ) {
+		renderer.setSize( width, height );
+	};
+
+	this.setFullScreen = function( enable ) {
+		var renderer = this._renderer;
+		var vrHMD = this._vrHMD;
+		var canvasOriginalSize = this._canvasOriginalSize;
+		if (!vrHMD) {
+			return;
+		}
+		// If state doesn't change we do nothing
+		if ( enable === this._fullScreen ) {
+			return;
+		}
+		this._fullScreen = !!enable;
+
+		// VR Mode disabled
+		if ( !enable ) {
+			// Restores canvas original size
+			renderer.setSize( canvasOriginalSize.width, canvasOriginalSize.height );
+			return;
+		}
+		// VR Mode enabled
+		this._canvasOriginalSize = {
+			width: renderer.domElement.width,
+			height: renderer.domElement.height
+		};
+		// Hardcoded Rift display size
+		renderer.setSize( 1280, 800, false );
+		this.startFullscreen();
+	};
+
+	this.startFullscreen = function() {
+		var self = this;
+		var renderer = this._renderer;
+		var vrHMD = this._vrHMD;
+		var canvas = renderer.domElement;
+		var fullScreenChange =
+			canvas.mozRequestFullScreen ? 'mozfullscreenchange' : 'webkitfullscreenchange';
+
+		document.addEventListener( fullScreenChange, onFullScreenChanged, false );
+		function onFullScreenChanged() {
+			if ( !document.mozFullScreenElement && !document.webkitFullscreenElement ) {
+				self.setFullScreen( false );
+			}
+		}
+		if ( canvas.mozRequestFullScreen ) {
+			canvas.mozRequestFullScreen( { vrDisplay: vrHMD } );
+		} else if ( canvas.webkitRequestFullscreen ) {
+			canvas.webkitRequestFullscreen( { vrDisplay: vrHMD } );
+		}
+	};
+
+	this.FovToNDCScaleOffset = function( fov ) {
+		var pxscale = 2.0 / (fov.leftTan + fov.rightTan);
+		var pxoffset = (fov.leftTan - fov.rightTan) * pxscale * 0.5;
+		var pyscale = 2.0 / (fov.upTan + fov.downTan);
+		var pyoffset = (fov.upTan - fov.downTan) * pyscale * 0.5;
+		return { scale: [ pxscale, pyscale ], offset: [ pxoffset, pyoffset ] };
+	};
+
+	this.FovPortToProjection = function( fov, rightHanded /* = true */, zNear /* = 0.01 */, zFar /* = 10000.0 */ )
+	{
+		rightHanded = rightHanded === undefined ? true : rightHanded;
+		zNear = zNear === undefined ? 0.01 : zNear;
+		zFar = zFar === undefined ? 10000.0 : zFar;
+
+		var handednessScale = rightHanded ? -1.0 : 1.0;
+
+		// start with an identity matrix
+		var mobj = new THREE.Matrix4();
+		var m = mobj.elements;
+
+		// and with scale/offset info for normalized device coords
+		var scaleAndOffset = this.FovToNDCScaleOffset(fov);
+
+		// X result, map clip edges to [-w,+w]
+		m[0 * 4 + 0] = scaleAndOffset.scale[0];
+		m[0 * 4 + 1] = 0.0;
+		m[0 * 4 + 2] = scaleAndOffset.offset[0] * handednessScale;
+		m[0 * 4 + 3] = 0.0;
+
+		// Y result, map clip edges to [-w,+w]
+		// Y offset is negated because this proj matrix transforms from world coords with Y=up,
+		// but the NDC scaling has Y=down (thanks D3D?)
+		m[1 * 4 + 0] = 0.0;
+		m[1 * 4 + 1] = scaleAndOffset.scale[1];
+		m[1 * 4 + 2] = -scaleAndOffset.offset[1] * handednessScale;
+		m[1 * 4 + 3] = 0.0;
+
+		// Z result (up to the app)
+		m[2 * 4 + 0] = 0.0;
+		m[2 * 4 + 1] = 0.0;
+		m[2 * 4 + 2] = zFar / (zNear - zFar) * -handednessScale;
+		m[2 * 4 + 3] = (zFar * zNear) / (zNear - zFar);
+
+		// W result (= Z in)
+		m[3 * 4 + 0] = 0.0;
+		m[3 * 4 + 1] = 0.0;
+		m[3 * 4 + 2] = handednessScale;
+		m[3 * 4 + 3] = 0.0;
+
+		mobj.transpose();
+
+		return mobj;
+	};
+
+	this.FovToProjection = function( fov, rightHanded /* = true */, zNear /* = 0.01 */, zFar /* = 10000.0 */ )
+	{
+		var fovPort = {
+			upTan: Math.tan(fov.upDegrees * Math.PI / 180.0),
+			downTan: Math.tan(fov.downDegrees * Math.PI / 180.0),
+			leftTan: Math.tan(fov.leftDegrees * Math.PI / 180.0),
+			rightTan: Math.tan(fov.rightDegrees * Math.PI / 180.0)
+		};
+		return this.FovPortToProjection(fovPort, rightHanded, zNear, zFar);
+	};
+
+};
+
+/**
+ * @author dmarcos / https://github.com/dmarcos
+ * @author mrdoob / http://mrdoob.com
+ */
+
+THREE.VRControls = function ( object, callback ) {
+
+	var scope = this;
+
+	var vrInput;
+
+	var onVRDevices = function ( devices ) {
+
+		for ( var i = 0; i < devices.length; i ++ ) {
+
+			var device = devices[ i ];
+
+			if ( device instanceof PositionSensorVRDevice ) {
+
+				vrInput = devices[ i ];
+				return; // We keep the first we encounter
+
+			}
+
+		}
+
+		if ( callback !== undefined ) {
+
+			callback( 'HMD not available' );
+
+		}
+
+	};
+
+	if ( navigator.getVRDevices !== undefined ) {
+
+		navigator.getVRDevices().then( onVRDevices );
+
+	} else if ( callback !== undefined ) {
+
+		callback( 'Your browser is not VR Ready' );
+
+	}
+
+	// the Rift SDK returns the position in meters
+	// this scale factor allows the user to define how meters
+	// are converted to scene units.
+	this.scale = 1;
+
+	this.update = function () {
+
+		if ( vrInput === undefined ) return;
+
+		var state = vrInput.getState();
+
+		if ( state.orientation !== null ) {
+
+			object.quaternion.copy( state.orientation );
+
+		}
+
+		if ( state.position !== null ) {
+
+			object.position.copy( state.position ).multiplyScalar( scope.scale );
+
+		}
+
+	};
+
+	this.zeroSensor = function () {
+
+		if ( vrInput === undefined ) return;
+
+		vrInput.zeroSensor();
+
+	};
+
+};

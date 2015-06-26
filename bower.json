@@ -16,12 +16,15 @@
     "tests"
   ],
   "dependencies": {
-    'webcomponentsjs': '*'
+    "webcomponentsjs":"*"
   },
   "devDependencies": {
     "polymer": "Polymer/polymer#^1.0.0",
     "three.js": "*",
-    "webvr-polyfill": "https://raw.githubusercontent.com/borismus/webvr-polyfill/master/build/webvr-polyfill.js"
+    "threejs-vrcontrolls": "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/js/controls/VRControls.js",
+    "threejs-vreffect": "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/js/effects/VREffect.js",
+    "webvr-polyfill": "https://raw.githubusercontent.com/borismus/webvr-polyfill/master/build/webvr-polyfill.js",
+    "webvr-manager": "https://raw.githubusercontent.com/borismus/webvr-boilerplate/master/build/webvr-manager.js",
   }
   
 }
