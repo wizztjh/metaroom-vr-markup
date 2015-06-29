@@ -1,4 +1,4 @@
-### Hyperpage Markup Language(HPML)
+### MetaRoom Markup Language(MRML)
 A markup language that builds virtual reality webpage like html.
 
 How do you represent `<table>` in virtual reality? a 3d table.
