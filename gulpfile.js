@@ -5,12 +5,13 @@ var gulp = require('gulp'),
   $ = require('gulp-load-plugins')();
 
 gulp.task('html', function () {
-  gulp.src('src/hp-ml.html')
-    // .pipe($.vulcanize({
-    //   abspath: '',
-    //   excludes: [],
-    //   stripExcludes: false
-    // }))
+  gulp.src('dist/hp-ml.local.html')
+    .pipe($.vulcanize({
+      abspath: '',
+      excludes: [],
+      stripExcludes: false
+    }))
+    .pipe($.rename('hp-ml.html'))
     .pipe(gulp.dest('dist'));
 })
 
@@ -21,7 +22,6 @@ gulp.task('js', function () {
     .bundle()
     .on("error", function (err) { console.log("Error: " + err.message); })
     .pipe(fs.createWriteStream("dist/hp-ml.js"))
-    // .pipe(gulp.dest('dist'));
 });
 
 gulp.task('copy', function () {
@@ -37,8 +37,16 @@ gulp.task('copy', function () {
 
   gulp.src([
     'bower_components/polymer/polymer*',
+    'src/meta-*.html',
   ])
   .pipe(gulp.dest('dist'));
+
+  gulp.src([
+    'src/hp-ml.html',
+  ])
+  .pipe($.rename('hp-ml.local.html'))
+  .pipe(gulp.dest('dist'));
+
 });
 
 gulp.task('build', [
