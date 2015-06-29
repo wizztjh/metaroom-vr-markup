@@ -4,6 +4,8 @@ var gulp = require('gulp'),
   fs = require('fs')
   $ = require('gulp-load-plugins')();
 
+require('web-component-tester').gulp.init(gulp);
+
 gulp.task('html', function () {
   gulp.src('dist/hp-ml.local.html')
     .pipe($.vulcanize({
@@ -49,14 +51,24 @@ gulp.task('copy', function () {
 
 });
 
+// TODO: somehow the gulp file doesn't run correctly and generates an almost empty hp-ml.js
 gulp.task('build', [
   'copy',
-  'html',
-  'js'
+  'js',
+  'html'
 ]);
 
+gulp.task('test', ['test:local'])
+
 gulp.task('default', ['build'], function () {
-  gulp.watch(['src/*.html'], ['html']);
-  gulp.watch(['bower_components'], ['copy']);
-  gulp.watch(['src/*.*js'], ['js']);
+  var watchHtml = ['src/*.html'],
+    watchCopy = ['bower_components'],
+    watchJs = ['src/*.*js'];
+
+  var watchAll = watchHtml.concat(watchJs, watchCopy);
+
+  gulp.watch(watchHtml, ['build']);
+  gulp.watch(watchCopy, ['build']);
+  gulp.watch(watchJs, ['build']);
+
 })
