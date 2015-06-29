@@ -1,7 +1,7 @@
 class GameObject{
   constructor(){
     var self = this;
-    this.objects = {};
+    this.metaObjects = new Map();
 
     this.renderer = new THREE.WebGLRenderer({ antialias: false });
     this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -45,9 +45,14 @@ class GameObject{
     return window.innerHeight;
   }
 
-  add(metaObject){
+  add(metaObject) {
     this.scene.add(metaObject.mesh);
-    this.objects[metaObject.mesh.uuid] = metaObject;
+    this.metaObjects.set( metaObject.mesh.uuid, metaObject);
+  }
+
+  remove(metaObject) {
+    this.scene.remove(metaObject.mesh);
+    this.metaObjects.delete(metaObject.mesh.uuid)
   }
 }
 
@@ -79,6 +84,7 @@ Polymer({
     },
 
     handleChildrenDetachment: function(e){
+      this.gameObject.remove(e.detail.target.metaObject)
       console.log('trigged',e.type, e)
     },
 });
