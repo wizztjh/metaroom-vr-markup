@@ -1,6 +1,4 @@
-<html><head><meta charset="UTF-8"><script src="deps.js"></script>
-
-<script>(function () {
+<html><head><meta charset="UTF-8"><script>(function () {
 function resolve() {
 document.body.removeAttribute('unresolved');
 }
@@ -5780,7 +5778,6 @@ detached: function () {
 this._removeChildren();
 }
 });</script>
-<script src="hp-ml.js"></script>
 </head><body><div hidden="" by-vulcanize=""><dom-module id="meta-verse" assetpath="/">
 
   <style>
@@ -5793,10 +5790,90 @@ this._removeChildren();
     <content id="hpml-content"></content>
   </template>
 
+  <script>
+    Polymer({
+        is: 'meta-verse',
+
+        properties: {
+          gameObject: Object
+        },
+
+        created: function() {
+          this.gameObject = new GameObject();
+          this.appendChild( this.gameObject.renderer.domElement );
+        },
+
+        listeners: {
+          'meta-attached': 'handleChildrenAttachment',
+          'meta-detached': 'handleChildrenDetachment',
+        },
+
+        handleChildrenAttachment: function(e){
+          var target = e.detail.target
+
+          target.metaVerse = this
+          //TODO: need to find a better way to store the objects, it should be tree form
+          this.gameObject.add(target.metaObject)
+
+          console.log('trigged',e.type, e)
+        },
+
+        handleChildrenDetachment: function(e){
+          this.gameObject.remove(e.detail.target.metaObject)
+          console.log('trigged',e.type, e)
+        },
+    });
+  </script>
+
 </dom-module>
 <dom-module id="meta-room" assetpath="/">
   <template>
     <content></content>
   </template>
+
+  <script>
+    Polymer({
+        is: 'meta-room',
+
+        properties: {
+          metaVerse: Object,
+          metaObject: Object
+        },
+
+        created: function(){
+          var boxWidth = 10;
+          var texture = THREE.ImageUtils.loadTexture(
+            'img/box.png'
+          );
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.RepeatWrapping;
+          texture.repeat.set(boxWidth, boxWidth);
+          var geometry = new THREE.BoxGeometry(boxWidth, boxWidth, boxWidth);
+          var material = new THREE.MeshBasicMaterial({
+            map: texture,
+            color: 0x333333,
+            side: THREE.BackSide
+          });
+
+          var mesh = new THREE.Mesh(geometry, material);
+
+          this.metaObject = {
+            mesh: mesh
+          }
+        },
+
+        attached: function() {
+          this.fire('meta-attached', {
+            target: this
+          });
+        },
+
+        detached: function() {
+          this.metaVerse.fire('meta-detached', {
+            target: this
+          });
+        }
+    });
+  </script>
 </dom-module>
 </div></body></html>

@@ -6,24 +6,25 @@ var gulp = require('gulp'),
 
 require('web-component-tester').gulp.init(gulp);
 
-gulp.task('html', function () {
-  gulp.src('dist/hp-ml.local.html')
+gulp.task('html', ['js', 'copy'], function () {
+  gulp.src('dist/mr-ml.local.html')
     .pipe($.vulcanize({
       abspath: '',
       excludes: [],
       stripExcludes: false
     }))
-    .pipe($.rename('hp-ml.html'))
+    .on("error", function (err) { console.log("Error: " + err.message); })
+    .pipe($.rename('mr-ml.html'))
     .pipe(gulp.dest('dist'));
 })
 
 gulp.task('js', function () {
   browserify({ debug: true })
     .transform(babelify)
-    .require("./src/hp-ml.js", { entry: true })
+    .require("./src/game-object.js", { entry: true })
     .bundle()
     .on("error", function (err) { console.log("Error: " + err.message); })
-    .pipe(fs.createWriteStream("dist/hp-ml.js"))
+    .pipe(fs.createWriteStream("dist/game-object.js"))
 });
 
 gulp.task('copy', function () {
@@ -44,31 +45,17 @@ gulp.task('copy', function () {
   .pipe(gulp.dest('dist'));
 
   gulp.src([
-    'src/hp-ml.html',
+    'src/mr-ml.html',
   ])
-  .pipe($.rename('hp-ml.local.html'))
+  .pipe($.rename('mr-ml.local.html'))
   .pipe(gulp.dest('dist'));
 
 });
 
-// TODO: somehow the gulp file doesn't run correctly and generates an almost empty hp-ml.js
-gulp.task('build', [
-  'copy',
-  'js',
-  'html'
-]);
+gulp.task('build', ['copy', 'js', 'html']);
 
 gulp.task('test', ['test:local'])
 
 gulp.task('default', ['build'], function () {
-  var watchHtml = ['src/*.html'],
-    watchCopy = ['bower_components'],
-    watchJs = ['src/*.*js'];
-
-  var watchAll = watchHtml.concat(watchJs, watchCopy);
-
-  gulp.watch(watchHtml, ['build']);
-  gulp.watch(watchCopy, ['build']);
-  gulp.watch(watchJs, ['build']);
-
+  gulp.watch(['src/*.*js', 'src/*.html', 'bower_components'], ['build']);
 })
