@@ -41,6 +41,7 @@ gulp.task('copy', function () {
   gulp.src([
     'bower_components/polymer/polymer*',
     'src/meta-*.html',
+    'src/left-wall.html',
   ])
   .pipe(gulp.dest('dist'));
 

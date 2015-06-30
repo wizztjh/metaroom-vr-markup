@@ -1,0 +1,47 @@
+<link rel="import" href="meta-base.html">
+
+<dom-module id="left-wall">
+  <template>
+    <content></content>
+  </template>
+
+  <script>
+    Polymer({
+        is: 'left-wall',
+
+        properties: {
+          metaVerse: Object,
+          metaObject: Object
+        },
+
+        created: function(){
+          var planeHeight = 10;
+          var planeWidth = 10;
+          var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight,1,1);
+          var material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            side: THREE.BackSide
+          });
+
+          var mesh = new THREE.Mesh(geometry, material);
+          mesh.position.set(5,5,5);
+
+          this.metaObject = {
+            mesh: mesh
+          }
+        },
+
+        attached: function() {
+          this.fire('meta-attached', {
+            target: this
+          });
+        },
+
+        detached: function() {
+          this.metaVerse.fire('meta-detached', {
+            target: this
+          });
+        }
+    });
+  </script>
+</dom-module>
