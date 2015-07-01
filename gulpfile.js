@@ -4,36 +4,47 @@ var gulp = require('gulp'),
   fs = require('fs')
   $ = require('gulp-load-plugins')(),
   Vulcanize = require('vulcanize');
+  del = require('del');
+
+var source = require('vinyl-source-stream');
+var runSequence = require('run-sequence');
 
 require('web-component-tester').gulp.init(gulp);
 
-gulp.task('html', ['copy','js'], function () {
-  console.log(
-    gulp.src('dist/mr-ml.local.html')
-      .pipe($.vulcanize({
-        abspath: '',
-        excludes: [],
-        stripExcludes: false
-      }))
-  )
+gulp.task('build:clean', function(cb) {
+  del(['dist'], cb);
+});
+
+gulp.task('build:html', function () {
   gulp.src('dist/mr-ml.local.html')
     .pipe($.vulcanize({
       abspath: '',
-      excludes: [],
-      stripExcludes: false
+      excludes: [
+      ],
+      stripExcludes: false,
+      inlineScripts: false,
+      inlineCss: false,
+      implicitStrip: true,
+      stripComments: false
     }))
     .pipe($.rename('mr-ml.html'))
     .pipe(gulp.dest('dist'))
-    .on("error", function (err) { console.log("Error: " + err.message); })
+    .on('error', $.util.log)
 })
 
-gulp.task('js', function () {
-  browserify({ debug: true })
-    .transform(babelify)
-    .require("./src/game-object.js", { entry: true })
-    .bundle()
-    .on("error", function (err) { console.log("Error: " + err.message); })
-    .pipe(fs.createWriteStream("dist/game-object.js"))
+gulp.task('build:js', function () {
+  var bundleStream = browserify({
+    entries: './src/game-object.js',
+    debug: true,
+    // defining transforms here will avoid crashing your stream
+    transform: [babelify]
+  });
+
+  bundleStream.bundle()
+    .pipe(source('game-object.js'))
+    .pipe($.streamify($.uglify()))
+    .on('error', $.util.log)
+    .pipe(gulp.dest('dist'));
 });
 
 gulp.task('copy:depsjs', function () {
@@ -65,9 +76,14 @@ gulp.task('copy:metaroomMarkup', function () {
   .pipe(gulp.dest('dist'));
 });
 
-gulp.task('copy',['copy:depsjs', 'copy:webComponents', 'copy:metaroomMarkup'])
+gulp.task('build:copy',['copy:depsjs', 'copy:webComponents', 'copy:metaroomMarkup'])
 
-gulp.task('build', ['html'])
+gulp.task('build', function(callback) {
+  runSequence('build:clean',
+              ['build:js', 'build:copy'],
+              'build:html', ['build:html'],
+              callback);
+});
 
 gulp.task('test', ['test:local'])
 
