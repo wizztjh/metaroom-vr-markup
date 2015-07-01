@@ -1,4 +1,4 @@
-### MetaRoom Markup Language(MRML)
+### metaroom-markup
 A markup language that builds virtual reality webpage like html.
 
 How do you represent `<table>` in virtual reality? a 3d table.
