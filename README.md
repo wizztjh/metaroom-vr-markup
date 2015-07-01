@@ -11,8 +11,6 @@ html -> ?
 ``` html
 <meta-verse skybox=''>
   <meta-room width='300px' height='600px'>
-    <!-- maybe we should make all the left wall and right wall to meta&#45;wall with left , right, top , floor alignement -->
-
     <meta-wall align='left'>
       <poster src='VRcollab.png'></poster>
     </meta-wall>
