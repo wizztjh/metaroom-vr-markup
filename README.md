@@ -5,7 +5,9 @@ How do you represent `<table>` in virtual reality? a 3d table.
 How about `<thead>`? A label on the side of the 3d table.
 
 canvas -> webGL
+
 svg -> x3d
+
 html -> ?
 
 ``` html
@@ -50,6 +52,14 @@ html -> ?
   </meta-room>
 </meta-verse>
 ```
+
+### disclaimer
+I am still prototyping this. The code might stinks
+
+### Roadmap
+- add test to all the elements
+- add css to change the shader. We should support glsify
+- add functional modelling for table and use css to change the arguments
 
 ### run the build
 `gulp`
