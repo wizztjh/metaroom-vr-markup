@@ -60,6 +60,8 @@ I am still prototyping this. The code might stinks
 - add test to all the elements
 - add css to change the shader. We should support glsify
 - add functional modelling for table and use css to change the arguments
+- tab to change the position and look at of the user just like tabindex
+- How do we do website scrolling in VR or 3D? There should be a path in the meta-room follows all the tabindex, meta-link and meta-item
 
 ### run the build
 `gulp`
