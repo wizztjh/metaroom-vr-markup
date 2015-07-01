@@ -42,7 +42,7 @@
           }
         },
 
-        attached: function() {
+        update: function(){
           var mesh = this.metaObject.mesh;
           switch (this.align) {
             case 'left':
@@ -60,7 +60,16 @@
               mesh.position.set(5, 0, 0);
               break;
           }
+        },
 
+        attributeChanged: function(name, type) {
+          if (name=='align') {
+            this.update()
+          }
+        },
+
+        attached: function() {
+          this.update()
           this.fire('meta-attached', {
             target: this
           });
