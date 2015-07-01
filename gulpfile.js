@@ -16,7 +16,7 @@ gulp.task('build:clean', function(cb) {
 });
 
 gulp.task('build:html', function () {
-  gulp.src('dist/mr-ml.local.html')
+  gulp.src('dist/metaroom-markup.local.html')
     .pipe($.vulcanize({
       abspath: '',
       excludes: [
@@ -27,7 +27,7 @@ gulp.task('build:html', function () {
       implicitStrip: true,
       stripComments: false
     }))
-    .pipe($.rename('mr-ml.html'))
+    .pipe($.rename('metaroom-markup.html'))
     .pipe(gulp.dest('dist'))
     .on('error', $.util.log)
 })
@@ -70,9 +70,9 @@ gulp.task('copy:webComponents', function () {
 
 gulp.task('copy:metaroomMarkup', function () {
   gulp.src([
-    'src/mr-ml.html',
+    'src/metaroom-markup.html',
   ])
-  .pipe($.rename('mr-ml.local.html'))
+  .pipe($.rename('metaroom-markup.local.html'))
   .pipe(gulp.dest('dist'));
 });
 
