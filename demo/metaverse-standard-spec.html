@@ -9,47 +9,41 @@
     <meta-verse skybox=''>
       <meta-room width='300px' height='600px'>
         <!-- maybe we should make all the left wall and right wall to meta&#45;wall with left , right, top , floor alignement -->
-        <left-wall>
+
+        <meta-wall align='left'>
           <poster src='VRcollab.png'></poster>
-        </left-wall>
+        </meta-wall>
 
-        <meta-frontwall controller='logoSpinner.js'>
+        <meta-wall align='right'>
           <item src='VRcollab-logo.obj'></item>
-        </meta-frontwall>
+        </meta-wall>
 
-        <meta-wall x='10px' y='10px' width='100px'></wall>
+        <!-- <meta&#45;wall x='10px' y='10px' width='100px'></wall> -->
+
         <meta-floor>
-          <table>
-            <!-- <tleft></tleft> -->
-            <!-- <tright></tright> -->
-            <!-- <tbottom></tbottom> -->
-            <!-- <tback></tback> -->
+          <meta-table>
+            <meta-thead>Contact US</thead>
 
-            <thead>Contact US</thead>
+            <meta-tbody>
+              <meta-tr>
+                <meta-td>
+                  <meta-item src='phone.obj' alt='call us by +6598144461' pickup='true'></meta-item>
+                </meta-td>
+              </meta-tr>
+            </meta-tbody>
 
-            <tbody>
-              <tr>
-                <td>
-                  <item src='phone.obj' alt='call us by +6598144461' pickup='true'>
-                    <menu>
-                    </menu>
-                  </item>
-                </td>
-              </tr>
-            </tbody>
+          </meta-table>
 
-          </table>
-
-          <table>
-            <thead>Achievements</thead>
-            <tbody>
-              <tr>
-                <td>
-                  <item src='best-game-ever-trophy.obj' alt='this is a trophy won by us on 2013' pickup='true'>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <meta-table>
+            <meta-thead>Achievements</meta-thead>
+            <meta-tbody>
+              <meta-tr>
+                <meta-td>
+                  <meta-item src='best-game-ever-trophy.obj' alt='this is a trophy won by us on 2013' pickup='true'></meta-item>
+                </meta-td>
+              </meta-tr>
+            </meta-tbody>
+          </meta-table>
         </meta-floor>
 
       </meta-room>

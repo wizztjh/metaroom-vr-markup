@@ -1,13 +1,13 @@
 <link rel="import" href="meta-base.html">
 
-<dom-module id="left-wall">
+<dom-module id="meta-wall">
   <template>
     <content></content>
   </template>
 
   <script>
     Polymer({
-        is: 'left-wall',
+        is: 'meta-wall',
 
         properties: {
           metaVerse: Object,
@@ -15,17 +15,17 @@
         },
 
         created: function(){
-          var planeHeight = 10;
-          var planeWidth = 10;
+          var planeHeight = 20;
+          var planeWidth = 20;
           var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight,1,1);
           var material = new THREE.MeshBasicMaterial({
             color: 0xffffff,
-            side: THREE.BackSide
+            side: THREE.DoubleSide
           });
 
           var mesh = new THREE.Mesh(geometry, material);
-          mesh.position.set(5,5,5);
-
+          mesh.position.set(-5,-5,-5);
+          mesh.rotation.y = 90 * (Math.PI/180);
           this.metaObject = {
             mesh: mesh
           }
