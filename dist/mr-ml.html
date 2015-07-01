@@ -5916,7 +5916,6 @@ this._removeChildren();
           });
 
           var mesh = new THREE.Mesh(geometry, material);
-          mesh.rotation.y = 90 * (Math.PI/180);
           this.metaObject = {
             mesh: mesh
           }
@@ -5926,10 +5925,18 @@ this._removeChildren();
           var mesh = this.metaObject.mesh;
           switch (this.align) {
             case 'left':
-              mesh.position.set(-5,-5,-5);
+              mesh.rotation.y = 90 * (Math.PI/180);
+              mesh.position.set(-5, 0, 0);
+              break;
+            case 'front':
+              mesh.position.set(0, 0, -5);
+              break;
+            case 'back':
+              mesh.position.set(0, 0, 5);
               break;
             case 'right':
-              mesh.position.set(5,-5,-5);
+              mesh.rotation.y = 90 * (Math.PI/180);
+              mesh.position.set(5, 0, 0);
               break;
           }
 

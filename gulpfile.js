@@ -81,7 +81,7 @@ gulp.task('build:copy',['copy:depsjs', 'copy:webComponents', 'copy:metaroomMarku
 gulp.task('build', function(callback) {
   runSequence('build:clean',
               ['build:js', 'build:copy'],
-              'build:html', ['build:html'],
+              'build:html',
               callback);
 });
 
