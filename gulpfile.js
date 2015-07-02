@@ -16,7 +16,12 @@ gulp.task('build:clean', function(cb) {
 });
 
 gulp.task('build:cleanup', function(cb) {
-  del(['dist'], cb);
+  del([
+    'dist/meta-*',
+    'dist/polymer*',
+    'dist/lib.js',
+    'dist/metaroom-markup.local.html'
+  ], cb);
 });
 
 gulp.task('build:html', function () {
@@ -73,7 +78,7 @@ gulp.task('build:copy',['copy:webComponents', 'copy:metaroomMarkup'])
 gulp.task('build', function(callback) {
   runSequence('build:clean',
               ['build:js', 'build:copy'],
-              'build:html',
+              'build:html', 'build:cleanup',
               callback);
 });
 
