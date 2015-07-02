@@ -99,11 +99,24 @@ html -> ?
 I am still prototyping this. The code might stinks
 
 ### Roadmap
+
 - add test to all the elements
 - add css to change the shader. We should support glsify
 - add functional modelling for table and use css to change the arguments
 - tab to change the position and look at of the user just like tabindex
 - How do we do website scrolling in VR or 3D? There should be a path in the meta-room follows all the tabindex, meta-link and meta-item
 
-### run the build
-`gulp`
+### Dev setup
+
+    git clone https://github.com/wizztjh/metaroom-markup.git
+    cd metaroom-markup
+    npm install 
+    gulp build
+    
+Run the test 
+    
+    gulp test
+
+Hot update during development
+
+    gulp
