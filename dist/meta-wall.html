@@ -8,13 +8,10 @@
   <script>
     Polymer({
         is: 'meta-wall',
-
+        behaviors: [MRM.FireMetaEventsBehavior],
         properties: {
-          metaVerse: Object,
-          metaObject: Object,
           align: {
             type: String,
-            // reflectToAttribute: true
             notify: true
           }
         },
@@ -68,18 +65,6 @@
           }
         },
 
-        attached: function() {
-          this.update()
-          this.fire('meta-attached', {
-            target: this
-          });
-        },
-
-        detached: function() {
-          this.metaVerse.fire('meta-detached', {
-            target: this
-          });
-        }
     });
   </script>
 </dom-module>

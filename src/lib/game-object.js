@@ -1,4 +1,4 @@
-class GameObject{
+export default class GameObject{
   constructor(){
     var self = this;
     this.metaObjects = new Map();
@@ -55,4 +55,3 @@ class GameObject{
     this.metaObjects.delete(metaObject.mesh.uuid)
   }
 }
-window.GameObject = GameObject

@@ -1,6 +1,4 @@
 <link rel="import" href="meta-base.html">
-<script src="game-object.js"></script>
-
 <dom-module id="meta-verse">
 
   <style>
@@ -22,7 +20,7 @@
         },
 
         created: function() {
-          this.gameObject = new GameObject();
+          this.gameObject = new MRM.GameObject();
           this.appendChild( this.gameObject.renderer.domElement );
         },
 

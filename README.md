@@ -11,46 +11,86 @@ svg -> x3d
 html -> ?
 
 ``` html
-<meta-verse skybox=''>
-  <meta-room width='300px' height='600px'>
-    <meta-wall align='left'>
-      <poster src='VRcollab.png'></poster>
-    </meta-wall>
-    <meta-wall align='right'></meta-wall>
 
-    <meta-wall align='front'></meta-wall>
-    <meta-wall align='back'></meta-wall>
+      <meta-verse skybox=''>
+        <meta-room width='600px' height='600px'>
+          <meta-wall align='left'>
+            <poster src='VRcollab.png'></poster>
+          </meta-wall>
+          <meta-wall align='right'></meta-wall>
 
-    <meta-wall align='ceiling'></meta-wall>
+          <meta-wall align='front'></meta-wall>
+          <meta-wall align='back'></meta-wall>
 
-    <meta-floor>
-      <meta-table>
-        <meta-thead>Contact US</thead>
+          <meta-wall align='ceiling'></meta-wall>
 
-        <meta-tbody>
-          <meta-tr>
-            <meta-td>
-              <meta-item src='phone.obj' alt='call us by +6598144461' pickup='true'></meta-item>
-            </meta-td>
-          </meta-tr>
-        </meta-tbody>
+          <meta-floor style='display: grid; grid-row: 5; grid-column: 5'>
+            > or we should use
+            > <meta-grid>
+            >   <meta-gbox grid-x='0' grid-y='0' ></meta-gbox>
+            > </meta-grid>
+            > i think we should remove the meta for all the table, tr and td
 
-      </meta-table>
+            <meta-table style='grid-x: 0; grid-y: 0'>
+              <meta-thead>Cashier</thead>
 
-      <meta-table>
-        <meta-thead>Achievements</meta-thead>
-        <meta-tbody>
-          <meta-tr>
-            <meta-td>
-              <meta-item src='best-game-ever-trophy.obj' alt='this is a trophy won by us on 2013' pickup='true'></meta-item>
-            </meta-td>
-          </meta-tr>
-        </meta-tbody>
-      </meta-table>
-    </meta-floor>
+              <meta-tbody>
+                <meta-tr>
 
-  </meta-room>
-</meta-verse>
+                  <meta-td>
+                    <meta-item src='cashier.obj' title='cashier' onLook='pay()'></meta-item>
+                  </meta-td>
+
+                  <meta-td>
+                    <meta-item src='cashier.obj' title='cashier' onLook='pay()'></meta-item>
+                  </meta-td>
+
+                  <meta-td>
+                    <meta-item src='cashier.obj' title='cashier' onLook='pay()'></meta-item>
+                  </meta-td>
+
+                </meta-tr>
+                <meta-tr></meta-tr>
+              </meta-tbody>
+            </meta-table>
+
+            <meta-rack height='200px' style='height: 200px'>
+              <meta-rlevel>
+                <meta-grid style='display: grid'>
+                  <meta-gbox style='grid-x: 0; grid-y: 0'>
+                    <meta-item src='red-shoe.obj' title='red shoe' onLook='addToCart()'></meta-item>
+                  </meta-gbox>
+                </meta-grid>
+              <meta-rlevel>
+            </meta-rack>
+
+            <meta-table style='grid-x: 5; grid-y: 5'>
+              <meta-thead>Contact US</thead>
+
+              <meta-tbody>
+                <meta-tr>
+                  <meta-td>
+                    <meta-item src='phone.obj' alt='call us by +6598144461' pickup='true'></meta-item>
+                  </meta-td>
+                </meta-tr>
+              </meta-tbody>
+
+            </meta-table>
+
+            <meta-tablestyle='grid-x: 4; grid-y: 5'>
+              <meta-thead>Achievements</meta-thead>
+              <meta-tbody>
+                <meta-tr>
+                  <meta-td>
+                    <meta-item src='best-game-ever-trophy.obj' alt='this is a trophy won by us on 2013' pickup='true'></meta-item>
+                  </meta-td>
+                </meta-tr>
+              </meta-tbody>
+            </meta-table>
+          </meta-floor>
+
+        </meta-room>
+      </meta-verse>
 ```
 
 ### disclaimer
