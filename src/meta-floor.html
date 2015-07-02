@@ -8,7 +8,7 @@
   <script>
     Polymer({
       is: 'meta-floor',
-      behaviors: [MRM.FireMetaEventsBehavior],
+      behaviors: [MRM.fireMetaEventsBehavior, MRM.createBaseWallBehavior],
 
       update: function(){
         var mesh = this.metaObject.mesh;

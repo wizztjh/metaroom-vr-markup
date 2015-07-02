@@ -1,4 +1,4 @@
-var FireMetaEventsBehavior = {
+var fireMetaEventsBehavior = {
   properties: {
     metaVerse: Object,
     metaObject: Object,
@@ -18,4 +18,4 @@ var FireMetaEventsBehavior = {
   }
 }
 
-export default FireMetaEventsBehavior;
+export default fireMetaEventsBehavior;

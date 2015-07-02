@@ -1,8 +1,10 @@
 import GameObject from './game-object.js'
-import FireMetaEventsBehavior from './fire-meta-events-behavior.js'
+import fireMetaEventsBehavior from './fire-meta-events-behavior.js'
+import createBaseWallBehavior from './create-base-wall-behavior.js'
 
 var MRM = {}
 MRM.GameObject = GameObject
-MRM.FireMetaEventsBehavior = FireMetaEventsBehavior
+MRM.fireMetaEventsBehavior = fireMetaEventsBehavior
+MRM.createBaseWallBehavior = createBaseWallBehavior
 
 window.MRM = MRM
