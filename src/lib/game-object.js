@@ -29,6 +29,7 @@ export default class GameObject{
       self.manager.render(self.scene, self.camera);
       requestAnimationFrame(animate);
     }
+
     animate();
     // Object.keys(initObjs).forEach(function(name){
     //   returnObject = initObjs[name].apply(self)

@@ -1,7 +1,7 @@
-import GameObject from '../dist/game-object.js'
-
 suite('GameObject', function() {
   test('is awesome', function() {
-    assert.isTrue(GameObject.awesome);
+    var gameObject = new MRM.GameObject()
+
+    expect(gameObject).to.have.property("renderer");
   });
 });
