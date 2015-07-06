@@ -82,7 +82,9 @@ gulp.task('build', function(callback) {
               callback);
 });
 
-gulp.task('test', ['test:local'])
+gulp.task('test', ['build', 'test:local'], function(){
+  gulp.watch(['src/*.*js', 'src/*.html', 'bower_components', 'test/*'], ['build', 'test:local']);
+});
 
 gulp.task('default', ['build'], function () {
   gulp.watch(['src/*.*js', 'src/*.html', 'bower_components'], ['build']);
