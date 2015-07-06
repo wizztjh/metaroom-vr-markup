@@ -12,11 +12,11 @@ var runSequence = require('run-sequence');
 require('web-component-tester').gulp.init(gulp);
 
 gulp.task('build:clean', function(cb) {
-  del(['dist'], cb);
+  return del(['dist'], cb);
 });
 
 gulp.task('build:cleanup', function(cb) {
-  del([
+  return del([
     'dist/meta-*',
     'dist/polymer*',
     'dist/lib.js',
@@ -25,7 +25,7 @@ gulp.task('build:cleanup', function(cb) {
 });
 
 gulp.task('build:html', function () {
-  gulp.src('dist/metaroom-markup.local.html')
+  return gulp.src('dist/metaroom-markup.local.html')
     .pipe($.vulcanize({
       abspath: '',
       excludes: [
@@ -50,7 +50,7 @@ gulp.task('build:js', function () {
     transform: [babelify]
   });
 
-  bundleStream.bundle()
+  return bundleStream.bundle()
     .pipe(source('lib.js'))
     .pipe($.streamify($.uglify()))
     .on('error', $.util.log)
@@ -58,7 +58,7 @@ gulp.task('build:js', function () {
 });
 
 gulp.task('copy:webComponents', function () {
-  gulp.src([
+  return gulp.src([
     'bower_components/polymer/polymer*',
     'src/meta-*.html'
   ])
@@ -66,7 +66,7 @@ gulp.task('copy:webComponents', function () {
 });
 
 gulp.task('copy:metaroomMarkup', function () {
-  gulp.src([
+  return gulp.src([
     'src/metaroom-markup.html',
   ])
   .pipe($.rename('metaroom-markup.local.html'))
@@ -76,7 +76,7 @@ gulp.task('copy:metaroomMarkup', function () {
 gulp.task('build:copy',['copy:webComponents', 'copy:metaroomMarkup'])
 
 gulp.task('build', function(callback) {
-  runSequence('build:clean',
+  return runSequence('build:clean',
               ['build:js', 'build:copy'],
               'build:html', 'build:cleanup',
               callback);
