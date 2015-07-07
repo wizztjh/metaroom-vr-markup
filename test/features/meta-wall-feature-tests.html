@@ -1,0 +1,44 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../../web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+</head>
+<body>
+  <meta-verse id="meta-verse">
+    <meta-room width='10' height='10' depth='10'>
+      <meta-wall id='main-meta-wall'></meta-wall>
+    </meta-room>
+  </meta-verse>
+
+  <script>
+    describe('meta-wall', function() {
+      var metaVerse = document.querySelector('#meta-verse');
+
+      describe("when it is added within meta-room", function(){
+
+        it("adds a plane to meta-verse", function(){
+          var sceneUUIDs = metaVerse.gameObject.scene.children.map(function(child){
+            return child.uuid;
+          });
+
+          var metaWall = metaVerse.querySelector('#main-meta-wall');
+          var metaWallUUID = metaWall.metaObject.mesh.uuid
+
+          expect(sceneUUIDs).to.include(metaWallUUID)
+        });
+
+        describe("with align=left", function(){
+          it("sets the meta object to the left of the room", function(){
+          });
+
+        });
+
+      });
+
+    });
+  </script>
+</body>
+</html>
