@@ -9,11 +9,20 @@
 <body>
   <meta-verse id="meta-verse"></meta-verse>
   <script>
-    suite('<meta-verse>', function() {
-      test('got a gameObject', function() {
-        var metaVerse = document.getElementById('meta-verse');
-        expect(metaVerse).to.have.property("gameObject");
+    describe('<meta-verse>', function() {
+      var metaVerse = document.getElementById('meta-verse');
+
+      // unit test
+      it('got a gameObject', function() {
+        expect(metaVerse).to.have.property("gameObject").be.a('Object')
       });
+
+      it('appends a canvas', function(){
+        expect(metaVerse.querySelectorAll("canvas")).to.have.length(1);
+      });
+
+      //feature test
+
     });
   </script>
 </body>
