@@ -110,7 +110,9 @@ I am still prototyping this. The code might stinks
 
     git clone https://github.com/wizztjh/metaroom-markup.git
     cd metaroom-markup
-    npm install 
+    npm install
+    npm install gulp -g
+    bower install
     gulp build
     
 Run the test 
