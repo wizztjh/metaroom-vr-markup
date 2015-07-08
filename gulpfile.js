@@ -86,6 +86,15 @@ gulp.task('test', ['build', 'test:local'], function(){
   gulp.watch(['src/*.*js', 'src/*.html', 'bower_components', 'test/*'], ['build', 'test:local']);
 });
 
-gulp.task('default', ['build'], function () {
+gulp.task('webserver', function() {
+  gulp.src('./')
+    .pipe($.webserver({
+      livereload: true,
+      directoryListing: true,
+      open: true
+    }));
+});
+
+gulp.task('default', ['build', 'webserver'], function () {
   gulp.watch(['src/*.*js', 'src/*.html', 'bower_components'], ['build']);
 })
