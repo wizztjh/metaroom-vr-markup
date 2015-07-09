@@ -10,6 +10,9 @@ svg -> x3d
 
 html -> ?
 
+[![metaroom-markup video](http://img.youtube.com/vi/eoWaB1wufn4/0.jpg)](http://www.youtube.com/watch?v=eoWaB1wufn4)
+
+
 ![alt tag](demo/img/room.png)
 
 ``` html
