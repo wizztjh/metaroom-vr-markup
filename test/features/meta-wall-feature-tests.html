@@ -9,7 +9,7 @@
 <body>
   <meta-verse id="meta-verse">
     <meta-room width='10' height='10' depth='10'>
-      <meta-wall id='main-meta-wall'></meta-wall>
+      <meta-wall align='left' id='main-meta-wall'></meta-wall>
     </meta-room>
   </meta-verse>
 
@@ -25,13 +25,18 @@
           });
 
           var metaWall = metaVerse.querySelector('#main-meta-wall');
-          var metaWallUUID = metaWall.metaObject.mesh.uuid
+          var metaWallUUID = metaWall.metaObject.mesh.uuid;
 
           expect(sceneUUIDs).to.include(metaWallUUID)
         });
 
         describe("with align=left", function(){
           it("sets the meta object to the left of the room", function(){
+            var metaWall = metaVerse.querySelector('#main-meta-wall');
+            var metaWallMesh = metaWall.metaObject.mesh;
+            expect(metaWallMesh.position.x, 'x').to.equal(-5);
+            expect(metaWallMesh.position.y, 'y').to.equal(0);
+            expect(metaWallMesh.position.z, 'z').to.equal(0);
           });
 
         });
