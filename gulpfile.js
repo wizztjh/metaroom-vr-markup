@@ -82,10 +82,6 @@ gulp.task('build', function(callback) {
               callback);
 });
 
-gulp.task('test', ['build', 'test:local'], function(){
-  gulp.watch(['src/*.*js', 'src/*.html', 'bower_components', 'test/*'], ['build', 'test:local']);
-});
-
 gulp.task('webserver', function() {
   gulp.src('./')
     .pipe($.webserver({
@@ -93,6 +89,10 @@ gulp.task('webserver', function() {
       directoryListing: true,
       open: true
     }));
+});
+
+gulp.task('test', ['build', 'test:local', 'webserver'], function(){
+  gulp.watch(['src/*.*js', 'src/*.html', 'bower_components', 'test/*'], ['build', 'test:local']);
 });
 
 gulp.task('default', ['build', 'webserver'], function () {
