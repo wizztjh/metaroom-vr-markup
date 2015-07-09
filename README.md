@@ -10,8 +10,11 @@ svg -> x3d
 
 html -> ?
 
+### Introduction to metaroom-markup video:
+
 [![metaroom-markup video](http://img.youtube.com/vi/eoWaB1wufn4/0.jpg)](http://www.youtube.com/watch?v=eoWaB1wufn4)
 
+### How the markup looks like
 
 ![alt tag](demo/img/room.png)
 
