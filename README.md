@@ -10,12 +10,6 @@ svg -> x3d
 
 html -> ?
 
-### Introduction to metaroom-markup video:
-
-[![metaroom-markup video](http://img.youtube.com/vi/eoWaB1wufn4/0.jpg)](http://www.youtube.com/watch?v=eoWaB1wufn4)
-
-### How the markup looks like
-
 ![alt tag](demo/img/room.png)
 
 ``` html
@@ -111,6 +105,11 @@ I am still prototyping this. The code might stinks
 - add functional modelling for table and use css to change the arguments
 - tab to change the position and look at of the user just like tabindex
 - How do we do website scrolling in VR or 3D? There should be a path in the meta-room follows all the tabindex, meta-link and meta-item
+
+### Introduction to metaroom-markup video:
+
+[![metaroom-markup video](http://img.youtube.com/vi/eoWaB1wufn4/0.jpg)](http://www.youtube.com/watch?v=eoWaB1wufn4)
+
 
 ### Dev setup
 
