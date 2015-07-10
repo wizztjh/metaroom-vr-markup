@@ -118,13 +118,13 @@ I am still prototyping this. The code might stinks
     npm install
     npm install gulp -g
     bower install
-    gulp
-    # go to demo -> metaroom-markup-standard-spec
-    
-Run the test 
-    
-    gulp test
 
 Hot update during development
-
     gulp
+
+Demo
+    # go to localhost:3000/demo/metaroom-markup-standard-spec.html
+
+Run the test
+    # go to localhost:3000/test/index.html after gulp
+

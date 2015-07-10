@@ -16,7 +16,8 @@
     "tests"
   ],
   "dependencies": {
-    "webcomponentsjs":"*"
+    "webcomponentsjs": "*",
+    "web-component-tester": "Polymer/web-component-tester#~3.2.0"
   },
   "devDependencies": {
     "polymer": "Polymer/polymer#^1.0.0",
@@ -26,5 +27,4 @@
     "webvr-polyfill": "https://raw.githubusercontent.com/borismus/webvr-polyfill/master/build/webvr-polyfill.js",
     "webvr-manager": "https://raw.githubusercontent.com/borismus/webvr-boilerplate/master/build/webvr-manager.js"
   }
-  
 }
