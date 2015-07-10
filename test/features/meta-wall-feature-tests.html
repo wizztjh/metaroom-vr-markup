@@ -8,7 +8,7 @@
 </head>
 <body>
   <meta-verse id="meta-verse">
-    <meta-room width='10' height='10' depth='10'>
+    <meta-room width='10' height='10' depth='10' id='main-meta-room'>
       <meta-wall align='left' id='main-meta-wall'></meta-wall>
     </meta-room>
   </meta-verse>
@@ -16,15 +16,17 @@
   <script>
     describe('meta-wall', function() {
       var metaVerse = document.querySelector('#meta-verse');
+      var sceneUUIDs = metaVerse.gameObject.scene.children.map(function(child){
+        return child.uuid;
+      });
+      var metaWall = metaVerse.querySelector('#main-meta-wall');
+      var metaRoom = metaVerse.querySelector('#main-meta-room');
+
+      var metaWallMesh = metaWall.metaObject.mesh;
 
       describe("when it is added within meta-room", function(){
 
         it("adds a plane to meta-verse", function(){
-          var sceneUUIDs = metaVerse.gameObject.scene.children.map(function(child){
-            return child.uuid;
-          });
-
-          var metaWall = metaVerse.querySelector('#main-meta-wall');
           var metaWallUUID = metaWall.metaObject.mesh.uuid;
 
           expect(sceneUUIDs).to.include(metaWallUUID)
@@ -32,11 +34,20 @@
 
         describe("with align=left", function(){
           it("sets the meta object to the left of the room", function(){
-            var metaWall = metaVerse.querySelector('#main-meta-wall');
-            var metaWallMesh = metaWall.metaObject.mesh;
             expect(metaWallMesh.position.x, 'x').to.equal(-5);
             expect(metaWallMesh.position.y, 'y').to.equal(0);
             expect(metaWallMesh.position.z, 'z').to.equal(0);
+          });
+
+          describe("when the room width changes", function(){
+
+            it("sets the meta object to the left of the room", function(){
+              metaRoom.width = 20;
+              expect(metaWallMesh.position.x, 'x').to.equal(-10);
+              expect(metaWallMesh.position.y, 'y').to.equal(0);
+              expect(metaWallMesh.position.z, 'z').to.equal(0);
+            });
+
           });
 
         });

@@ -11,6 +11,10 @@
         behaviors: [MRM.fireMetaEventsBehavior, MRM.createBaseWallBehavior],
 
         properties: {
+          roomWidth: {
+            type: Number,
+            notify: true
+          },
           align: {
             type: String,
             notify: true

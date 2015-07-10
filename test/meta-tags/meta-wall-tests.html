@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../../webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../../web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+</head>
+<body>
+  <meta-wall id="meta-wall"></meta-wall>
+  <script>
+    describe('<meta-wall>', function() {
+      var metaWall = document.querySelector('#meta-wall');
+
+      describe('when align is updated', function() {
+        describe('to left', function() {
+
+          it('updates the rotation to align left', function() {
+            metaWall.align = 'left'
+            expect(metaWall.metaObject.mesh.rotation.y).to.equal(90 * (Math.PI/180));
+          });
+
+        });
+      });
+
+    });
+  </script>
+</body>
+</html>
