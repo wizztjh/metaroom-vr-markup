@@ -59,10 +59,21 @@ gulp.task('build:js', function () {
 
 gulp.task('copy:webComponents', function () {
   return gulp.src([
-    'bower_components/polymer/polymer*',
     'src/meta-*.html'
   ])
   .pipe(gulp.dest('dist'));
+});
+
+gulp.task('copy:webComponentsJS', function () {
+  return gulp.src([
+    'src/meta-*.js',
+  ])
+    .pipe($.plumber())
+    .pipe($.browserify({
+      transform: [babelify]
+    }))
+    .pipe($.uglify())
+    .pipe(gulp.dest('dist'));
 });
 
 gulp.task('copy:metaroomMarkup', function () {
@@ -73,7 +84,7 @@ gulp.task('copy:metaroomMarkup', function () {
   .pipe(gulp.dest('dist'));
 });
 
-gulp.task('build:copy',['copy:webComponents', 'copy:metaroomMarkup'])
+gulp.task('build:copy',['copy:webComponents', 'copy:metaroomMarkup', 'copy:webComponentsJS'])
 
 gulp.task('build', function(callback) {
   return runSequence('build:clean',

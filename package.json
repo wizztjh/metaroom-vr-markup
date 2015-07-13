@@ -9,7 +9,8 @@
   "keywords": [
     "web-components",
     "virtual-reality",
-    "webgl"
+    "webgl",
+    "meta-component"
   ],
   "author": "wizztjh@gmail.com",
   "license": "MIT",
