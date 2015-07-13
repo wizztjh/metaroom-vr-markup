@@ -16,18 +16,18 @@
   <script>
     describe('meta-wall', function() {
       var metaVerse = document.querySelector('#meta-verse');
-      var sceneUUIDs = metaVerse.gameObject.scene.children.map(function(child){
+      var sceneUUIDs = metaVerse.controller.gameObject.scene.children.map(function(child){
         return child.uuid;
       });
       var metaWall = metaVerse.querySelector('#main-meta-wall');
       var metaRoom = metaVerse.querySelector('#main-meta-room');
 
-      var metaWallMesh = metaWall.metaObject.mesh;
+      var metaWallMesh = metaWall.controller.metaObject.mesh;
 
       describe("when it is added within meta-room", function(){
 
         it("adds a plane to meta-verse", function(){
-          var metaWallUUID = metaWall.metaObject.mesh.uuid;
+          var metaWallUUID = metaWall.controller.metaObject.mesh.uuid;
 
           expect(sceneUUIDs).to.include(metaWallUUID)
         });

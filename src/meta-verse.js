@@ -1,4 +1,5 @@
 // Shim & native-safe ownerDocument lookup
+//TODO: Move child element of meta-verse inside meta-verse-content #98917702
 var owner = (document._currentScript || document.currentScript).ownerDocument;
 
 class MetaVerseController{
@@ -16,21 +17,21 @@ class MetaVerseController{
     template.appendChild( this.gameObject.renderer.domElement );
 
     this.metaVerse.appendChild(template);
-
-    this.metaVerse.addEventListener('meta-attached', function(){
+    //TODO: Since `this` inside this event listerner is the dom itself, lets move it to Metaverse HTMLElement
+    this.metaVerse.addEventListener('meta-attached', function(e){
+      console.log('trigged attached!!!!!------------------',e.type, e, 'this', this)
       var target = e.detail.target;
 
       target.metaVerse = this;
       //TODO: need to find a better way to store the objects, it should be tree form
-      this.gameObject.add(target.metaObject);
+      this.controller.gameObject.add(target.controller.metaObject);
 
-      console.log('trigged',e.type, e)
-    });
+    }, false);
 
-    this.metaVerse.addEventListener('meta-detached', function(){
-      this.gameObject.remove(e.detail.target.metaObject);
+    this.metaVerse.addEventListener('meta-detached', function(e){
+      this.controller.gameObject.remove(e.detail.target.metaObject);
       console.log('trigged',e.type, e);
-    });
+    }, false);
   }
 }
 

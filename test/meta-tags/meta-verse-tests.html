@@ -13,7 +13,7 @@
       var metaVerse = document.querySelector('#meta-verse');
 
       it('got a gameObject', function() {
-        expect(metaVerse).to.have.property("gameObject");
+        expect(metaVerse.controller).to.have.property("gameObject");
       });
 
       it('appends a canvas', function(){
