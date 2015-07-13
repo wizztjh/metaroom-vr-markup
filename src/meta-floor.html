@@ -1,20 +1,8 @@
 <link rel="import" href="meta-base.html">
 
-<dom-module id="meta-floor">
-  <template>
-    <content></content>
-  </template>
 
-  <script>
-    Polymer({
-      is: 'meta-floor',
-      behaviors: [MRM.fireMetaEventsBehavior, MRM.createBaseWallBehavior],
+<template id="meta-floor">
+  <content></content>
+</template>
 
-      update: function(){
-        var mesh = this.metaObject.mesh;
-        mesh.rotation.x = 90 * (Math.PI/180);
-        mesh.position.set(0, -5, 0);
-      }
-    })
-  </script>
-</dom-module>
+<script src="meta-floor.js"></script>
