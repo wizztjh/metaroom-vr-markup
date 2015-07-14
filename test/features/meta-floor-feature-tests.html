@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+</head>
+<body>
+  <meta-verse id="meta-verse">
+    <meta-room width='10' height='10' depth='10' id='main-meta-room'>
+      <meta-floor id='main-meta-floor'></meta-floor>
+    </meta-room>
+  </meta-verse>
+
+  <script>
+    describe('meta-floor', function() {
+      var metaVerse = document.querySelector('#meta-verse');
+      var sceneUUIDs = metaVerse.controller.gameObject.scene.children.map(function(child){
+        return child.uuid;
+      });
+      var metaFloor = metaVerse.querySelector('#main-meta-floor');
+      var metaRoom = metaVerse.querySelector('#main-meta-room');
+
+      var metaFloorMesh = metaFloor.controller.metaObject.mesh;
+
+      describe("when it is added within meta-room", function(){
+
+        it("adds a plane to meta-verse", function(){
+          var metaFloorUUID = metaFloor.controller.metaObject.mesh.uuid;
+
+          expect(sceneUUIDs).to.include(metaFloorUUID)
+        });
+
+        // describe("when the room width changes", function(){
+        //
+        //   it("sets the meta object to the left of the room", function(){
+        //     metaRoom.width = 20;
+        //     expect(metaFloorMesh.position.x, 'x').to.equal(-10);
+        //     expect(metaFloorMesh.position.y, 'y').to.equal(0);
+        //     expect(metaFloorMesh.position.z, 'z').to.equal(0);
+        //   });
+        //
+        // });
+      });
+
+    });
+  </script>
+</body>
+</html>
