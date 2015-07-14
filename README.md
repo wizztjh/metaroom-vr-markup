@@ -96,7 +96,7 @@ html -> ?
 ```
 
 ### disclaimer
-I am still prototyping this. The code might stinks
+it is a prototype.
 
 ### Roadmap
 
