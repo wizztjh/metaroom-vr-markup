@@ -53,6 +53,11 @@ class MetaWall extends HTMLElement {
   }
 
   attributeChangedCallback(attrName, oldValue, newValue) {
+    switch(attrName) {
+      case 'align':
+        this.controller.alignChange(newValue)
+        break;
+    }
   }
 }
 
