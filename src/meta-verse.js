@@ -17,27 +17,26 @@ class MetaVerseController{
     template.appendChild( this.gameObject.renderer.domElement );
 
     this.metaVerse.appendChild(template);
-    //TODO: Since `this` inside this event listerner is the dom itself, lets move it to Metaverse HTMLElement
-    this.metaVerse.addEventListener('meta-attached', function(e){
-      console.log('trigged attached!!!!!------------------',e.type, e, 'this', this)
-      var target = e.detail.target;
-
-      target.metaVerse = this;
-      //TODO: need to find a better way to store the objects, it should be tree form
-      this.controller.gameObject.add(target.controller.metaObject);
-
-    }, false);
-
-    this.metaVerse.addEventListener('meta-detached', function(e){
-      this.controller.gameObject.remove(e.detail.target.metaObject);
-      console.log('trigged',e.type, e);
-    }, false);
   }
 }
 
 class MetaVerse extends HTMLElement {
   createdCallback() {
     this.controller = new MetaVerseController(this);
+
+    //TODO: Since `this` inside this event listerner is the dom itself, lets move it to Metaverse HTMLElement
+    this.addEventListener('meta-attached', function(e){
+      var controller = e.detail.controller;
+
+      controller.metaVerse = this;
+      //TODO: need to find a better way to store the objects, it should be tree form
+      this.controller.gameObject.add(controller.metaObject);
+    }, false);
+
+    this.addEventListener('meta-detached', function(e){
+      console.log('trigged detached',e.type, e);
+      this.controller.gameObject.remove(e.detail.controller.metaObject);
+    }, false);
   }
 }
 

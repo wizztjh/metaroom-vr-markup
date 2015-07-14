@@ -16,9 +16,6 @@
   <script>
     describe('meta-wall', function() {
       var metaVerse = document.querySelector('#meta-verse');
-      var sceneUUIDs = metaVerse.controller.gameObject.scene.children.map(function(child){
-        return child.uuid;
-      });
       var metaWall = metaVerse.querySelector('#main-meta-wall');
       var metaRoom = metaVerse.querySelector('#main-meta-room');
 
@@ -27,6 +24,9 @@
       describe("when it is added within meta-room", function(){
 
         it("adds a plane to meta-verse", function(){
+          var sceneUUIDs = metaVerse.controller.gameObject.scene.children.map(function(child){
+            return child.uuid;
+          });
           var metaWallUUID = metaWall.controller.metaObject.mesh.uuid;
 
           expect(sceneUUIDs).to.include(metaWallUUID);
@@ -46,6 +46,23 @@
               expect(metaWallMesh.position.y, 'y').to.equal(0);
               expect(metaWallMesh.position.z, 'z').to.equal(0);
             });
+          });
+        });
+
+        describe("with meta-wall is deleted", function(){
+          it("removes the meta object from the scene", function(){
+            var metaWallUUID;
+            var sceneUUIDs;
+
+            metaWall.remove();
+            metaWallUUID = metaWall.controller.metaObject.mesh.uuid;
+
+            sceneUUIDs = metaVerse.controller.gameObject.scene.children.map(function(child){
+              return child.uuid;
+            });
+
+            expect(sceneUUIDs).to.not.include(metaWallUUID);
+
           });
         });
 

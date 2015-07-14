@@ -102,10 +102,6 @@ gulp.task('webserver', function() {
     }));
 });
 
-gulp.task('test', ['build', 'webserver'], function(){
-  gulp.watch(['lib/*.js', 'src/*.js', 'src/*.html', 'bower_components', 'test/**/*.html', 'test/**/*.js', 'test/index.html'], ['build', 'test:local']);
-});
-
 gulp.task('default', ['build', 'webserver'], function () {
   gulp.watch(['lib/*.js', 'src/*.js', 'src/*.html', 'bower_components'], ['build']);
 })

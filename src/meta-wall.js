@@ -6,6 +6,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
       mesh: this.createMesh()
     }
     this.setupComponent();
+    this.metaVerse = null;
 
     this.alignChange(this.dom.getAttribute('align'));
   }
@@ -46,10 +47,19 @@ class MetaWall extends HTMLElement {
 
   attachedCallback() {
     var event = new CustomEvent('meta-attached', {
-      'detail': {'target': this},
+      'detail': {'controller': this.controller},
       bubbles: true
     });
     this.dispatchEvent(event);
+  }
+
+  detachedCallback() {
+    console.log('DETACHED-----------');
+    var event = new CustomEvent('meta-detached', {
+      'detail': {'controller': this.controller},
+      bubbles: true
+    });
+    this.controller.metaVerse.dispatchEvent(event);
   }
 
   attributeChangedCallback(attrName, oldValue, newValue) {

@@ -5,6 +5,7 @@ class MetaFloorController extends MRM.MetaBaseWallController{
     this.metaObject = {
       mesh: this.createMesh()
     }
+    this.metaVerse = null;
     this.setupComponent();
     this.update();
   }
@@ -27,7 +28,16 @@ class MetaFloor extends HTMLElement {
 
   attachedCallback() {
     var event = new CustomEvent('meta-attached', {
-      'detail': {'target': this},
+      'detail': {'controller': this.controller},
+      bubbles: true
+    });
+    this.dispatchEvent(event);
+  }
+
+  detachedCallback() {
+    console.log('DETACHED-----------');
+    var event = new CustomEvent('meta-detached', {
+      'detail': {'controller': this.controller},
       bubbles: true
     });
     this.dispatchEvent(event);
