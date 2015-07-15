@@ -66,6 +66,17 @@
           });
         });
 
+        describe("when the room width changes", function(){
+
+          it("sets the position of meta object", function(){
+            metaRoom.setAttribute('width', 20);
+            expect(metaWallMesh.position.x, 'x').to.equal(-10);
+            expect(metaWallMesh.position.y, 'y').to.equal(0);
+            expect(metaWallMesh.position.z, 'z').to.equal(0);
+          });
+
+        });
+
       });
 
     });

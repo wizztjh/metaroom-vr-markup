@@ -1,16 +1,17 @@
 // Shim & native-safe ownerDocument lookup
 var owner = (document._currentScript || document.currentScript).ownerDocument;
 
-class MetaRoomController{
-  constructor(metaRoom){
-    this.metaRoom = metaRoom;
+class MetaRoomController extends MRM.MetaBaseController{
+  constructor(dom){
+    super();
+    this.dom = dom;
     this.setupComponent();
   }
 
-  setupComponent() {
-    var template = owner.querySelector("#meta-room").content.cloneNode(true);
-    this.metaRoom.appendChild(template);
+  templateID() {
+    return "#meta-room";
   }
+
 }
 
 class MetaRoom extends HTMLElement {
