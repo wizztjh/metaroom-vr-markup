@@ -8,6 +8,12 @@ class MetaWallController extends MRM.MetaBaseWallController{
     this.setupComponent();
     this.metaVerse = null;
 
+    // NOTE: sets default
+    this.align = 'front'
+    this.roomWidth = 10
+    this.roomHeight = 10
+    this.roomDepth = 10
+
     this.alignChange(this.dom.getAttribute('align'));
   }
 
@@ -15,12 +21,39 @@ class MetaWallController extends MRM.MetaBaseWallController{
     return "#meta-wall"
   }
 
+  roomDimensionChange(width, height, depth) {
+    this.roomHeight = height
+    this.roomWidth = width
+    this.roomDepth = depth
+    this.updateMetaObject()
+  }
+
+  // roomHeightChange(height) {
+  //   this.roomHeight = height
+  //   this.updateMetaObject()
+  // }
+  //
+  // roomDepthChange(depth) {
+  //   this.roomDepth = depth
+  //   this.updateMetaObject()
+  // }
+
+  roomWidthChange(width) {
+    this.roomWidth = width
+    this.updateMetaObject()
+  }
+
   alignChange(align) {
+    this.align = align
+    this.updateMetaObject()
+  }
+
+  updateMetaObject(){
     var mesh = this.metaObject.mesh;
-    switch (align) {
+    switch (this.align) {
       case 'left':
         mesh.rotation.y = 90 * (Math.PI/180);
-        mesh.position.set(-5, 0, 0);
+        mesh.position.set(-(this.roomWidth/2), 0, 0);
         break;
       case 'front':
         mesh.position.set(0, 0, -5);
@@ -34,10 +67,11 @@ class MetaWallController extends MRM.MetaBaseWallController{
         break;
       case 'right':
         mesh.rotation.y = 90 * (Math.PI/180);
-        mesh.position.set(5, 0, 0);
+        mesh.position.set(this.roomWidth/2, 0, 0);
         break;
     }
   }
+
 }
 
 class MetaWall extends HTMLElement {

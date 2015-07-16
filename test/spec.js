@@ -1,3 +1,4 @@
+//TODO: abstract out the jlet to a bower
 var J = {}
 var fixtureHTML = ""
 
@@ -19,7 +20,6 @@ function jlet(name, callback){
 
   Object.defineProperty(J, name, {
     get: function(){
-      console.log('memoizer', memoizer());
       return memoizer()
     },
     set: function(){

@@ -12,12 +12,34 @@ class MetaRoomController extends MRM.MetaBaseController{
     return "#meta-room";
   }
 
+  forEachMetaWallBase(callback) {
+    [].forEach.call(this.dom.querySelectorAll("meta-wall"), callback)
+  }
 }
 
 class MetaRoom extends HTMLElement {
   createdCallback() {
     this.controller = new MetaRoomController(this);
+    this.addEventListener('meta-attached', function(e){
+      var targetController = e.detail.controller;
+      var templateID = targetController.templateID();
+
+      if (templateID == "#meta-wall") {
+        targetController.roomDimensionChange(this.getAttribute('width'), this.getAttribute('height'), this.getAttribute('depth'));
+      }
+    });
   }
+
+  attributeChangedCallback(attrName, oldValue, newValue) {
+    switch(attrName) {
+      case 'width':
+        this.controller.forEachMetaWallBase(function(metaWallBase){
+          metaWallBase.controller.roomWidthChange(newValue)
+        });
+        break;
+    }
+  }
+
 }
 
 document.registerElement('meta-room', MetaRoom);

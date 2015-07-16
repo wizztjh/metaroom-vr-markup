@@ -30,7 +30,6 @@
       describe("when it is added within meta-room", function(){
 
         it("adds a plane to meta-verse", function(){
-          console.log('J.metaVerse', J.metaVerse, J.metaVerse.controller)
           var sceneUUIDs = J.metaVerse.controller.gameObject.scene.children.map(function(child){
             return child.uuid;
           });
@@ -47,12 +46,27 @@
           });
 
           describe("when the align changes to right", function(){
-            it("sets the meta object to the left of the room", function(){
+            beforeEach(function(){
               J.metaWall.setAttribute('align', 'right');
+            });
+
+            it("sets the meta object to the left of the room", function(){
               expect(J.metaWallMesh.position.x, 'x').to.equal(5);
               expect(J.metaWallMesh.position.y, 'y').to.equal(0);
               expect(J.metaWallMesh.position.z, 'z').to.equal(0);
             });
+
+            describe("when the room width changes", function(){
+
+              it("sets the position of meta object", function(){
+                J.metaRoom.setAttribute('width', 20);
+                expect(J.metaWallMesh.position.x, 'x').to.equal(10);
+                expect(J.metaWallMesh.position.y, 'y').to.equal(0);
+                expect(J.metaWallMesh.position.z, 'z').to.equal(0);
+              });
+
+            });
+
           });
         });
 

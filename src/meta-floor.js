@@ -35,7 +35,6 @@ class MetaFloor extends HTMLElement {
   }
 
   detachedCallback() {
-    console.log('DETACHED-----------');
     var event = new CustomEvent('meta-detached', {
       'detail': {'controller': this.controller},
       bubbles: true

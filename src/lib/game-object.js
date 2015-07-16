@@ -52,7 +52,6 @@ export default class GameObject{
   }
 
   remove(metaObject) {
-    console.log('remove! ----------', metaObject);
     this.scene.remove(metaObject.mesh);
     this.metaObjects.delete(metaObject.mesh.uuid);
   }

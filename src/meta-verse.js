@@ -34,7 +34,6 @@ class MetaVerse extends HTMLElement {
     }, false);
 
     this.addEventListener('meta-detached', function(e){
-      console.log('trigged detached',e.type, e);
       this.controller.gameObject.remove(e.detail.controller.metaObject);
     }, false);
   }

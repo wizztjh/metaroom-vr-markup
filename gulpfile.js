@@ -70,6 +70,7 @@ gulp.task('copy:webComponentsJS', function () {
   ])
     .pipe($.plumber())
     .pipe($.browserify({
+      debug: true,
       transform: [babelify]
     }))
     .pipe($.uglify())
@@ -97,8 +98,7 @@ gulp.task('webserver', function() {
   gulp.src('./')
     .pipe($.webserver({
       livereload: true,
-      directoryListing: true,
-      open: true
+      directoryListing: true
     }));
 });
 
