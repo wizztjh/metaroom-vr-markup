@@ -41,7 +41,7 @@
         describe("with align=left", function(){
           it("sets the meta object to the left of the room", function(){
             expect(J.metaWallMesh.position.x, 'x').to.equal(-5);
-            expect(J.metaWallMesh.position.y, 'y').to.equal(0);
+            expect(J.metaWallMesh.position.y, 'y').to.equal(5);
             expect(J.metaWallMesh.position.z, 'z').to.equal(0);
           });
 
@@ -52,7 +52,7 @@
 
             it("sets the meta object to the left of the room", function(){
               expect(J.metaWallMesh.position.x, 'x').to.equal(5);
-              expect(J.metaWallMesh.position.y, 'y').to.equal(0);
+              expect(J.metaWallMesh.position.y, 'y').to.equal(5);
               expect(J.metaWallMesh.position.z, 'z').to.equal(0);
             });
 
@@ -61,7 +61,7 @@
               it("sets the position of meta object", function(){
                 J.metaRoom.setAttribute('width', 20);
                 expect(J.metaWallMesh.position.x, 'x').to.equal(10);
-                expect(J.metaWallMesh.position.y, 'y').to.equal(0);
+                expect(J.metaWallMesh.position.y, 'y').to.equal(5);
                 expect(J.metaWallMesh.position.z, 'z').to.equal(0);
               });
 
@@ -88,14 +88,23 @@
         });
 
         describe("when the room width changes", function(){
+          beforeEach(function(){
+            J.metaRoom.setAttribute('width', 20);
+          });
 
           it("sets the position of meta object", function(){
-            J.metaRoom.setAttribute('width', 20);
             expect(J.metaWallMesh.position.x, 'x').to.equal(-10);
-            expect(J.metaWallMesh.position.y, 'y').to.equal(0);
+            expect(J.metaWallMesh.position.y, 'y').to.equal(5);
             expect(J.metaWallMesh.position.z, 'z').to.equal(0);
           });
 
+        });
+        describe("when the room depth changes", function(){
+          it("sets the scale of the meta object", function(){
+            expect(J.metaWallMesh.scale.x, 'x').to.equal(20);
+            expect(J.metaWallMesh.scale.y, 'y').to.equal(10);
+            expect(J.metaWallMesh.scale.z, 'z').to.equal(10);
+          });
         });
 
       });
