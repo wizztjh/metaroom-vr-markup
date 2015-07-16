@@ -33,10 +33,10 @@ class MetaWallController extends MRM.MetaBaseWallController{
   //   this.updateMetaObject()
   // }
   //
-  // roomDepthChange(depth) {
-  //   this.roomDepth = depth
-  //   this.updateMetaObject()
-  // }
+  roomDepthChange(depth) {
+    this.roomDepth = depth
+    this.updateMetaObject()
+  }
 
   roomWidthChange(width) {
     this.roomWidth = width
@@ -56,10 +56,10 @@ class MetaWallController extends MRM.MetaBaseWallController{
         mesh.position.set(-(this.roomWidth/2), 0, 0);
         break;
       case 'front':
-        mesh.position.set(0, 0, -5);
+        mesh.position.set(0, 0, -(this.roomDepth/2));
         break;
       case 'back':
-        mesh.position.set(0, 0, 5);
+        mesh.position.set(0, 0, this.roomDepth/2);
         break;
       case 'ceiling':
         mesh.rotation.x = 90 * (Math.PI/180);

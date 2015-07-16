@@ -32,6 +32,13 @@ class MetaRoom extends HTMLElement {
 
   attributeChangedCallback(attrName, oldValue, newValue) {
     switch(attrName) {
+      //TODO: write test for this
+      case 'depth':
+        this.controller.forEachMetaWallBase(function(metaWallBase){
+          metaWallBase.controller.roomDepthChange(newValue)
+        });
+        break;
+
       case 'width':
         this.controller.forEachMetaWallBase(function(metaWallBase){
           metaWallBase.controller.roomWidthChange(newValue)
