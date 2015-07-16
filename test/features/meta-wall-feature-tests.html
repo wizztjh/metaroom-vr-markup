@@ -5,46 +5,53 @@
   <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
   <script src="../../bower_components/web-component-tester/browser.js"></script>
   <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
 </head>
 <body>
-  <meta-verse id="meta-verse">
-    <meta-room width='10' height='10' depth='10' id='main-meta-room'>
-      <meta-wall align='left' id='main-meta-wall'></meta-wall>
-    </meta-room>
-  </meta-verse>
+
+  <div id='fixture'>
+    <meta-verse id="meta-verse">
+      <meta-room width='10' height='10' depth='10' id='main-meta-room'>
+        <meta-wall align='left' id='main-meta-wall'></meta-wall>
+      </meta-room>
+    </meta-verse>
+  </div>
 
   <script>
     describe('meta-wall', function() {
-      var metaVerse = document.querySelector('#meta-verse');
-      var metaWall = metaVerse.querySelector('#main-meta-wall');
-      var metaRoom = metaVerse.querySelector('#main-meta-room');
-
-      var metaWallMesh = metaWall.controller.metaObject.mesh;
+      beforeEach(function(){
+        jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
+        jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
+        jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
+        jlet('metaWallMesh', function(){ return J.metaWall.controller.metaObject.mesh });
+      });
 
       describe("when it is added within meta-room", function(){
 
         it("adds a plane to meta-verse", function(){
-          var sceneUUIDs = metaVerse.controller.gameObject.scene.children.map(function(child){
+          console.log('J.metaVerse', J.metaVerse, J.metaVerse.controller)
+          var sceneUUIDs = J.metaVerse.controller.gameObject.scene.children.map(function(child){
             return child.uuid;
           });
-          var metaWallUUID = metaWall.controller.metaObject.mesh.uuid;
+          var metaWallUUID = J.metaWall.controller.metaObject.mesh.uuid;
 
           expect(sceneUUIDs).to.include(metaWallUUID);
         });
 
         describe("with align=left", function(){
           it("sets the meta object to the left of the room", function(){
-            expect(metaWallMesh.position.x, 'x').to.equal(-5);
-            expect(metaWallMesh.position.y, 'y').to.equal(0);
-            expect(metaWallMesh.position.z, 'z').to.equal(0);
+            expect(J.metaWallMesh.position.x, 'x').to.equal(-5);
+            expect(J.metaWallMesh.position.y, 'y').to.equal(0);
+            expect(J.metaWallMesh.position.z, 'z').to.equal(0);
           });
 
           describe("when the align changes to right", function(){
             it("sets the meta object to the left of the room", function(){
-              metaWall.setAttribute('align', 'right');
-              expect(metaWallMesh.position.x, 'x').to.equal(5);
-              expect(metaWallMesh.position.y, 'y').to.equal(0);
-              expect(metaWallMesh.position.z, 'z').to.equal(0);
+              J.metaWall.setAttribute('align', 'right');
+              expect(J.metaWallMesh.position.x, 'x').to.equal(5);
+              expect(J.metaWallMesh.position.y, 'y').to.equal(0);
+              expect(J.metaWallMesh.position.z, 'z').to.equal(0);
             });
           });
         });
@@ -54,10 +61,10 @@
             var metaWallUUID;
             var sceneUUIDs;
 
-            metaWall.remove();
-            metaWallUUID = metaWall.controller.metaObject.mesh.uuid;
+            J.metaWall.remove();
+            metaWallUUID = J.metaWall.controller.metaObject.mesh.uuid;
 
-            sceneUUIDs = metaVerse.controller.gameObject.scene.children.map(function(child){
+            sceneUUIDs = J.metaVerse.controller.gameObject.scene.children.map(function(child){
               return child.uuid;
             });
 
@@ -69,10 +76,10 @@
         describe("when the room width changes", function(){
 
           it("sets the position of meta object", function(){
-            metaRoom.setAttribute('width', 20);
-            expect(metaWallMesh.position.x, 'x').to.equal(-10);
-            expect(metaWallMesh.position.y, 'y').to.equal(0);
-            expect(metaWallMesh.position.z, 'z').to.equal(0);
+            J.metaRoom.setAttribute('width', 20);
+            expect(J.metaWallMesh.position.x, 'x').to.equal(-10);
+            expect(J.metaWallMesh.position.y, 'y').to.equal(0);
+            expect(J.metaWallMesh.position.z, 'z').to.equal(0);
           });
 
         });
