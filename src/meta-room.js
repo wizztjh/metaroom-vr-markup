@@ -13,7 +13,7 @@ class MetaRoomController extends MRM.MetaBaseController{
   }
 
   forEachMetaWallBase(callback) {
-    [].forEach.call(this.dom.querySelectorAll("meta-wall"), callback)
+    [].forEach.call(this.dom.querySelectorAll("meta-wall, meta-floor"), callback)
   }
 }
 
@@ -24,7 +24,7 @@ class MetaRoom extends HTMLElement {
       var targetController = e.detail.controller;
       var templateID = targetController.templateID();
 
-      if (templateID == "#meta-wall") {
+      if (templateID == "#meta-wall" || templateID == '#meta-floor') {
         targetController.roomDimensionChange(this.getAttribute('width'), this.getAttribute('height'), this.getAttribute('depth'));
       }
     });
@@ -32,7 +32,13 @@ class MetaRoom extends HTMLElement {
 
   attributeChangedCallback(attrName, oldValue, newValue) {
     switch(attrName) {
-      //TODO: write test for this
+      //TODO: write unit test for this
+      case 'height':
+        this.controller.forEachMetaWallBase(function(metaWallBase){
+          metaWallBase.controller.roomHeightChange(newValue)
+        });
+        break;
+
       case 'depth':
         this.controller.forEachMetaWallBase(function(metaWallBase){
           metaWallBase.controller.roomDepthChange(newValue)

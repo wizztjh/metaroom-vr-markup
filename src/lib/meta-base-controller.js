@@ -7,7 +7,7 @@ export default class MetaBaseController{
   }
 
   setupComponent() {
-    var template = owner.querySelector(this.templateID()).content.cloneNode(true);
+    var template = document.importNode( owner.querySelector(this.templateID()).content, true)
     this.dom.appendChild(template);
   }
 }

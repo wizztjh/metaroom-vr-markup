@@ -3,8 +3,8 @@
 var owner = (document._currentScript || document.currentScript).ownerDocument;
 
 class MetaVerseController{
-  constructor(metaVerse){
-    this.metaVerse = metaVerse;
+  constructor(dom){
+    this.dom = dom;
     this.gameObject = new MRM.GameObject();
 
     this.setupComponent();
@@ -16,7 +16,7 @@ class MetaVerseController{
     // NOTE: Add a canvas to the template
     template.appendChild( this.gameObject.renderer.domElement );
 
-    this.metaVerse.appendChild(template);
+    this.dom.appendChild(template);
   }
 }
 

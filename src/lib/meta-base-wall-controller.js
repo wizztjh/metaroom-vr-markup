@@ -1,6 +1,13 @@
 import MetaBaseController from "./meta-base-controller.js"
 
 export default class MetaBaseWallController extends MetaBaseController {
+  constructor() {
+    super()
+    this.roomWidth = 10
+    this.roomHeight = 10
+    this.roomDepth = 10
+  }
+
   createMesh() {
     var planeHeight = 20;
     var planeWidth = 20;
@@ -19,5 +26,32 @@ export default class MetaBaseWallController extends MetaBaseController {
     });
 
     return new THREE.Mesh(geometry, material);
+  }
+
+  roomDimensionChange(width, height, depth) {
+    this.roomHeight = height
+    this.roomWidth = width
+    this.roomDepth = depth
+    this.updateMetaObject()
+  }
+
+  roomHeightChange(height) {
+    this.roomHeight = height
+    this.updateMetaObject()
+  }
+
+  roomDepthChange(depth) {
+    this.roomDepth = depth
+    this.updateMetaObject()
+  }
+
+  roomWidthChange(width) {
+    this.roomWidth = width
+    this.updateMetaObject()
+  }
+
+  alignChange(align) {
+    this.align = align
+    this.updateMetaObject()
   }
 }
