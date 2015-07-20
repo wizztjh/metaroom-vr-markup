@@ -18,8 +18,8 @@ class MetaFloorController extends MRM.MetaBaseWallController{
   updateMetaObject() {
     var mesh = this.metaObject.mesh;
     mesh.rotation.x = 90 * (Math.PI/180);
-    console.log('update height for meta floor', this.roomHeight)
     mesh.position.set(0, 0 , 0);
+    mesh.scale.set(this.roomWidth, this.roomDepth , 1);
   }
 }
 

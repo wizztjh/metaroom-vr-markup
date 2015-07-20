@@ -9,14 +9,14 @@ export default class MetaBaseWallController extends MetaBaseController {
   }
 
   createMesh() {
-    var planeHeight = 20;
-    var planeWidth = 20;
+    var planeHeight = 1;
+    var planeWidth = 1;
     var texture = THREE.ImageUtils.loadTexture(
       'img/box.png'
     );
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(planeHeight, planeWidth);
+    texture.repeat.set(20, 20);
 
     var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight,1,1);
     var material = new THREE.MeshBasicMaterial({

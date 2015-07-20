@@ -19,6 +19,12 @@ class MetaWallController extends MRM.MetaBaseWallController{
 
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
+    if (this.align != 'right' && this.align != 'left') {
+      mesh.scale.set(this.roomWidth, this.roomDepth , 1);
+    } else {
+      mesh.scale.set(this.roomDepth, this.roomHeight , 1);
+    }
+
     switch (this.align) {
       case 'left':
         mesh.rotation.y = 90 * (Math.PI/180);
