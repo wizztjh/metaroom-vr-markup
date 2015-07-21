@@ -3,6 +3,15 @@
   <head>
     <script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
     <link rel="import" href="../dist/metaroom-markup.html">
+    <style>
+      #vrcollab-poster {
+        --frame-style: ridge;
+        --frame-thickness: 2;
+        --frame-width: 2;
+        --frame-color: #F33;
+        --padding: 0.1;
+      }
+    </style>
   </head>
 
   <body>
@@ -11,7 +20,11 @@
         <!-- maybe we should make all the left wall and right wall to meta&#45;wall with left , right, top , floor alignement -->
 
         <meta-wall align='left'>
-          <meta-poster src='VRcollab.png'></meta-poster>
+          <meta-poster id='vrcollab-poster'>
+            <!-- meta&#45;html src='' -->
+            <meta-image src='VRcollab.png'/>
+            <meta-text>A place for you to build future VR websites collaboratively</meta-text>
+          </meta-poster>
         </meta-wall>
 
         <meta-wall align='right'></meta-wall>
