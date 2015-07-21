@@ -19,10 +19,21 @@ class MetaWallController extends MRM.MetaBaseWallController{
 
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
-    if (this.align != 'right' && this.align != 'left') {
-      mesh.scale.set(this.roomWidth, this.roomDepth , 1);
-    } else {
+    switch(this.align) {
+      case 'left':
+      case 'right':
       mesh.scale.set(this.roomDepth, this.roomHeight , 1);
+      break;
+
+      case 'ceiling':
+      mesh.scale.set(this.roomWidth, this.roomDepth , 1);
+      break;
+
+      case 'front':
+      case 'back':
+      mesh.scale.set(this.roomWidth, this.roomHeight , 1);
+      break;
+
     }
 
     switch (this.align) {
