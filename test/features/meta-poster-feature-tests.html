@@ -1,0 +1,47 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
+</head>
+<body>
+
+  <div id='fixture'>
+    <meta-verse id="meta-verse">
+      <meta-room width='10' height='10' depth='10' id='main-meta-room'>
+        <meta-wall align='left' id='main-meta-wall'>
+          <meta-poster src='fixtures/ball.jpeg' x='3' y='3' id='main-meta-poster'></meta-poster>
+        </meta-wall>
+      </meta-room>
+    </meta-verse>
+  </div>
+
+  <script>
+    describe('meta-wall', function() {
+      beforeEach(function(){
+        jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
+        jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
+        jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
+        jlet('metaPoster', function(){ return document.querySelector('#main-meta-poster')});
+      });
+
+      describe("when it is added within meta-wall", function(){
+        it("adds a plane to meta-wall group", function(){
+          var metaWallGroupChildrenUUID = J.metaWall.controller.metaObject.group.children.map(function(child){
+            return child.uuid;
+          });
+
+          var metaPosterUUID = J.metaPoster.controller.metaObject.mesh.uuid;
+
+          expect(metaWallGroupChildrenUUID).to.include(metaPosterUUID);
+        });
+      });
+
+    });
+  </script>
+</body>
+</html>

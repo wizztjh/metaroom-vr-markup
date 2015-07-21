@@ -2,9 +2,8 @@ class MetaFloorController extends MRM.MetaBaseWallController{
   constructor(dom){
     super();
     this.dom = dom;
-    this.metaObject = {
-      mesh: this.createMesh()
-    }
+    this.metaObject = this.createMetaObject()
+
     this.metaVerse = null;
     this.setupComponent();
 

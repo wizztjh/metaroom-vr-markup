@@ -48,12 +48,13 @@ export default class GameObject{
   }
 
   add(metaObject) {
-    this.scene.add(metaObject.mesh);
-    this.metaObjects.set( metaObject.mesh.uuid, metaObject);
+    // TODO: write spec for this
+    this.scene.add(metaObject.group);
+    this.metaObjects.set( metaObject.group.uuid, metaObject);
   }
 
   remove(metaObject) {
-    this.scene.remove(metaObject.mesh);
-    this.metaObjects.delete(metaObject.mesh.uuid);
+    this.scene.remove(metaObject.group);
+    this.metaObjects.delete(metaObject.group.uuid);
   }
 }

@@ -8,7 +8,7 @@ export default class MetaBaseWallController extends MetaBaseController {
     this.roomDepth = 10
   }
 
-  createMesh() {
+  createMetaObject() {
     var planeHeight = 1;
     var planeWidth = 1;
     var texture = THREE.ImageUtils.loadTexture(
@@ -25,7 +25,14 @@ export default class MetaBaseWallController extends MetaBaseController {
       side: THREE.DoubleSide
     });
 
-    return new THREE.Mesh(geometry, material);
+    var mesh = new THREE.Mesh(geometry, material);
+    var group = new THREE.Group();
+    group.add( mesh );
+
+    return {
+      mesh: mesh,
+      group: group
+    };
   }
 
   roomDimensionChange(width, height, depth) {

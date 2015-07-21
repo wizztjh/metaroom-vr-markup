@@ -2,9 +2,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
   constructor(dom){
     super()
     this.dom = dom;
-    this.metaObject = {
-      mesh: this.createMesh()
-    }
+    this.metaObject = this.createMetaObject();
     this.setupComponent();
     this.metaVerse = null;
 
@@ -19,6 +17,8 @@ class MetaWallController extends MRM.MetaBaseWallController{
 
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
+    var group = this.metaObject.group;
+
     switch(this.align) {
       case 'left':
       case 'right':
@@ -38,22 +38,22 @@ class MetaWallController extends MRM.MetaBaseWallController{
 
     switch (this.align) {
       case 'left':
-        mesh.rotation.y = 90 * (Math.PI/180);
-        mesh.position.set(-(this.roomWidth/2), this.roomHeight/2, 0);
+        group.rotation.y = 90 * (Math.PI/180);
+        group.position.set(-(this.roomWidth/2), this.roomHeight/2, 0);
         break;
       case 'front':
-        mesh.position.set(0, (this.roomHeight/2), -(this.roomDepth/2));
+        group.position.set(0, (this.roomHeight/2), -(this.roomDepth/2));
         break;
       case 'back':
-        mesh.position.set(0, (this.roomHeight/2), this.roomDepth/2);
+        group.position.set(0, (this.roomHeight/2), this.roomDepth/2);
         break;
       case 'ceiling':
-        mesh.rotation.x = 90 * (Math.PI/180);
-        mesh.position.set(0, (this.roomHeight), 0);
+        group.rotation.x = 90 * (Math.PI/180);
+        group.position.set(0, (this.roomHeight), 0);
         break;
       case 'right':
-        mesh.rotation.y = 90 * (Math.PI/180);
-        mesh.position.set(this.roomWidth/2, this.roomHeight/2, 0);
+        group.rotation.y = 90 * (Math.PI/180);
+        group.position.set(this.roomWidth/2, this.roomHeight/2, 0);
         break;
     }
   }
@@ -63,6 +63,27 @@ class MetaWallController extends MRM.MetaBaseWallController{
 class MetaWall extends HTMLElement {
   createdCallback() {
     this.controller = new MetaWallController(this);
+
+    this.addEventListener('meta-attached', function(e){
+      var targetController = e.detail.controller;
+
+      if (targetController.templateID() == '#meta-poster') {
+        e.stopPropagation();
+        targetController.metaWall = this;
+        this.controller.metaObject.group.add(targetController.metaObject.mesh);
+      }
+    }, false);
+
+    this.addEventListener('meta-detached', function(e){
+      var targetController = e.detail.controller;
+
+      if (targetController.templateID() == '#meta-poster') {
+        e.stopPropagation();
+        this.controller.metaObject.group.remove(targetController.metaObject.mesh);
+      }
+
+    }, false);
+
   }
 
   attachedCallback() {
