@@ -22,25 +22,10 @@ class MetaFloorController extends MRM.MetaBaseWallController{
   }
 }
 
-class MetaFloor extends HTMLElement {
+class MetaFloor extends MRM.MetaBase {
   createdCallback() {
     this.controller = new MetaFloorController(this);
-  }
-
-  attachedCallback() {
-    var event = new CustomEvent('meta-attached', {
-      'detail': {'controller': this.controller},
-      bubbles: true
-    });
-    this.dispatchEvent(event);
-  }
-
-  detachedCallback() {
-    var event = new CustomEvent('meta-detached', {
-      'detail': {'controller': this.controller},
-      bubbles: true
-    });
-    this.dispatchEvent(event);
+    super.createdCallback();
   }
 }
 

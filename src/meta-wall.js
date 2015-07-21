@@ -60,47 +60,31 @@ class MetaWallController extends MRM.MetaBaseWallController{
 
 }
 
-class MetaWall extends HTMLElement {
+class MetaWall extends MRM.MetaBase {
   createdCallback() {
     this.controller = new MetaWallController(this);
-
-    this.addEventListener('meta-attached', function(e){
-      var targetController = e.detail.controller;
-
-      if (targetController.templateID() == '#meta-poster') {
-        e.stopPropagation();
-        targetController.metaWall = this;
-        this.controller.metaObject.group.add(targetController.metaObject.mesh);
-      }
-    }, false);
-
-    this.addEventListener('meta-detached', function(e){
-      var targetController = e.detail.controller;
-
-      if (targetController.templateID() == '#meta-poster') {
-        e.stopPropagation();
-        this.controller.metaObject.group.remove(targetController.metaObject.mesh);
-      }
-
-    }, false);
-
+    super.createdCallback();
   }
 
-  attachedCallback() {
-    var event = new CustomEvent('meta-attached', {
-      'detail': {'controller': this.controller},
-      bubbles: true
-    });
-    this.dispatchEvent(event);
+  metaAttached(e) {
+    var targetController = e.detail.controller;
+
+    if (targetController.templateID() == '#meta-poster') {
+      e.stopPropagation();
+      targetController.metaWall = this;
+      this.controller.metaObject.group.add(targetController.metaObject.mesh);
+    }
   }
 
-  detachedCallback() {
-    var event = new CustomEvent('meta-detached', {
-      'detail': {'controller': this.controller},
-      bubbles: true
-    });
-    this.controller.metaVerse.dispatchEvent(event);
+  metaDetached(e) {
+    var targetController = e.detail.controller;
+
+    if (targetController.templateID() == '#meta-poster') {
+      e.stopPropagation();
+      this.controller.metaObject.group.remove(targetController.metaObject.mesh);
+    }
   }
+
 
   attributeChangedCallback(attrName, oldValue, newValue) {
     switch(attrName) {
