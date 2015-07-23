@@ -3,24 +3,29 @@
   <head>
     <script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
     <link rel="import" href="../dist/metaroom-markup.html">
-    <style>
-      #vrcollab-poster {
-        --frame-style: ridge;
-        --frame-thickness: 2;
-        --frame-width: 2;
-        --frame-color: #F33;
-        --padding: 0.1;
-      }
-    </style>
   </head>
 
   <body>
-    <meta-verse skybox=''>
+    <meta-verse>
+      <meta-style>
+        #vrcollab-poster {
+          frame-style: ridge;
+          frame-thickness: 2;
+          frame-width: 2;
+          frame-color: #F33;
+          padding: 0.1;
+        }
+
+        meta-verse{
+          skybox-style: sun-sphere;
+        }
+      </meta-style>
+
       <meta-room width='10' height='15' depth='20'>
         <!-- maybe we should make all the left wall and right wall to meta&#45;wall with left , right, top , floor alignement -->
 
         <meta-wall align='left'>
-          <meta-poster id='vrcollab-poster'>
+          <meta-poster x='3' id='vrcollab-poster'>
             <!-- meta&#45;html src='' -->
             <meta-img src='VRcollab.png'></meta-img>
             <meta-text>A place for you to build future VR websites collaboratively</meta-text>
@@ -36,7 +41,7 @@
 
         <meta-floor>
 
-          <meta-table style='--table-padding: 1'>
+          <meta-table meta-style='table-padding: 1'>
             <meta-tbottom style='bacground-color: rgb(0,0,0, 0); --frame: #333 solid 3 1;' align='front'>
               <meta-label>Contact US</meta-label>
             </meta-tbottom>
