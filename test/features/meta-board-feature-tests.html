@@ -14,7 +14,7 @@
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' depth='10' id='main-meta-room'>
         <meta-wall align='left' id='main-meta-wall'>
-          <meta-board src='fixtures/ball.jpeg' x='3' y='3' id='main-meta-board'></meta-board>
+          <meta-board src='fixtures/ball.jpeg' x='3' y='3' width='3' height='5' id='main-meta-board'></meta-board>
         </meta-wall>
       </meta-room>
     </meta-verse>
@@ -35,6 +35,12 @@
 
           expect(metaBoardMesh.position.x, 'x').to.equal('3');
           expect(metaBoardMesh.position.y, 'y').to.equal('3');
+        });
+
+        it("sets the dimension of the board", function(){
+          var metaBoardMesh = J.metaBoard.controller.metaObject.mesh;
+          expect(metaBoardMesh.scale.x, 'width').to.equal('3');
+          expect(metaBoardMesh.scale.y, 'height').to.equal('5');
 
         });
       });
@@ -61,6 +67,19 @@
 
           expect(metaBoardMesh.position.x, 'x').to.equal('5');
           expect(metaBoardMesh.position.y, 'y').to.equal('4');
+        });
+      });
+
+      describe("when the dimension attribute is updated", function(){
+        it("updates dimension of the board", function(){
+          J.metaBoard.setAttribute('width', 6);
+          J.metaBoard.setAttribute('height', 6);
+
+          var metaBoardMesh = J.metaBoard.controller.metaObject.mesh;
+
+          expect(metaBoardMesh.scale.x, 'x').to.equal('6');
+          expect(metaBoardMesh.scale.y, 'y').to.equal('6');
+
         });
       });
 

@@ -8,8 +8,13 @@ class MetaBoardController extends MRM.MetaBaseController {
     this.metaObject.mesh.position.set(0,0,0.1)
     this.setupComponent();
     this.metaWall = null;
+
+    this.width = this.dom.getAttribute('width') || 1;
+    this.height = this.dom.getAttribute('height') || 1;
+
     this.x = this.dom.getAttribute('x') || 0;
     this.y = this.dom.getAttribute('y') || 0;
+
     this.updateMetaObject();
   }
 
@@ -18,8 +23,8 @@ class MetaBoardController extends MRM.MetaBaseController {
   }
 
   createMesh(){
-    var planeHeight = 3;
-    var planeWidth = 3;
+    var planeHeight = 1;
+    var planeWidth = 1;
     var texture = THREE.ImageUtils.loadTexture(
       'img/box.png'
     );
@@ -47,10 +52,23 @@ class MetaBoardController extends MRM.MetaBaseController {
     this.updateMetaObject()
   }
 
+  widthChange(width){
+    this.width = width;
+    this.updateMetaObject()
+  }
+
+  heightChange(height){
+    this.height = height;
+    this.updateMetaObject()
+  }
+
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
     mesh.position.x = this.x
     mesh.position.y = this.y
+
+    mesh.scale.x = this.width
+    mesh.scale.y = this.height
   }
 }
 
@@ -84,6 +102,12 @@ class MetaBoard extends MRM.MetaBase {
         break;
       case 'x':
         this.controller.xChange(newValue)
+        break;
+      case 'width':
+        this.controller.widthChange(newValue);
+        break;
+      case 'height':
+        this.controller.heightChange(newValue);
         break;
     }
   }
