@@ -28,6 +28,9 @@ export default class MetaBase extends HTMLElement{
   attributeChangedCallback(attrName, oldValue, newValue) {
     if(this.controller.isAllowedAttribute(attrName)){
       this.controller.properties[attrName] = newValue
+      if (this.controller.updateMetaObject){
+        this.controller.updateMetaObject()
+      }
     }
   }
 

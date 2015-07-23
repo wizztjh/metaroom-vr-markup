@@ -10,7 +10,6 @@ class MetaWallController extends MRM.MetaBaseWallController{
       align: (this.dom.getAttribute('align') || 'front')
     }
     this.updateMetaObject();
-    this.startObserverProperties();
   }
 
   templateID() {

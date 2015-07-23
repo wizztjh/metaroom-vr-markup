@@ -15,8 +15,6 @@ class MetaBoardController extends MRM.MetaBaseController {
       y: (this.dom.getAttribute('y') || 0)
     }
     this.updateMetaObject()
-
-    this.startObserverProperties()
   }
 
   get allowedAttributes() {

@@ -19,8 +19,6 @@ class MetaImageController extends MRM.MetaBaseController {
     this.metaObject.mesh.position.set(0,0,0.2)
 
     this.updateMetaObject()
-
-    this.startObserverProperties()
   }
 
   get allowedAttributes() {
