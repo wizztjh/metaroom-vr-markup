@@ -16,7 +16,7 @@ class MetaImageController extends MRM.MetaBaseController {
     this.metaObject = {
       mesh: this.createMesh()
     }
-    this.metaObject.mesh.position.set(0,0,0.1)
+    this.metaObject.mesh.position.set(0,0,0.2)
 
     this.updateMetaObject()
 
@@ -37,9 +37,6 @@ class MetaImageController extends MRM.MetaBaseController {
     var texture = THREE.ImageUtils.loadTexture(
       this.properties.src
     );
-    texture.wrapS = THREE.RepeatWrapping;
-    texture.wrapT = THREE.RepeatWrapping;
-    texture.repeat.set(10, 10);
 
     var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight,1,1);
     var material = new THREE.MeshBasicMaterial({

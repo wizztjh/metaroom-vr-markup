@@ -55,8 +55,9 @@ class MetaBoardController extends MRM.MetaBaseController {
 
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
-    mesh.position.x = this.properties.x
-    mesh.position.y = this.properties.y
+    var group = this.metaObject.group;
+    group.position.x = this.properties.x
+    group.position.y = this.properties.y
 
     mesh.scale.x = this.properties.width
     mesh.scale.y = this.properties.height

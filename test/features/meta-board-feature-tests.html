@@ -31,10 +31,10 @@
 
       describe("when initilize", function(){
         it("sets the position of the board according to the attributes", function(){
-          var metaBoardMesh = J.metaBoard.controller.metaObject.mesh;
+          var metaBoardGroup = J.metaBoard.controller.metaObject.group;
 
-          expect(metaBoardMesh.position.x, 'x').to.equal('3');
-          expect(metaBoardMesh.position.y, 'y').to.equal('3');
+          expect(metaBoardGroup.position.x, 'x').to.equal('3');
+          expect(metaBoardGroup.position.y, 'y').to.equal('3');
         });
 
         it("sets the dimension of the board", function(){
@@ -51,7 +51,7 @@
             return child.uuid;
           });
 
-          var metaBoardUUID = J.metaBoard.controller.metaObject.mesh.uuid;
+          var metaBoardUUID = J.metaBoard.controller.metaObject.group.uuid;
 
           expect(metaWallGroupChildrenUUID).to.include(metaBoardUUID);
         });
@@ -66,10 +66,10 @@
 
         it("updates position of the board", function(done){
           // i dont think it is a good idea to change the position of meta-board via x and y attribute, it should be the meta-style responsibility
-          var metaBoardMesh = J.metaBoard.controller.metaObject.mesh;
+          var metaBoardGroup = J.metaBoard.controller.metaObject.group;
 
-          expect(metaBoardMesh.position.x, 'x').to.equal('5');
-          expect(metaBoardMesh.position.y, 'y').to.equal('4');
+          expect(metaBoardGroup.position.x, 'x').to.equal('5');
+          expect(metaBoardGroup.position.y, 'y').to.equal('4');
           done();
         });
 
