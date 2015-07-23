@@ -24,4 +24,11 @@ export default class MetaBase extends HTMLElement{
     });
     this.controller.metaVerse.dispatchEvent(event);
   }
+
+  attributeChangedCallback(attrName, oldValue, newValue) {
+    if(this.controller.isAllowedAttribute(attrName)){
+      this.controller.properties[attrName] = newValue
+    }
+  }
+
 }

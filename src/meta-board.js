@@ -17,22 +17,11 @@ class MetaBoardController extends MRM.MetaBaseController {
     }
     this.updateMetaObject()
 
-    Object.observe(this.properties, changes => {
-      changes.forEach( change => {
-        if ( this.isAllowedAttribute(change.name) ){
-          this.updateMetaObject()
-        }
-
-      })
-    })
+    this.startObserverProperties()
   }
 
   get allowedAttributes() {
     return ['x', 'y', 'width', 'height']
-  }
-
-  isAllowedAttribute(attrName) {
-    return this.allowedAttributes.indexOf(attrName) != -1
   }
 
   templateID() {
@@ -89,12 +78,6 @@ class MetaBoard extends MRM.MetaBase {
       bubbles: true
     });
     this.controller.metaWall.dispatchEvent(event);
-  }
-
-  attributeChangedCallback(attrName, oldValue, newValue) {
-    if(this.controller.isAllowedAttribute(attrName)){
-      this.controller.properties[attrName] = newValue
-    }
   }
 
 }
