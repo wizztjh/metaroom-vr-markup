@@ -1,19 +1,23 @@
-class MetaBoardController extends MRM.MetaBaseController {
+class MetaImageController extends MRM.MetaBaseController {
   constructor(dom){
     super()
     this.dom = dom;
-    this.metaObject = this.createMetaObject();
-
-    this.metaObject.mesh.position.set(0,0,0.1)
     this.setupComponent();
-    this.metaWall = null;
+    this.parent = null;
 
     this.properties = {
       width: ( this.dom.getAttribute('width') || 1 ),
       height: (this.dom.getAttribute('height') || 1),
       x: (this.dom.getAttribute('x') || 0),
-      y: (this.dom.getAttribute('y') || 0)
+      y: (this.dom.getAttribute('y') || 0),
+      src: (this.dom.getAttribute('src') || '')
     }
+
+    this.metaObject = {
+      mesh: this.createMesh()
+    }
+    this.metaObject.mesh.position.set(0,0,0.1)
+
     this.updateMetaObject()
 
     this.startObserverProperties()
@@ -24,14 +28,14 @@ class MetaBoardController extends MRM.MetaBaseController {
   }
 
   templateID() {
-    return "#meta-board"
+    return "#meta-image"
   }
 
-  createMetaObject(){
+  createMesh(){
     var planeHeight = 1;
     var planeWidth = 1;
     var texture = THREE.ImageUtils.loadTexture(
-      'img/box.png'
+      this.properties.src
     );
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
@@ -39,18 +43,12 @@ class MetaBoardController extends MRM.MetaBaseController {
 
     var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight,1,1);
     var material = new THREE.MeshBasicMaterial({
-      // map: texture,
+      map: texture,
       color: 0x333333,
       side: THREE.DoubleSide
     });
 
-    var mesh = new THREE.Mesh(geometry, material);
-    var group = new THREE.Group();
-    group.add( mesh );
-    return {
-      mesh: mesh,
-      group: group
-    };
+    return new THREE.Mesh(geometry, material);
   }
 
   updateMetaObject(){
@@ -63,12 +61,13 @@ class MetaBoardController extends MRM.MetaBaseController {
   }
 }
 
-class MetaBoard extends MRM.MetaBase {
+class MetaImage extends MRM.MetaBase {
   createdCallback() {
-    this.controller = new MetaBoardController(this);
+    this.controller = new MetaImageController(this);
     super.createdCallback();
   }
 
+  // TODO: remove this cause we got this in metabase
   attachedCallback() {
     var event = new CustomEvent('meta-attached', {
       'detail': {'controller': this.controller},
@@ -82,28 +81,9 @@ class MetaBoard extends MRM.MetaBase {
       'detail': {'controller': this.controller},
       bubbles: true
     });
-    this.controller.metaWall.dispatchEvent(event);
-  }
-
-  metaAttached(e) {
-    var targetController = e.detail.controller;
-
-    if (targetController.templateID() == '#meta-image') {
-      e.stopPropagation();
-      targetController.parent = this;
-      this.controller.metaObject.group.add(targetController.metaObject.mesh);
-    }
-  }
-
-  metaDetached(e) {
-    var targetController = e.detail.controller;
-
-    if (targetController.templateID() == '#meta-image') {
-      e.stopPropagation();
-      this.controller.metaObject.group.remove(targetController.metaObject.mesh);
-    }
+    this.controller.parent.dispatchEvent(event);
   }
 
 }
 
-document.registerElement('meta-board', MetaBoard);
+document.registerElement('meta-image', MetaImage);

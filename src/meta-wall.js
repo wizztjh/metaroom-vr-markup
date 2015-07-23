@@ -77,7 +77,7 @@ class MetaWall extends MRM.MetaBase {
     if (targetController.templateID() == '#meta-board') {
       e.stopPropagation();
       targetController.metaWall = this;
-      this.controller.metaObject.group.add(targetController.metaObject.mesh);
+      this.controller.metaObject.group.add(targetController.metaObject.group);
     }
   }
 
@@ -86,7 +86,7 @@ class MetaWall extends MRM.MetaBase {
 
     if (targetController.templateID() == '#meta-board') {
       e.stopPropagation();
-      this.controller.metaObject.group.remove(targetController.metaObject.mesh);
+      this.controller.metaObject.group.remove(targetController.metaObject.group);
     }
   }
 }
