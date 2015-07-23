@@ -41,6 +41,18 @@
         });
       });
 
+      describe("when the position attribute is updated", function(){
+        it("updates position of the poster", function(){
+          // i dont think it is a good idea to change the position of meta-poster via x and y attribute, it should be the meta-style responsibility
+          J.metaPoster.setAttribute('x', 5);
+          J.metaPoster.setAttribute('y', 3);
+          var metaPosterMesh = J.metaPoster.controller.metaObject.mesh;
+
+          expect(metaPosterMesh.position.x).to.equal('5');
+          expect(metaPosterMesh.position.y).to.equal('3');
+        });
+      });
+
     });
   </script>
 </body>

@@ -8,6 +8,8 @@ class MetaPosterController extends MRM.MetaBaseController {
     this.metaObject.mesh.position.set(0,0,0.1)
     this.setupComponent();
     this.metaWall = null;
+    this.x = 0;
+    this.y = 0;
   }
 
   templateID() {
@@ -33,11 +35,28 @@ class MetaPosterController extends MRM.MetaBaseController {
 
     return new THREE.Mesh(geometry, material);
   }
+
+  yChange(y){
+    this.y = y
+    this.updateMetaObject()
+  }
+
+  xChange(x){
+    this.x = x
+    this.updateMetaObject()
+  }
+
+  updateMetaObject(){
+    var mesh = this.metaObject.mesh;
+    mesh.position.x = this.x
+    mesh.position.y = this.y
+  }
 }
 
-class MetaPoster extends HTMLElement {
+class MetaPoster extends MRM.MetaBase {
   createdCallback() {
     this.controller = new MetaPosterController(this);
+    super.createdCallback();
   }
 
   attachedCallback() {
@@ -55,6 +74,18 @@ class MetaPoster extends HTMLElement {
     });
     this.controller.metaWall.dispatchEvent(event);
   }
+
+  attributeChangedCallback(attrName, oldValue, newValue) {
+    switch(attrName) {
+      case 'y':
+        this.controller.yChange(newValue)
+        break;
+      case 'x':
+        this.controller.xChange(newValue)
+        break;
+    }
+  }
+
 }
 
 document.registerElement('meta-poster', MetaPoster);

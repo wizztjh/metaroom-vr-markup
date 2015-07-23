@@ -85,7 +85,6 @@ class MetaWall extends MRM.MetaBase {
     }
   }
 
-
   attributeChangedCallback(attrName, oldValue, newValue) {
     switch(attrName) {
       case 'align':
