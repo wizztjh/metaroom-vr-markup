@@ -59,28 +59,36 @@
 
 
       describe("when the position attribute is updated", function(){
-        it("updates position of the board", function(){
-          // i dont think it is a good idea to change the position of meta-board via x and y attribute, it should be the meta-style responsibility
+        beforeEach(function(){
           J.metaBoard.setAttribute('x', 5);
           J.metaBoard.setAttribute('y', 4);
+        });
+
+        it("updates position of the board", inNextTick(function(done){
+          // i dont think it is a good idea to change the position of meta-board via x and y attribute, it should be the meta-style responsibility
           var metaBoardMesh = J.metaBoard.controller.metaObject.mesh;
 
           expect(metaBoardMesh.position.x, 'x').to.equal('5');
           expect(metaBoardMesh.position.y, 'y').to.equal('4');
-        });
+          done();
+        }));
+
       });
 
       describe("when the dimension attribute is updated", function(){
-        it("updates dimension of the board", function(){
+        beforeEach(function(){
           J.metaBoard.setAttribute('width', 6);
           J.metaBoard.setAttribute('height', 6);
+        });
+
+        it("updates dimension of the board", inNextTick(function(){
 
           var metaBoardMesh = J.metaBoard.controller.metaObject.mesh;
 
           expect(metaBoardMesh.scale.x, 'x').to.equal('6');
           expect(metaBoardMesh.scale.y, 'y').to.equal('6');
 
-        });
+        }));
       });
 
     });

@@ -37,3 +37,11 @@ beforeEach(function(){
 
   fixture.innerHTML = fixtureHTML
 });
+
+function inNextTick(callback){
+  return function(done){
+    setTimeout(function(){
+      callback(done)
+    })
+  };
+}

@@ -9,13 +9,30 @@ class MetaBoardController extends MRM.MetaBaseController {
     this.setupComponent();
     this.metaWall = null;
 
-    this.width = this.dom.getAttribute('width') || 1;
-    this.height = this.dom.getAttribute('height') || 1;
+    this.properties = {
+      width: ( this.dom.getAttribute('width') || 1 ),
+      height: (this.dom.getAttribute('height') || 1),
+      x: (this.dom.getAttribute('x') || 0),
+      y: (this.dom.getAttribute('y') || 0)
+    }
+    this.updateMetaObject()
 
-    this.x = this.dom.getAttribute('x') || 0;
-    this.y = this.dom.getAttribute('y') || 0;
+    Object.observe(this.properties, changes => {
+      changes.forEach( change => {
+        if ( this.isAllowedAttribute(change.name) ){
+          this.updateMetaObject()
+        }
 
-    this.updateMetaObject();
+      })
+    })
+  }
+
+  get allowedAttributes() {
+    return ['x', 'y', 'width', 'height']
+  }
+
+  isAllowedAttribute(attrName) {
+    return this.allowedAttributes.indexOf(attrName) != -1
   }
 
   templateID() {
@@ -42,33 +59,13 @@ class MetaBoardController extends MRM.MetaBaseController {
     return new THREE.Mesh(geometry, material);
   }
 
-  yChange(y){
-    this.y = y
-    this.updateMetaObject()
-  }
-
-  xChange(x){
-    this.x = x
-    this.updateMetaObject()
-  }
-
-  widthChange(width){
-    this.width = width;
-    this.updateMetaObject()
-  }
-
-  heightChange(height){
-    this.height = height;
-    this.updateMetaObject()
-  }
-
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
-    mesh.position.x = this.x
-    mesh.position.y = this.y
+    mesh.position.x = this.properties.x
+    mesh.position.y = this.properties.y
 
-    mesh.scale.x = this.width
-    mesh.scale.y = this.height
+    mesh.scale.x = this.properties.width
+    mesh.scale.y = this.properties.height
   }
 }
 
@@ -95,20 +92,8 @@ class MetaBoard extends MRM.MetaBase {
   }
 
   attributeChangedCallback(attrName, oldValue, newValue) {
-    console.log("attrName", attrName);
-    switch(attrName) {
-      case 'y':
-        this.controller.yChange(newValue)
-        break;
-      case 'x':
-        this.controller.xChange(newValue)
-        break;
-      case 'width':
-        this.controller.widthChange(newValue);
-        break;
-      case 'height':
-        this.controller.heightChange(newValue);
-        break;
+    if(this.controller.isAllowedAttribute(attrName)){
+      this.controller.properties[attrName] = newValue
     }
   }
 
