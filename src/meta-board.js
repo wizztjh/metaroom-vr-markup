@@ -1,4 +1,4 @@
-class MetaPosterController extends MRM.MetaBaseController {
+class MetaBoardController extends MRM.MetaBaseController {
   constructor(dom){
     super()
     this.dom = dom;
@@ -8,12 +8,13 @@ class MetaPosterController extends MRM.MetaBaseController {
     this.metaObject.mesh.position.set(0,0,0.1)
     this.setupComponent();
     this.metaWall = null;
-    this.x = 0;
-    this.y = 0;
+    this.x = this.dom.getAttribute('x') || 0;
+    this.y = this.dom.getAttribute('y') || 0;
+    this.updateMetaObject();
   }
 
   templateID() {
-    return "#meta-poster"
+    return "#meta-board"
   }
 
   createMesh(){
@@ -53,9 +54,9 @@ class MetaPosterController extends MRM.MetaBaseController {
   }
 }
 
-class MetaPoster extends MRM.MetaBase {
+class MetaBoard extends MRM.MetaBase {
   createdCallback() {
-    this.controller = new MetaPosterController(this);
+    this.controller = new MetaBoardController(this);
     super.createdCallback();
   }
 
@@ -76,6 +77,7 @@ class MetaPoster extends MRM.MetaBase {
   }
 
   attributeChangedCallback(attrName, oldValue, newValue) {
+    console.log("attrName", attrName);
     switch(attrName) {
       case 'y':
         this.controller.yChange(newValue)
@@ -88,4 +90,4 @@ class MetaPoster extends MRM.MetaBase {
 
 }
 
-document.registerElement('meta-poster', MetaPoster);
+document.registerElement('meta-board', MetaBoard);

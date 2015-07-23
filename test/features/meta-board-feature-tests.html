@@ -14,19 +14,29 @@
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' depth='10' id='main-meta-room'>
         <meta-wall align='left' id='main-meta-wall'>
-          <meta-poster src='fixtures/ball.jpeg' x='3' y='3' id='main-meta-poster'></meta-poster>
+          <meta-board src='fixtures/ball.jpeg' x='3' y='3' id='main-meta-board'></meta-board>
         </meta-wall>
       </meta-room>
     </meta-verse>
   </div>
 
   <script>
-    describe('meta-wall', function() {
+    describe('meta-board', function() {
       beforeEach(function(){
         jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
-        jlet('metaPoster', function(){ return document.querySelector('#main-meta-poster')});
+        jlet('metaBoard', function(){ return document.querySelector('#main-meta-board')});
+      });
+
+      describe("when initilize", function(){
+        it("sets the position of the board according to the attributes", function(){
+          var metaBoardMesh = J.metaBoard.controller.metaObject.mesh;
+
+          expect(metaBoardMesh.position.x, 'x').to.equal('3');
+          expect(metaBoardMesh.position.y, 'y').to.equal('3');
+
+        });
       });
 
       describe("when it is added within meta-wall", function(){
@@ -35,21 +45,22 @@
             return child.uuid;
           });
 
-          var metaPosterUUID = J.metaPoster.controller.metaObject.mesh.uuid;
+          var metaBoardUUID = J.metaBoard.controller.metaObject.mesh.uuid;
 
-          expect(metaWallGroupChildrenUUID).to.include(metaPosterUUID);
+          expect(metaWallGroupChildrenUUID).to.include(metaBoardUUID);
         });
       });
 
-      describe("when the position attribute is updated", function(){
-        it("updates position of the poster", function(){
-          // i dont think it is a good idea to change the position of meta-poster via x and y attribute, it should be the meta-style responsibility
-          J.metaPoster.setAttribute('x', 5);
-          J.metaPoster.setAttribute('y', 3);
-          var metaPosterMesh = J.metaPoster.controller.metaObject.mesh;
 
-          expect(metaPosterMesh.position.x).to.equal('5');
-          expect(metaPosterMesh.position.y).to.equal('3');
+      describe("when the position attribute is updated", function(){
+        it("updates position of the board", function(){
+          // i dont think it is a good idea to change the position of meta-board via x and y attribute, it should be the meta-style responsibility
+          J.metaBoard.setAttribute('x', 5);
+          J.metaBoard.setAttribute('y', 4);
+          var metaBoardMesh = J.metaBoard.controller.metaObject.mesh;
+
+          expect(metaBoardMesh.position.x, 'x').to.equal('5');
+          expect(metaBoardMesh.position.y, 'y').to.equal('4');
         });
       });
 
