@@ -6,20 +6,25 @@ class MetaWallController extends MRM.MetaBaseWallController{
     this.setupComponent();
     this.metaVerse = null;
 
-    this.align = 'front'
-
-    this.alignChange(this.dom.getAttribute('align'));
+    this.properties = {
+      align: (this.dom.getAttribute('align') || 'front')
+    }
+    this.updateMetaObject();
+    this.startObserverProperties();
   }
 
   templateID() {
     return "#meta-wall"
   }
 
+  get allowedAttributes(){
+    return ['align'];
+  }
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
     var group = this.metaObject.group;
 
-    switch(this.align) {
+    switch(this.properties.align) {
       case 'left':
       case 'right':
       mesh.scale.set(this.roomDepth, this.roomHeight , 1);
@@ -36,7 +41,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
 
     }
 
-    switch (this.align) {
+    switch (this.properties.align) {
       case 'left':
         group.rotation.y = 90 * (Math.PI/180);
         group.position.set(-(this.roomWidth/2), this.roomHeight/2, 0);
@@ -82,14 +87,6 @@ class MetaWall extends MRM.MetaBase {
     if (targetController.templateID() == '#meta-board') {
       e.stopPropagation();
       this.controller.metaObject.group.remove(targetController.metaObject.mesh);
-    }
-  }
-
-  attributeChangedCallback(attrName, oldValue, newValue) {
-    switch(attrName) {
-      case 'align':
-        this.controller.alignChange(newValue)
-        break;
     }
   }
 }

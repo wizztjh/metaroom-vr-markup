@@ -45,3 +45,10 @@ function inNextTick(callback){
     })
   };
 }
+
+function asyncBeforeEach(callback){
+  beforeEach(function(done){
+    callback()
+    setTimeout(function(){ done() })
+  })
+}
