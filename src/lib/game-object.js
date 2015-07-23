@@ -36,7 +36,13 @@ export default class GameObject{
     //   returnObject = initObjs[name].apply(self)
     //   self.add(name, returnObject);
     // });
-    // window.addEventListener('resize', this.onWindowResize.bind(this), false);
+    window.addEventListener('resize', this.onWindowResize.bind(this), false);
+  }
+
+  onWindowResize(){
+    this.camera.aspect = this.getWidth() / this.getHeight()
+    this.camera.updateProjectionMatrix();
+    this.effect.setSize( this.getWidth(), this.getHeight() );
   }
 
   getWidth() {
