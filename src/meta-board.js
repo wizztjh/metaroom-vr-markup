@@ -87,7 +87,7 @@ class MetaBoard extends MRM.MetaBase {
   metaAttached(e) {
     var targetController = e.detail.controller;
 
-    if (targetController.templateID() == '#meta-image') {
+    if (targetController.templateID() == '#meta-image' || targetController.templateID() == '#meta-text' ) {
       e.stopPropagation();
       targetController.parent = this;
       this.controller.metaObject.group.add(targetController.metaObject.mesh);
@@ -97,7 +97,7 @@ class MetaBoard extends MRM.MetaBase {
   metaDetached(e) {
     var targetController = e.detail.controller;
 
-    if (targetController.templateID() == '#meta-image') {
+    if (targetController.templateID() == '#meta-image' || targetController.templateID() == '#meta-text') {
       e.stopPropagation();
       this.controller.metaObject.group.remove(targetController.metaObject.mesh);
     }

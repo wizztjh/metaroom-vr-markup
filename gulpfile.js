@@ -25,9 +25,8 @@ gulp.task('build:cleanup', function(cb) {
 });
 
 gulp.task('build:html', function () {
-  return gulp.src('dist/metaroom-markup.local.html')
+  return gulp.src(['dist/metaroom-markup.local.html'])
     .pipe($.vulcanize({
-      abspath: '',
       excludes: [
       ],
       stripExcludes: false,
@@ -66,7 +65,7 @@ gulp.task('copy:webComponents', function () {
 
 gulp.task('copy:webComponentsJS', function () {
   return gulp.src([
-    'src/meta-*.js',
+    'src/meta-*.js'
   ])
     .pipe($.plumber())
     .pipe($.browserify({
