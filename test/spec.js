@@ -2,6 +2,22 @@
 var J = {}
 var fixtureHTML = ""
 
+//sharedBehaviors start
+//TODO: we should move all the sharedBehaviors to different files
+function shouldBehaveLikeAMetaObjectThatPositions(metaObjectName, position){
+  it("sets the position of the object according to the attributes", function(){
+    expect(J[metaObjectName].position.x, 'x').to.equal(position.x);
+    expect(J[metaObjectName].position.y, 'y').to.equal(position.y);
+  });
+}
+function shouldBehaveLikeAMetaObjectThatScales(metaObjectName, scale){
+  it("sets the dimension of the object", function(){
+    expect(J[metaObjectName].scale.x, 'width').to.equal(scale.x);
+    expect(J[metaObjectName].scale.y, 'height').to.equal(scale.y);
+  });
+}
+//sharedBehaviors end
+
 afterEach(function(){
   J = {}
 });

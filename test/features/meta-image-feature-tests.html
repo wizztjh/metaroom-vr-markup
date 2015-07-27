@@ -15,7 +15,7 @@
       <meta-room width='10' height='10' depth='10' id='main-meta-room'>
         <meta-wall align='left' id='main-meta-wall'>
           <meta-board  x='3' y='3' width='3' height='5' id='main-meta-board'>
-            <meta-image src='fixtures/ball.png' id='main-meta-image'></meta-image>
+            <meta-image x='0' y='0' width='3' height='4' src='fixtures/ball.png' id='main-meta-image'></meta-image>
           </meta-board>
         </meta-wall>
       </meta-room>
@@ -30,6 +30,12 @@
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
         jlet('metaBoard', function(){ return document.querySelector('#main-meta-board')});
         jlet('metaImage', function(){ return document.querySelector('#main-meta-image')});
+        jlet('metaImageMesh', function(){ return J.metaImage.controller.metaObject.mesh});
+      });
+
+      describe("when initilize", function(){
+        shouldBehaveLikeAMetaObjectThatPositions('metaImageMesh', {x: '0', y: '0'});
+        shouldBehaveLikeAMetaObjectThatScales('metaImageMesh', {x: '3', y: '4'});
       });
 
       it('updates the texture based on src', function(){

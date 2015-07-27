@@ -27,22 +27,13 @@
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
         jlet('metaBoard', function(){ return document.querySelector('#main-meta-board')});
+        jlet('metaBoardGroup', function(){ return J.metaBoard.controller.metaObject.group});
+        jlet('metaBoardMesh', function(){ return J.metaBoard.controller.metaObject.mesh});
       });
 
       describe("when initilize", function(){
-        it("sets the position of the board according to the attributes", function(){
-          var metaBoardGroup = J.metaBoard.controller.metaObject.group;
-
-          expect(metaBoardGroup.position.x, 'x').to.equal('3');
-          expect(metaBoardGroup.position.y, 'y').to.equal('3');
-        });
-
-        it("sets the dimension of the board", function(){
-          var metaBoardMesh = J.metaBoard.controller.metaObject.mesh;
-          expect(metaBoardMesh.scale.x, 'width').to.equal('3');
-          expect(metaBoardMesh.scale.y, 'height').to.equal('5');
-
-        });
+        shouldBehaveLikeAMetaObjectThatPositions('metaBoardGroup', {x: '3', y: '3'});
+        shouldBehaveLikeAMetaObjectThatScales('metaBoardMesh', {x: '3', y: '5'});
       });
 
       describe("when it is added within meta-wall", function(){
