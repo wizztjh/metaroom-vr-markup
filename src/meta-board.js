@@ -67,7 +67,7 @@ class MetaBoardController extends MRM.MetaBaseController {
     var nextComponentX = -(Number(this.properties.width)/2);
     var biggestHeight = 0;
 
-    ([]).forEach.call(children, function (child, index) {
+    [].forEach.call(children, function (child, index) {
       if (!child.controller){
         return;
       }
