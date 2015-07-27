@@ -20,7 +20,7 @@ class MetaImageController extends MRM.MetaBaseController {
   }
 
   get allowedAttributes() {
-    return ['x', 'y', 'width', 'height']
+    return ['width', 'height']
   }
 
   templateID() {

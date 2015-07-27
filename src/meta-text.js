@@ -8,8 +8,6 @@ class MetaTextController extends MRM.MetaBaseController {
     this.properties = {
       width: ( this.dom.getAttribute('width') || 1 ),
       height: (this.dom.getAttribute('height') || 1),
-      x: (this.dom.getAttribute('x') || 0),
-      y: (this.dom.getAttribute('y') || 0),
       text: (this.dom.innerText || '')
     }
 
@@ -22,7 +20,7 @@ class MetaTextController extends MRM.MetaBaseController {
   }
 
   get allowedAttributes() {
-    return ['x', 'y', 'width', 'height']
+    return ['width', 'height']
   }
 
   templateID() {
@@ -37,7 +35,7 @@ class MetaTextController extends MRM.MetaBaseController {
     var context1 = canvas1.getContext('2d');
     context1.fillStyle = "rgba(255, 0, 0, 0.95)";
     context1.font = "26px Arial"
-    // console.log("meta-text properties.text", this.properties.text);
+
     context1.fillText(this.properties.text, 0, 50);
 
     var texture = new THREE.Texture(canvas1);
@@ -54,9 +52,6 @@ class MetaTextController extends MRM.MetaBaseController {
 
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
-    mesh.position.x = this.properties.x
-    mesh.position.y = this.properties.y
-
     mesh.scale.x = this.properties.width
     mesh.scale.y = this.properties.height
   }
