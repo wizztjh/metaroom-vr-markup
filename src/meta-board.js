@@ -60,6 +60,41 @@ class MetaBoardController extends MRM.MetaBaseController {
     mesh.scale.x = this.properties.width
     mesh.scale.y = this.properties.height
   }
+
+  updateChildrenDisplayInline() {
+    // TODO: only select the direct child
+    var children = this.dom.querySelectorAll("meta-text, meta-image")
+    var nextComponentX = -(Number(this.properties.width)/2);
+    var biggestHeight = 0;
+
+    ([]).forEach.call(children, function (child, index) {
+      if (!child.controller){
+        return;
+      }
+      if (index === 0) {
+        nextComponentX += Number(child.controller.properties.width)/2;
+      }
+      var mesh = child.controller.metaObject.mesh;
+      mesh.position.x = nextComponentX;
+      nextComponentX += Number(child.controller.properties.width);
+
+      if(child.controller.properties.height > biggestHeight) {
+        biggestHeight = child.controller.properties.height
+      }
+    });
+
+    var baseLineY = Number(this.properties.height)/2 - biggestHeight;
+    [].forEach.call(children, function (child, index) {
+      if (!child.controller){
+        return;
+      }
+      var mesh = child.controller.metaObject.mesh;
+
+      mesh.position.y = baseLineY + child.controller.properties.height/2;
+    })
+
+  }
+
 }
 
 class MetaBoard extends MRM.MetaBase {
@@ -91,6 +126,7 @@ class MetaBoard extends MRM.MetaBase {
       e.stopPropagation();
       targetController.parent = this;
       this.controller.metaObject.group.add(targetController.metaObject.mesh);
+      this.controller.updateChildrenDisplayInline()
     }
   }
 

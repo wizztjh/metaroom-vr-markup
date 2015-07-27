@@ -25,14 +25,20 @@
         <!-- maybe we should make all the left wall and right wall to meta&#45;wall with left , right, top , floor alignement -->
 
         <meta-wall align='left'>
-          <meta-board x='3' y='-1' id='vrcollab-poster' width='3' height='3'>
-            <!-- meta&#45;html src='' -->
+
+          <meta-board x='3' y='-1' id='vrcollab-poster' width='5' height='3'>
+            <meta-image src='img/VRcollab.png' x='0' y='0' width='3' height='2'></meta-image>
             <meta-image src='img/VRcollab.png' x='0' y='0' width='3' height='2'></meta-image>
             <meta-text x='0' y='-2' width='3'>A place for you to build future VR websites collaboratively</meta-text>
           </meta-board>
         </meta-wall>
 
-        <meta-wall align='right'></meta-wall>
+        <meta-wall align='right'>
+          <meta-html>
+            <img src='img/VRcollab.png'/>
+            A Place for you to build future VR websites collaboratively
+          </meta-html>
+        </meta-wall>
 
         <meta-wall align='front'></meta-wall>
         <meta-wall align='back'></meta-wall>

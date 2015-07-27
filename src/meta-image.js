@@ -8,8 +8,6 @@ class MetaImageController extends MRM.MetaBaseController {
     this.properties = {
       width: ( this.dom.getAttribute('width') || 1 ),
       height: (this.dom.getAttribute('height') || 1),
-      x: (this.dom.getAttribute('x') || 0),
-      y: (this.dom.getAttribute('y') || 0),
       src: (this.dom.getAttribute('src') || '')
     }
 
@@ -48,8 +46,6 @@ class MetaImageController extends MRM.MetaBaseController {
 
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
-    mesh.position.x = this.properties.x
-    mesh.position.y = this.properties.y
 
     mesh.scale.x = this.properties.width
     mesh.scale.y = this.properties.height
