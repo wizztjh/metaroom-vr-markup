@@ -1,6 +1,6 @@
 class MetaFloorController extends MRM.MetaBaseWallController{
   constructor(dom){
-    super();
+    super(dom);
     this.dom = dom;
     this.metaObject = this.createMetaObject()
 
@@ -8,6 +8,10 @@ class MetaFloorController extends MRM.MetaBaseWallController{
     this.setupComponent();
 
     this.updateMetaObject();
+  }
+
+  get propertiesSettings(){
+    return {};
   }
 
   templateID() {

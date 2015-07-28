@@ -1,6 +1,6 @@
 class MetaBoardController extends MRM.MetaBaseController {
   constructor(dom){
-    super()
+    super(dom)
     this.dom = dom;
     this.metaObject = this.createMetaObject();
 
@@ -8,17 +8,16 @@ class MetaBoardController extends MRM.MetaBaseController {
     this.setupComponent();
     this.metaWall = null;
 
-    this.properties = {
-      width: ( this.dom.getAttribute('width') || 1 ),
-      height: (this.dom.getAttribute('height') || 1),
-      x: (this.dom.getAttribute('x') || 0),
-      y: (this.dom.getAttribute('y') || 0)
-    }
     this.updateMetaObject()
   }
 
-  get allowedAttributes() {
-    return ['x', 'y', 'width', 'height']
+  get propertiesSettings() {
+    return {
+      width: {type: Number, default: 1, attrName: 'width'},
+      height: {type: Number, default: 1, attrName: 'height'},
+      x: {type: Number, default: 0, attrName: 'x'},
+      y: {type: Number, default: 0, attrName: 'y'}
+    }
   }
 
   templateID() {

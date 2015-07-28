@@ -1,8 +1,8 @@
 import MetaBaseController from "./meta-base-controller.js"
 
 export default class MetaBaseWallController extends MetaBaseController {
-  constructor() {
-    super()
+  constructor(dom) {
+    super(dom)
     this.roomWidth = 10
     this.roomHeight = 10
     this.roomDepth = 10

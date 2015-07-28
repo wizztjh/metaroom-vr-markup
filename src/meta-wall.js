@@ -1,14 +1,11 @@
 class MetaWallController extends MRM.MetaBaseWallController{
   constructor(dom){
-    super()
+    super(dom)
     this.dom = dom;
     this.metaObject = this.createMetaObject();
     this.setupComponent();
     this.metaVerse = null;
 
-    this.properties = {
-      align: (this.dom.getAttribute('align') || 'front')
-    }
     this.updateMetaObject();
   }
 
@@ -16,9 +13,12 @@ class MetaWallController extends MRM.MetaBaseWallController{
     return "#meta-wall"
   }
 
-  get allowedAttributes(){
-    return ['align'];
+  get propertiesSettings(){
+    return {
+      align: { type: String, default: "front", attrName: "align" }
+    }
   }
+
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
     var group = this.metaObject.group;

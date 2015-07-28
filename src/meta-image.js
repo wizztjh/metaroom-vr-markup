@@ -1,15 +1,8 @@
 class MetaImageController extends MRM.MetaBaseController {
   constructor(dom){
-    super()
-    this.dom = dom;
+    super(dom)
     this.setupComponent();
     this.parent = null;
-
-    this.properties = {
-      width: ( this.dom.getAttribute('width') || 1 ),
-      height: (this.dom.getAttribute('height') || 1),
-      src: (this.dom.getAttribute('src') || '')
-    }
 
     this.metaObject = {
       mesh: this.createMesh()
@@ -19,8 +12,12 @@ class MetaImageController extends MRM.MetaBaseController {
     this.updateMetaObject()
   }
 
-  get allowedAttributes() {
-    return ['width', 'height']
+  get propertiesSettings() {
+    return {
+      width: {type: Number, default: 1, attrName: 'width'},
+      height: {type: Number, default: 1, attrName: 'height'},
+      src: {type: String, default: '', attrName: 'src'},
+    }
   }
 
   templateID() {

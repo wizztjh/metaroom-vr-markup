@@ -2,6 +2,15 @@
 var owner = (document._currentScript || document.currentScript).ownerDocument;
 
 export default class MetaBaseController{
+  constructor(dom) {
+    this.dom = dom;
+    this.properties = {}
+    this.propertiesKey.forEach((key) => {
+      var settings = this.propertiesSettings[key]
+      this.properties[key] = this.dom.getAttribute(settings.attrName) || settings.default
+    });
+  }
+
   templateID(){
     throw 'Please define a template id';
   }
@@ -11,12 +20,16 @@ export default class MetaBaseController{
     this.dom.appendChild(template);
   }
 
-  get allowedAttributes() {
-    throw 'Please define the allowed attributes array'
+  get propertiesSettings() {
+    throw 'Please define the propertiesSettings'
+  }
+
+  get propertiesKey() {
+    return Object.keys(this.propertiesSettings);
   }
 
   isAllowedAttribute(attrName) {
-    return this.allowedAttributes.indexOf(attrName) != -1
+    return this.propertiesKey.indexOf(attrName) != -1
   }
 
 }

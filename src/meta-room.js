@@ -3,9 +3,14 @@ var owner = (document._currentScript || document.currentScript).ownerDocument;
 
 class MetaRoomController extends MRM.MetaBaseController{
   constructor(dom){
-    super();
+    super(dom);
     this.dom = dom;
     this.setupComponent();
+  }
+
+  get propertiesSettings() {
+    return {
+    }
   }
 
   templateID() {
