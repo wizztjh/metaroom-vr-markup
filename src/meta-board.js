@@ -14,9 +14,7 @@ class MetaBoardController extends MRM.MetaBaseController {
   get propertiesSettings() {
     return {
       width: {type: Number, default: 1, attrName: 'width'},
-      height: {type: Number, default: 1, attrName: 'height'},
-      x: {type: Number, default: 0, attrName: 'x'},
-      y: {type: Number, default: 0, attrName: 'y'}
+      height: {type: Number, default: 1, attrName: 'height'}
     }
   }
 
@@ -53,8 +51,6 @@ class MetaBoardController extends MRM.MetaBaseController {
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
     var group = this.metaObject.group;
-    group.position.x = this.properties.x
-    group.position.y = this.properties.y
 
     mesh.scale.x = this.properties.width
     mesh.scale.y = this.properties.height

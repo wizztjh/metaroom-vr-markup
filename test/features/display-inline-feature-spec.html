@@ -75,9 +75,6 @@
 
           jlet('metaBoardsHeight', function() { return getProperty(J.metaBoardsController, 'height') });
           jlet('metaBoardsWidth', function() { return getProperty(J.metaBoardsController, 'width') });
-          jlet('metaBoardsX', function() { return getProperty(J.metaBoardsController, 'x') });
-          jlet('metaBoardsY', function() { return getProperty(J.metaBoardsController, 'y') });
-
         });
 
         describe("when meta component with display: inline property is sibling", function(){
@@ -85,11 +82,11 @@
             var rightCornerX = -J.metaWallWidth/2 + J.metaBoardsWidth[0]/2
             ,   baseLineY = (J.metaWallHeight/2) - J.metaBoardsHeight[0];
 
-            expect(J.metaBoardsX[0], 'meta-board 1 x').to.equal( rightCornerX );
-            expect(J.metaBoardsY[0], 'meta-board 1 y').to.equal( baseLineY + (J.metaBoardsHeight[0] / 2));
+            expect(J.metaBoardsGroup[0].position.x, 'meta-board 1 x').to.equal( rightCornerX );
+            expect(J.metaBoardsGroup[0].position.y, 'meta-board 1 y').to.equal( baseLineY + (J.metaBoardsHeight[0] / 2));
 
-            expect(J.metaBoardsX[1], 'meta-board 2 x').to.equal( rightCornerX + J.metaBoardsWidth[0] );
-            expect(J.metaBoardsY[1], 'meta-board 2 y').to.equal( baseLineY + (J.metaBoardsHeight[1] / 2) );
+            expect(J.metaBoardsGroup[1].position.x, 'meta-board 2 x').to.equal( rightCornerX + J.metaBoardsWidth[0] );
+            expect(J.metaBoardsGroup[1].position.y, 'meta-board 2 y').to.equal( baseLineY + (J.metaBoardsHeight[1] / 2) );
           });
         });
       });

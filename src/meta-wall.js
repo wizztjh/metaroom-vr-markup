@@ -19,6 +19,68 @@ class MetaWallController extends MRM.MetaBaseWallController{
     }
   }
 
+  updateChildrenDisplayInline() {
+
+    var parent = this;
+    // TODO: only select the direct child
+    // TODO: refactore this mess
+    var children = parent.dom.querySelectorAll("meta-board");
+
+    var lines = [];
+    var currentLine = 0;
+    var currentLineWidth = 0;
+
+    [].forEach.call(children, function (child, index) {
+      if (!child.controller){ return; }
+
+      // TODO: add width and height property to meta-wall to make it generic
+      if(currentLineWidth + Number(child.controller.properties.width) <= parent.metaObject.mesh.scale.x){
+        currentLineWidth += Number(child.controller.properties.width);
+      }else{
+        currentLine += 1;
+        currentLineWidth = 0;
+      }
+      lines[currentLine] = lines[currentLine] || []
+      lines[currentLine].push(child);
+    });
+
+    var biggestHeightForEachLine = []
+    lines.forEach(function(line, lineIndex){
+      var biggestHeight = 0
+      ,   baseLineY
+      ,   nextComponentX = -(Number(parent.metaObject.mesh.scale.x)/2);
+
+      line.forEach(function(child, childIndex){
+        if (childIndex === 0) {
+          nextComponentX += Number(child.controller.properties.width)/2;
+        }
+
+        // TODO: make all the metaObject to have a group, simplify things
+        var group = child.controller.metaObject.group;
+        console.log("sets group x:", nextComponentX)
+        group.position.x = nextComponentX;
+        nextComponentX += Number(child.controller.properties.width);
+
+        if(child.controller.properties.height > biggestHeight) {
+          biggestHeight = Number(child.controller.properties.height)
+        }
+      });
+
+      biggestHeightForEachLine.push(biggestHeight)
+
+      baseLineY = Number(parent.metaObject.mesh.scale.y)/2 - biggestHeightForEachLine.reduce((previousValue, currentValue) => {
+        return previousValue += currentValue
+      });
+
+      line.forEach(function(child, childIndex){
+        var group = child.controller.metaObject.group;
+        group.position.y = baseLineY + child.controller.properties.height/2;
+      });
+
+    });
+
+  }
+
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
     var group = this.metaObject.group;
@@ -61,6 +123,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
         group.position.set(this.roomWidth/2, this.roomHeight/2, 0);
         break;
     }
+    this.updateChildrenDisplayInline();
   }
 
 }
@@ -78,6 +141,7 @@ class MetaWall extends MRM.MetaBase {
       e.stopPropagation();
       targetController.metaWall = this;
       this.controller.metaObject.group.add(targetController.metaObject.group);
+      this.controller.updateChildrenDisplayInline()
     }
   }
 
