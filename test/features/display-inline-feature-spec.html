@@ -14,9 +14,14 @@
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' depth='10' id='main-meta-room'>
         <meta-wall align='left' id='main-meta-wall'>
-          <meta-board src='fixtures/ball.jpeg' x='3' y='3'width='6' height='5' id='main-meta-board'>
-            <meta-image src='img/VRcollab.png' width='3' height='2' id='main-meta-image'></meta-image>
-            <meta-text width='3' height='1' id='main-meta-text'>A place for you to build future VR websites collaboratively</meta-text>
+          <meta-board x='3' y='3' width='4' height='5' id='narrower-board'>
+            <meta-image src='img/VRcollab.png' width='3' height='2'></meta-image>
+            <meta-text width='3' height='1'>Test</meta-text>
+          </meta-board>
+
+          <meta-board x='3' y='3' width='6' height='5' id='main-meta-board'>
+            <meta-image src='img/VRcollab.png' width='3' height='2'></meta-image>
+            <meta-text width='3' height='1'>A place for you to build future VR websites collaboratively</meta-text>
           </meta-board>
         </meta-wall>
       </meta-room>
@@ -30,26 +35,57 @@
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
         jlet('metaBoard', function(){ return document.querySelector('#main-meta-board')});
-        jlet('metaImage', function(){ return document.querySelector('#main-meta-image')});
-        jlet('metaText', function(){ return document.querySelector('#main-meta-text')});
+        jlet('metaImage', function(){ return J.metaBoard.querySelector('meta-image')});
+        jlet('metaText', function(){ return J.metaBoard.querySelector('meta-text')});
+
         jlet('metaBoardGroup', function(){ return J.metaBoard.controller.metaObject.group});
         jlet('metaBoardMesh', function(){ return J.metaBoard.controller.metaObject.mesh});
+        jlet('metaBoardProperties', function(){ return J.metaBoard.controller.properties});
+        jlet('metaBoardWidth', function(){ return Number(J.metaBoardProperties.width)});
+        jlet('metaBoardHeight', function(){ return Number(J.metaBoardProperties.height)});
+
         jlet('metaImageMesh', function(){ return J.metaImage.controller.metaObject.mesh});
+        jlet('metaImageProperties', function(){ return J.metaImage.controller.properties});
+        jlet('metaImageWidth', function(){ return Number(J.metaImageProperties.width)});
+        jlet('metaImageHeight', function(){ return Number(J.metaImageProperties.height)});
+
         jlet('metaTextMesh', function(){ return J.metaText.controller.metaObject.mesh});
+        jlet('metaTextProperties', function(){ return J.metaText.controller.properties});
+        jlet('metaTextWidth', function(){ return Number(J.metaTextProperties.width)});
+        jlet('metaTextHeight', function(){ return Number(J.metaTextProperties.height)});
       });
 
       describe("when meta component with display: inline property is sibling", function() {
         it("alines from the top right corner", function () {
-          var rightCornerX = -(J.metaBoard.getAttribute('width')/2) + J.metaImage.getAttribute('width')/2
-          var baseLineY = (J.metaBoard.getAttribute('height')/2) - J.metaImage.getAttribute('height')
+          var rightCornerX = -J.metaBoardWidth/2 + J.metaImageWidth/2
+          ,   baseLineY = (J.metaBoardHeight/2) - J.metaImageHeight;
 
           expect(J.metaImageMesh.position.x, 'meta-image x').to.equal( rightCornerX );
-          expect(J.metaImageMesh.position.y, 'meta-image y').to.equal( baseLineY + Number(J.metaImage.getAttribute('height'))/2 );
+          expect(J.metaImageMesh.position.y, 'meta-image y').to.equal( baseLineY + (J.metaImageHeight / 2));
 
-          expect(J.metaTextMesh.position.x, 'meta-text x').to.equal( rightCornerX + Number(J.metaImage.getAttribute('width')) );
-          expect(J.metaTextMesh.position.y, 'meta-text y').to.equal( baseLineY + Number(J.metaText.getAttribute('height'))/2 );
+          expect(J.metaTextMesh.position.x, 'meta-text x').to.equal( rightCornerX + J.metaImageWidth );
+          expect(J.metaTextMesh.position.y, 'meta-text y').to.equal( baseLineY + (J.metaTextHeight / 2) );
         });
+
+        describe("width is smaller than the sum of width of childrens", function(){
+          beforeEach(function(){
+            jlet('metaBoard', function(){ return document.querySelector('#narrower-board')});
+          });
+
+          it("goes to the next line", function(){
+            var rightCornerX = -J.metaBoardWidth/2 + J.metaImageWidth/2
+            ,   baseLineY = (J.metaBoardHeight/2) - J.metaImageHeight;
+
+            expect(J.metaImageMesh.position.x, 'meta-image x').to.equal( -J.metaBoardWidth/2 + J.metaImageWidth/2 );
+            expect(J.metaImageMesh.position.y, 'meta-image y').to.equal( baseLineY + J.metaImageHeight/2 );
+
+            expect(J.metaTextMesh.position.x, 'meta-text x').to.equal( -J.metaBoardWidth/2 + J.metaTextWidth/2 );
+            expect(J.metaTextMesh.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextHeight/2 );
+          });
+        });
+
       });
+
     });
   </script>
 </body>

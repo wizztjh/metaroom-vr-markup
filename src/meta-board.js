@@ -62,36 +62,59 @@ class MetaBoardController extends MRM.MetaBaseController {
   }
 
   updateChildrenDisplayInline() {
+    var board = this;
     // TODO: only select the direct child
-    var children = this.dom.querySelectorAll("meta-text, meta-image")
-    var nextComponentX = -(Number(this.properties.width)/2);
-    var biggestHeight = 0;
+    var children = board.dom.querySelectorAll("meta-text, meta-image")
+
+    var lines = [];
+    var currentLine = 0;
+    var currentLineWidth = 0;
 
     [].forEach.call(children, function (child, index) {
-      if (!child.controller){
-        return;
-      }
-      if (index === 0) {
-        nextComponentX += Number(child.controller.properties.width)/2;
-      }
-      var mesh = child.controller.metaObject.mesh;
-      mesh.position.x = nextComponentX;
-      nextComponentX += Number(child.controller.properties.width);
+      if (!child.controller){ return; }
 
-      if(child.controller.properties.height > biggestHeight) {
-        biggestHeight = child.controller.properties.height
+      if(currentLineWidth + Number(child.controller.properties.width) <= board.properties.width){
+        currentLineWidth += Number(child.controller.properties.width);
+      }else{
+        currentLine += 1;
+        currentLineWidth = 0;
       }
+      lines[currentLine] = lines[currentLine] || []
+      lines[currentLine].push(child);
     });
 
-    var baseLineY = Number(this.properties.height)/2 - biggestHeight;
-    [].forEach.call(children, function (child, index) {
-      if (!child.controller){
-        return;
-      }
-      var mesh = child.controller.metaObject.mesh;
+    var biggestHeightForEachLine = []
+    lines.forEach(function(line, lineIndex){
+      var biggestHeight = 0
+      ,   baseLineY
+      ,   nextComponentX = -(Number(board.properties.width)/2);
 
-      mesh.position.y = baseLineY + child.controller.properties.height/2;
-    })
+      line.forEach(function(child, childIndex){
+        if (childIndex === 0) {
+          nextComponentX += Number(child.controller.properties.width)/2;
+        }
+
+        var mesh = child.controller.metaObject.mesh;
+        mesh.position.x = nextComponentX;
+        nextComponentX += Number(child.controller.properties.width);
+
+        if(child.controller.properties.height > biggestHeight) {
+          biggestHeight = Number(child.controller.properties.height)
+        }
+      });
+
+      biggestHeightForEachLine.push(biggestHeight)
+
+      baseLineY = Number(board.properties.height)/2 - biggestHeightForEachLine.reduce((previousValue, currentValue) => {
+        return previousValue += currentValue
+      });
+
+      line.forEach(function(child, childIndex){
+        var mesh = child.controller.metaObject.mesh;
+        mesh.position.y = baseLineY + child.controller.properties.height/2;
+      });
+
+    });
 
   }
 

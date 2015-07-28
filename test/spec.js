@@ -39,7 +39,8 @@ function jlet(name, callback){
       return memoizer()
     },
     set: function(){
-    }
+    },
+    configurable: true
   });
 }
 
