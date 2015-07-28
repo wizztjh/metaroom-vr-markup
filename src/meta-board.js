@@ -64,6 +64,7 @@ class MetaBoardController extends MRM.MetaBaseController {
 
   updateChildrenDisplayInline() {
 
+    // TODO: change the board to parent to make it generic
     var board = this;
     // TODO: only select the direct child
     // TODO: refactore this mess

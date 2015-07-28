@@ -58,8 +58,8 @@
           // i dont think it is a good idea to change the position of meta-board via x and y attribute, it should be the meta-style responsibility
           var metaBoardGroup = J.metaBoard.controller.metaObject.group;
 
-          expect(metaBoardGroup.position.x, 'x').to.equal('5');
-          expect(metaBoardGroup.position.y, 'y').to.equal('4');
+          expect(metaBoardGroup.position.x, 'x').to.equal(5);
+          expect(metaBoardGroup.position.y, 'y').to.equal(4);
           done();
         });
 
@@ -74,8 +74,8 @@
         it("updates dimension of the board", function(){
           var metaBoardMesh = J.metaBoard.controller.metaObject.mesh;
 
-          expect(metaBoardMesh.scale.x, 'x').to.equal('6');
-          expect(metaBoardMesh.scale.y, 'y').to.equal('6');
+          expect(metaBoardMesh.scale.x, 'x').to.equal(6);
+          expect(metaBoardMesh.scale.y, 'y').to.equal(6);
 
         });
       });

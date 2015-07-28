@@ -22,6 +22,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
     var group = this.metaObject.group;
+    // TODO: sets the properties.width and height of wall for refference
 
     switch(this.properties.align) {
       case 'left':
