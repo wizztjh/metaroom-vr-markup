@@ -34,7 +34,8 @@ export default class MetaBase extends HTMLElement{
 
     //TODO: move this to controller
     if(this.controller.isAllowedAttribute(attrName)){
-      this.controller.properties[attrName] = newValue
+      var value = this.controller.propertiesSettings[attrName].type(newValue)
+      this.controller.properties[attrName] = value
       if (this.controller.updateMetaObject){
         this.controller.updateMetaObject()
       }
