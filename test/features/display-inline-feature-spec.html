@@ -84,6 +84,22 @@
           });
         });
 
+        describe("when parent's dimension changes", function(){
+          asyncBeforeEach(function(){
+            J.metaBoard.setAttribute('width', 5);
+          });
+
+          it("realign the children", function(){
+            var rightCornerX = -J.metaBoardWidth/2 + J.metaImageWidth/2
+            ,   baseLineY = (J.metaBoardHeight/2) - J.metaImageHeight;
+
+            expect(J.metaImageMesh.position.x, 'meta-image x').to.equal( -J.metaBoardWidth/2 + J.metaImageWidth/2 );
+            expect(J.metaImageMesh.position.y, 'meta-image y').to.equal( baseLineY + J.metaImageHeight/2 );
+
+            expect(J.metaTextMesh.position.x, 'meta-text x').to.equal( -J.metaBoardWidth/2 + J.metaTextWidth/2 );
+            expect(J.metaTextMesh.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextHeight/2 );
+          });
+        });
       });
 
     });

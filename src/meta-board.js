@@ -59,6 +59,8 @@ class MetaBoardController extends MRM.MetaBaseController {
 
     mesh.scale.x = this.properties.width
     mesh.scale.y = this.properties.height
+
+    this.updateChildrenDisplayInline();
   }
 
   updateChildrenDisplayInline() {
