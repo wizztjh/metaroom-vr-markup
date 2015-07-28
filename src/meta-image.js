@@ -64,6 +64,7 @@ class MetaImage extends MRM.MetaBase {
     this.dispatchEvent(event);
   }
 
+  // TODO: detach should not be bubbling up because it only trigger to the parent
   detachedCallback() {
     var event = new CustomEvent('meta-detached', {
       'detail': {'controller': this.controller},

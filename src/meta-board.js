@@ -63,8 +63,10 @@ class MetaBoardController extends MRM.MetaBaseController {
   }
 
   updateChildrenDisplayInline() {
+
     var board = this;
     // TODO: only select the direct child
+    // TODO: refactore this mess
     var children = board.dom.querySelectorAll("meta-text, meta-image")
 
     var lines = [];
@@ -146,7 +148,7 @@ class MetaBoard extends MRM.MetaBase {
   metaAttached(e) {
     var targetController = e.detail.controller;
 
-    if (targetController.templateID() == '#meta-image' || targetController.templateID() == '#meta-text' ) {
+    if (targetController.templateID() === '#meta-image' || targetController.templateID() === '#meta-text' ) {
       e.stopPropagation();
       targetController.parent = this;
       this.controller.metaObject.group.add(targetController.metaObject.mesh);
@@ -157,10 +159,24 @@ class MetaBoard extends MRM.MetaBase {
   metaDetached(e) {
     var targetController = e.detail.controller;
 
-    if (targetController.templateID() == '#meta-image' || targetController.templateID() == '#meta-text') {
+    if (targetController.templateID() === '#meta-image' || targetController.templateID() === '#meta-text') {
       e.stopPropagation();
       this.controller.metaObject.group.remove(targetController.metaObject.mesh);
     }
+  }
+
+  metaChildAttributeChanged(e) {
+    var targetController = e.detail.controller;
+    var attrName = e.detail.attrName
+
+    if (targetController.templateID() === '#meta-image' || targetController.templateID() === '#meta-text') {
+
+      if(attrName === 'width' || attrName === 'height') {
+        e.stopPropagation();
+        this.controller.updateChildrenDisplayInline()
+      }
+    }
+
   }
 
 }

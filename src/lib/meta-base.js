@@ -7,6 +7,11 @@ export default class MetaBase extends HTMLElement{
     if(typeof this.metaDetached == 'function') {
       this.addEventListener('meta-detached', this.metaDetached, false);
     }
+
+    // TODO: we will name the metaAttached to metaChildAttached, metaChildAttributeChanged
+    if(typeof this.metaChildAttributeChanged == 'function') {
+      this.addEventListener('meta-attribute-change', this.metaChildAttributeChanged, false);
+    }
   }
 
   attachedCallback() {
@@ -26,12 +31,27 @@ export default class MetaBase extends HTMLElement{
   }
 
   attributeChangedCallback(attrName, oldValue, newValue) {
+
+    //TODO: move this to controller
     if(this.controller.isAllowedAttribute(attrName)){
       this.controller.properties[attrName] = newValue
       if (this.controller.updateMetaObject){
         this.controller.updateMetaObject()
       }
     }
+
+    // TODO: maybe we can add a new propertiesSettings `bubbleUp` to enable the event bubbling when attribute changes
+    var event = new CustomEvent('meta-attribute-change', {
+      'detail': {
+        'attrName': attrName,
+        'oldValue': oldValue,
+        'newValue': newValue,
+        'controller': this.controller
+      },
+      bubbles: true
+    });
+
+    this.dispatchEvent(event);
   }
 
 }
