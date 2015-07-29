@@ -7,7 +7,16 @@ export default class MetaBaseController{
     this.properties = {}
     this.propertiesKey.forEach((key) => {
       var settings = this.propertiesSettings[key]
-      this.properties[key] = settings.type(this.dom.getAttribute(settings.attrName) || settings.default)
+      var value = settings.type(this.dom.getAttribute(settings.attrName) || settings.default)
+
+      Object.defineProperty(this.properties, key, {
+        get: function(){
+          return value
+        },
+        set: function(inputValue){
+          value = settings.type(inputValue)
+        }
+      })
     });
   }
 
