@@ -35,20 +35,11 @@
 
       describe("when initilize", function(){
         shouldBehaveLikeAMetaObjectThatScales('metaImageMesh', {x: 3, y: 4});
-      });
+        shouldBehaveLikeAPlaneAddingMetaTag('metaImage', 'metaBoard')
 
-      it('updates the texture based on src', function(){
-        expect(J.metaImage.controller.metaObject.mesh.material.map.sourceFile).to.equal("fixtures/ball.png");
-      });
-
-      it("adds a plane to meta-board group", function(){
-        var metaBoardGroupChildrenUUID = J.metaBoard.controller.metaObject.group.children.map(function(child){
-          return child.uuid;
+        it('updates the texture based on src', function(){
+          expect(J.metaImage.controller.metaObject.mesh.material.map.sourceFile).to.equal("fixtures/ball.png");
         });
-
-        var metaImageUUID = J.metaImage.controller.metaObject.group.uuid;
-
-        expect(metaBoardGroupChildrenUUID).to.include(metaImageUUID);
       });
 
     });

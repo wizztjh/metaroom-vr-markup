@@ -16,6 +16,18 @@ function shouldBehaveLikeAMetaObjectThatScales(metaObjectName, scale){
     expect(J[metaObjectName].scale.y, 'height').to.equal(scale.y);
   });
 }
+
+function shouldBehaveLikeAPlaneAddingMetaTag(metaTagName, metaParentName){
+  it("adds a plane to "+ metaParentName +" group", function(){
+    var metaChildrenUUID = J[metaParentName].controller.metaObject.group.children.map(function(child){
+      return child.uuid;
+    });
+
+    var metaObjectUUID = J[metaTagName].controller.metaObject.group.uuid;
+
+    expect(metaChildrenUUID).to.include(metaObjectUUID);
+  });
+}
 //sharedBehaviors end
 
 afterEach(function(){

@@ -37,20 +37,12 @@
 
       describe("when initilize", function(){
         shouldBehaveLikeAMetaObjectThatScales("metaTextMesh", { x: 3, y: 1 });
-      });
+        shouldBehaveLikeAPlaneAddingMetaTag('metaText', 'metaBoard')
 
-      it('updates the texture based on src', function(){
-        expect(J.metaText.controller.metaObject.mesh.material.map.image.tagName).to.equal("CANVAS");
-      });
-
-      it("adds a plane to meta-board group", function(){
-        var metaBoardGroupChildrenUUID = J.metaBoard.controller.metaObject.group.children.map(function(child){
-          return child.uuid;
+        it('updates the texture based on src', function(){
+          expect(J.metaText.controller.metaObject.mesh.material.map.image.tagName).to.equal("CANVAS");
         });
 
-        var metaTextUUID = J.metaText.controller.metaObject.group.uuid;
-
-        expect(metaBoardGroupChildrenUUID).to.include(metaTextUUID);
       });
 
     });
