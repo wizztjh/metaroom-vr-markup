@@ -46,7 +46,7 @@
           return child.uuid;
         });
 
-        var metaImageUUID = J.metaImage.controller.metaObject.mesh.uuid;
+        var metaImageUUID = J.metaImage.controller.metaObject.group.uuid;
 
         expect(metaBoardGroupChildrenUUID).to.include(metaImageUUID);
       });
