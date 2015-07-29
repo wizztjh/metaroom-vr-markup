@@ -41,7 +41,9 @@ export default class MetaBaseController{
     return []
   }
   get metaChildrenQuerySelectorString(){
-    return this.metaChildrenNames.join(' ,')
+    return this.metaChildrenNames.map(function(selector){
+      return `:scope > ${selector}`
+    }).join(' ,')
   }
 
   isAllowedAttribute(attrName) {
@@ -78,15 +80,13 @@ export default class MetaBaseController{
       var biggestHeight = 0
       ,   baseLineY
       ,   nextComponentX = -(Number(parent.properties.width)/2);
-
       line.forEach(function(child, childIndex){
-        if (childIndex === 0) {
-          nextComponentX += Number(child.controller.properties.width)/2;
-        }
+
+        nextComponentX += Number(child.controller.properties.width)/2;
 
         var group = child.controller.metaObject.group;
         group.position.x = nextComponentX;
-        nextComponentX += Number(child.controller.properties.width);
+        nextComponentX += child.controller.properties.width/2;
 
         if(child.controller.properties.height > biggestHeight) {
           biggestHeight = Number(child.controller.properties.height)

@@ -102,5 +102,5 @@ gulp.task('webserver', function() {
 });
 
 gulp.task('default', ['build', 'webserver'], function () {
-  gulp.watch(['lib/*.js', 'src/*.js', 'src/*.html', 'bower_components'], ['build']);
+  gulp.watch(['src/lib/*.js', 'src/*.js', 'src/*.html', 'bower_components'], ['build']);
 })

@@ -23,6 +23,9 @@
             <meta-image src='img/VRcollab.png' width='3' height='2'></meta-image>
             <meta-text width='3' height='1'>A place for you to build future VR websites collaboratively</meta-text>
           </meta-board>
+
+          <meta-image id='meta-image-on-wall'src='img/VRcollab.png' width='3' height='2'></meta-image>
+          <meta-text id='meta-text-on-wall' width='3' height='2'>This is it</meta-text>
         </meta-wall>
       </meta-room>
     </meta-verse>
@@ -31,6 +34,12 @@
   <script>
     describe("display inline", function(){
       beforeEach(function(){
+        function getProperty(controllers, property) {
+          return controllers.map(function(controller){
+            return controller.properties[property]
+          });
+        }
+
         jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
 
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
@@ -40,43 +49,64 @@
         jlet('metaWallWidth', function(){ return J.metaWall.controller.metaObject.mesh.scale.x });
         jlet('metaWallHeight', function(){ return J.metaWall.controller.metaObject.mesh.scale.y});
 
-      });
+        //NOTE: we define metaImage and metaText below
+        jlet('metaImageGroup', function(){ return J.metaImage.controller.metaObject.group});
+        jlet('metaImageProperties', function(){ return J.metaImage.controller.properties});
+        jlet('metaImageWidth', function(){ return Number(J.metaImageProperties.width)});
+        jlet('metaImageHeight', function(){ return Number(J.metaImageProperties.height)});
 
-      describe("meta-wall and its children, meta-board, meta-image and meta-text", function(){
-        beforeEach(function(){
-          jlet('metaBoards', function(){ return document.querySelectorAll('meta-board') });
+        jlet('metaTextGroup', function(){ return J.metaText.controller.metaObject.group});
+        jlet('metaTextProperties', function(){ return J.metaText.controller.properties});
+        jlet('metaTextWidth', function(){ return Number(J.metaTextProperties.width)});
+        jlet('metaTextHeight', function(){ return Number(J.metaTextProperties.height)});
 
-          jlet('metaBoardsController', function(){
-            return [].map.call(J.metaBoards, function(metaBoard){
-              return metaBoard.controller
-            });
+        jlet('metaBoards', function(){ return document.querySelectorAll('meta-board') });
+
+        jlet('metaBoardsController', function(){
+          return [].map.call(J.metaBoards, function(metaBoard){
+            return metaBoard.controller
           });
-
-          function getProperty(controllers, property) {
-            return controllers.map(function(controller){
-              console.log('property', property, controller.properties[property])
-              return controller.properties[property]
-            });
-          }
-
-          // TODO: REFACTOR this duplication
-
-          jlet('metaBoardsMesh', function() {
-            return J.metaBoardsController.map(function(controller){
-              return controller.metaObject.mesh
-            })
-          });
-
-          jlet('metaBoardsGroup', function() {
-            return J.metaBoardsController.map(function(controller){
-              return controller.metaObject.group
-            })
-          });
-
-          jlet('metaBoardsHeight', function() { return getProperty(J.metaBoardsController, 'height') });
-          jlet('metaBoardsWidth', function() { return getProperty(J.metaBoardsController, 'width') });
         });
 
+        // TODO: REFACTOR this duplication
+
+        jlet('metaBoardsMesh', function() {
+          return J.metaBoardsController.map(function(controller){
+            return controller.metaObject.mesh
+          })
+        });
+
+        jlet('metaBoardsGroup', function() {
+          return J.metaBoardsController.map(function(controller){
+            return controller.metaObject.group
+          })
+        });
+
+        jlet('metaBoardsHeight', function() { return getProperty(J.metaBoardsController, 'height') });
+        jlet('metaBoardsWidth', function() { return getProperty(J.metaBoardsController, 'width') });
+      });
+
+      describe("between meta-wall and meta-image, meta-text", function(){
+        describe("when meta component with display: inline property is sibling", function(){
+          beforeEach(function(){
+            jlet('metaImage', function(){ return document.querySelector('#meta-image-on-wall')});
+            jlet('metaText', function(){ return document.querySelector('#meta-text-on-wall')});
+          });
+
+          it("alines from the top left corner", function () {
+            var rightCornerX = -J.metaWallWidth/2 + J.metaImageWidth/2
+            ,   baseLineY = (J.metaWallHeight/2) - J.metaBoardsHeight[0] - J.metaImageHeight;
+
+            expect(J.metaImageGroup.position.x, 'meta-image x').to.equal( rightCornerX );
+            expect(J.metaImageGroup.position.y, 'meta-image y').to.equal( baseLineY + (J.metaImageHeight / 2));
+
+            expect(J.metaTextGroup.position.x, 'meta-text x').to.equal( rightCornerX + J.metaImageWidth );
+            expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY + (J.metaTextHeight / 2) );
+          });
+        });
+      })
+
+      describe("between meta-wall and meta-board", function(){
         describe("when meta component with display: inline property is sibling", function(){
           it("alines from the top left corner", function () {
             var rightCornerX = -J.metaWallWidth/2 + J.metaBoardsWidth[0]/2
@@ -102,16 +132,8 @@
           jlet('metaBoardHeight', function(){ return Number(J.metaBoardProperties.height)});
 
           jlet('metaImage', function(){ return J.metaBoard.querySelector('meta-image')});
-          jlet('metaImageGroup', function(){ return J.metaImage.controller.metaObject.group});
-          jlet('metaImageProperties', function(){ return J.metaImage.controller.properties});
-          jlet('metaImageWidth', function(){ return Number(J.metaImageProperties.width)});
-          jlet('metaImageHeight', function(){ return Number(J.metaImageProperties.height)});
 
           jlet('metaText', function(){ return J.metaBoard.querySelector('meta-text')});
-          jlet('metaTextGroup', function(){ return J.metaText.controller.metaObject.group});
-          jlet('metaTextProperties', function(){ return J.metaText.controller.properties});
-          jlet('metaTextWidth', function(){ return Number(J.metaTextProperties.width)});
-          jlet('metaTextHeight', function(){ return Number(J.metaTextProperties.height)});
         });
 
         describe("when meta component with display: inline property is sibling", function() {
