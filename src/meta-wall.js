@@ -15,7 +15,9 @@ class MetaWallController extends MRM.MetaBaseWallController{
 
   get propertiesSettings(){
     return {
-      align: { type: String, default: "front", attrName: "align" }
+      align: { type: String, default: "front", attrName: "align" },
+      width: { type: Number, default: 1 },
+      height: { type: Number, default: 1 }
     }
   }
 
@@ -34,7 +36,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
       if (!child.controller){ return; }
 
       // TODO: add width and height property to meta-wall to make it generic
-      if(currentLineWidth + Number(child.controller.properties.width) <= parent.metaObject.mesh.scale.x){
+      if(currentLineWidth + Number(child.controller.properties.width) <= parent.properties.width){
         currentLineWidth += Number(child.controller.properties.width);
       }else{
         currentLine += 1;
@@ -48,7 +50,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
     lines.forEach(function(line, lineIndex){
       var biggestHeight = 0
       ,   baseLineY
-      ,   nextComponentX = -(Number(parent.metaObject.mesh.scale.x)/2);
+      ,   nextComponentX = -(Number(parent.properties.width)/2);
 
       line.forEach(function(child, childIndex){
         if (childIndex === 0) {
@@ -68,7 +70,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
 
       biggestHeightForEachLine.push(biggestHeight)
 
-      baseLineY = Number(parent.metaObject.mesh.scale.y)/2 - biggestHeightForEachLine.reduce((previousValue, currentValue) => {
+      baseLineY = Number(parent.properties.height)/2 - biggestHeightForEachLine.reduce((previousValue, currentValue) => {
         return previousValue += currentValue
       });
 
@@ -90,15 +92,21 @@ class MetaWallController extends MRM.MetaBaseWallController{
       case 'left':
       case 'right':
       mesh.scale.set(this.roomDepth, this.roomHeight , 1);
+      this.properties.width = this.roomDepth
+      this.properties.height = this.roomHeight
       break;
 
       case 'ceiling':
       mesh.scale.set(this.roomWidth, this.roomDepth , 1);
+      this.properties.width = this.roomWidth
+      this.properties.height = this.roomDepth
       break;
 
       case 'front':
       case 'back':
       mesh.scale.set(this.roomWidth, this.roomHeight , 1);
+      this.properties.width = this.roomWidth
+      this.properties.height = this.roomHeight
       break;
 
     }
