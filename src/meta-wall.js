@@ -104,6 +104,19 @@ class MetaWall extends MRM.MetaBase {
       this.controller.metaObject.group.remove(targetController.metaObject.group);
     }
   }
+
+  metaChildAttributeChanged(e){
+   var targetController = e.detail.controller;
+    var attrName = e.detail.attrName
+
+    if (targetController.templateID() === '#meta-image' || targetController.templateID() === '#meta-text' || targetController.templateID() === '#meta-board') {
+
+      if(attrName === 'width' || attrName === 'height') {
+        e.stopPropagation();
+        this.controller.updateChildrenDisplayInline()
+      }
+    }
+  }
 }
 
 document.registerElement('meta-wall', MetaWall);

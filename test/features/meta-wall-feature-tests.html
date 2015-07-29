@@ -84,7 +84,7 @@
             var sceneUUIDs;
 
             J.metaWall.remove();
-            metaWallUUID = J.metaWall.controller.metaObject.mesh.uuid;
+            metaWallUUID = J.metaWall.controller.metaObject.group.uuid;
 
             sceneUUIDs = J.metaVerse.controller.gameObject.scene.children.map(function(child){
               return child.uuid;

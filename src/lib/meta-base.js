@@ -27,7 +27,12 @@ export default class MetaBase extends HTMLElement{
       'detail': {'controller': this.controller},
       bubbles: true
     });
-    this.controller.metaVerse.dispatchEvent(event);
+
+    if(this.controller.parent) {
+      this.controller.parent.dispatchEvent(event);
+    } else {
+      console.debug('no parent for', this.controller.templateID())
+    }
   }
 
   attributeChangedCallback(attrName, oldValue, newValue) {

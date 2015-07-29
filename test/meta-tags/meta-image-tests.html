@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
+</head>
+<body>
+  <div id='fixture'>
+    <meta-image id="meta-image" width="5"></meta-image>
+  </div>
+  <script>
+    describe('<meta-image>', function() {
+      beforeEach(function(){
+        jlet("metaImage", function(){ return document.querySelector("#meta-image") });
+      })
+
+      describe('when width is updated', function(){
+        it("triggers meta-attribute-change", function(){
+          var spy = sinon.spy(function(){})
+          J.metaImage.addEventListener('meta-attribute-change', spy, false)
+          J.metaImage.setAttribute('width', 3);
+
+          assert.isTrue(spy.called);
+        });
+      });
+
+    });
+  </script>
+</body>
+</html>

@@ -5,21 +5,45 @@
   <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
   <script src="../../bower_components/web-component-tester/browser.js"></script>
   <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
 </head>
 <body>
-  <meta-wall id="meta-wall"></meta-wall>
+  <div id='fixture'>
+    <meta-wall id="meta-wall"></meta-wall>
+  </div>
   <script>
     describe('<meta-wall>', function() {
-      var metaWall = document.querySelector('#meta-wall');
+      beforeEach(function(){
+        jlet("metaWall", function(){ return document.querySelector("#meta-wall") });
+      });
 
       describe('when align is updated', function() {
         describe('to left', function() {
 
           it('updates the rotation to align left', function() {
-            metaWall.align = 'left'
-            expect(metaWall.metaObject.mesh.rotation.y).to.equal(90 * (Math.PI/180));
+            J.metaWall.attributeChangedCallback('align', '', 'left')
+            expect(J.metaWall.controller.metaObject.group.rotation.y).to.equal(90 * (Math.PI/180));
           });
 
+        });
+      });
+
+      describe('when child attribute updated', function(){
+        it("updates the child position", function(){
+          updateChildSpy = sinon.spy(J.metaWall.controller, 'updateChildrenDisplayInline')
+
+          J.metaWall.metaChildAttributeChanged({
+            stopPropagation: sinon.spy(),
+            detail: {
+              controller: {
+                templateID: function(){return "#meta-image"}
+              },
+              attrName: 'width'
+            }
+          })
+
+          assert.isTrue(updateChildSpy.called);
         });
       });
 

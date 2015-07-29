@@ -28,7 +28,7 @@ class MetaVerse extends HTMLElement {
     this.addEventListener('meta-attached', function(e){
       var controller = e.detail.controller;
 
-      controller.metaVerse = this;
+      controller.parent = this;
       //TODO: need to find a better way to store the objects, it should be tree form
       this.controller.gameObject.add(controller.metaObject);
     }, false);
