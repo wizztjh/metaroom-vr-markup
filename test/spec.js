@@ -28,6 +28,25 @@ function shouldBehaveLikeAPlaneAddingMetaTag(metaTagName, metaParentName){
     expect(metaChildrenUUID).to.include(metaObjectUUID);
   });
 }
+
+function shouldBehaveLikeARemoveableMetaObject(metaTagName, metaParentName){
+  describe("when the "+ metaTagName +" is removed", function(){
+    beforeEach(function(){
+      J[metaTagName].remove();
+    });
+
+    it("removes the meta object", function(){
+      metaObjectUUID = J[metaTagName].controller.metaObject.group.uuid;
+
+      metaParentChildrenUUID = J[metaParentName].controller.metaObject.group.children.map(function(child){
+        return child.uuid;
+      });
+
+      expect(metaParentChildrenUUID).to.not.include(metaObjectUUID);
+    });
+
+  });
+}
 //sharedBehaviors end
 
 afterEach(function(){
