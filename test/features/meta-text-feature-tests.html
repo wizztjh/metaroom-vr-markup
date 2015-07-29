@@ -14,9 +14,10 @@
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' depth='10' id='main-meta-room'>
         <meta-wall align='left' id='main-meta-wall'>
-          <meta-board  x='3' y='3' width='3' height='5' id='main-meta-board'>
+          <meta-text width='3' height='1' id='meta-text-on-wall'>Hello there!</meta-text>
+          <meta-board  width='3' height='5' id='main-meta-board'>
             <meta-image src='fixtures/ball.png' id='main-meta-image'></meta-image>
-            <meta-text x='0' y='3' width='3' height='1' id='main-meta-text'>Hello there!</meta-text>
+            <meta-text width='3' height='1' id='main-meta-text'>Hello there!</meta-text>
           </meta-board>
         </meta-wall>
       </meta-room>
@@ -43,6 +44,12 @@
           expect(J.metaText.controller.metaObject.mesh.material.map.image.tagName).to.equal("CANVAS");
         });
 
+        describe("when the meta-text is on the wall", function(){
+          beforeEach(function(){
+            jlet('metaText', function(){ return document.querySelector('#meta-text-on-wall')});
+          });
+          shouldBehaveLikeAPlaneAddingMetaTag('metaText', 'metaWall')
+        });
       });
 
       shouldBehaveLikeARemoveableMetaObject('metaText', 'metaBoard')

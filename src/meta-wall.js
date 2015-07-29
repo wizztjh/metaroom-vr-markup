@@ -87,9 +87,10 @@ class MetaWall extends MRM.MetaBase {
   metaAttached(e) {
     var targetController = e.detail.controller;
 
-    if (targetController.templateID() == '#meta-board') {
+    // TODO: Please refactor this
+    if (targetController.templateID() == '#meta-image' || targetController.templateID() == '#meta-board' || targetController.templateID() === '#meta-text') {
       e.stopPropagation();
-      targetController.metaWall = this;
+      targetController.parent = this;
       this.controller.metaObject.group.add(targetController.metaObject.group);
       this.controller.updateChildrenDisplayInline()
     }

@@ -14,9 +14,12 @@
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' depth='10' id='main-meta-room'>
         <meta-wall align='left' id='main-meta-wall'>
-          <meta-board  x='3' y='3' width='3' height='5' id='main-meta-board'>
-            <meta-image x='0' y='0' width='3' height='4' src='fixtures/ball.png' id='main-meta-image'></meta-image>
+          <meta-image width='3' height='4' src='fixtures/ball.png' id='meta-image-on-wall'></meta-image>
+
+          <meta-board width='3' height='5' id='main-meta-board'>
+            <meta-image width='3' height='4' src='fixtures/ball.png' id='main-meta-image'></meta-image>
           </meta-board>
+
         </meta-wall>
       </meta-room>
     </meta-verse>
@@ -39,6 +42,13 @@
 
         it('updates the texture based on src', function(){
           expect(J.metaImage.controller.metaObject.mesh.material.map.sourceFile).to.equal("fixtures/ball.png");
+        });
+
+        describe("when the meta-image is on the wall", function(){
+          beforeEach(function(){
+            jlet('metaImage', function(){ return document.querySelector('#meta-image-on-wall')});
+          });
+          shouldBehaveLikeAPlaneAddingMetaTag('metaImage', 'metaWall')
         });
       });
 

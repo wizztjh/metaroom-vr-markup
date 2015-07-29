@@ -6,7 +6,7 @@ class MetaBoardController extends MRM.MetaBaseController {
 
     this.metaObject.mesh.position.set(0,0,0.1)
     this.setupComponent();
-    this.metaWall = null;
+    this.parent = null;
 
     this.updateMetaObject()
   }
@@ -84,7 +84,7 @@ class MetaBoard extends MRM.MetaBase {
       'detail': {'controller': this.controller},
       bubbles: true
     });
-    this.controller.metaWall.dispatchEvent(event);
+    this.controller.parent.dispatchEvent(event);
   }
 
   metaAttached(e) {
