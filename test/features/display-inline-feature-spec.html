@@ -115,7 +115,7 @@
             expect(J.metaBoardsGroup[0].position.x, 'meta-board 1 x').to.equal( rightCornerX );
             expect(J.metaBoardsGroup[0].position.y, 'meta-board 1 y').to.equal( baseLineY + (J.metaBoardsHeight[0] / 2));
 
-            expect(J.metaBoardsGroup[1].position.x, 'meta-board 2 x').to.equal( rightCornerX + J.metaBoardsWidth[0] );
+            expect(J.metaBoardsGroup[1].position.x, 'meta-board 2 x').to.equal( rightCornerX + J.metaBoardsWidth[0]/2 + J.metaBoardsWidth[1]/2 );
             expect(J.metaBoardsGroup[1].position.y, 'meta-board 2 y').to.equal( baseLineY + (J.metaBoardsHeight[1] / 2) );
           });
         });
