@@ -87,8 +87,7 @@ class MetaWall extends MRM.MetaBase {
   metaAttached(e) {
     var targetController = e.detail.controller;
 
-    // TODO: Please refactor this
-    if (targetController.tagName == 'meta-image' || targetController.tagName == 'meta-board' || targetController.tagName === 'meta-text') {
+    if (this.controller.isChildren(targetController.tagName) ){
       e.stopPropagation();
       targetController.parent = this;
       this.controller.metaObject.group.add(targetController.metaObject.group);
@@ -99,7 +98,7 @@ class MetaWall extends MRM.MetaBase {
   metaDetached(e) {
     var targetController = e.detail.controller;
 
-    if (targetController.tagName == 'meta-board') {
+    if (this.controller.isChildren(targetController.tagName) ){
       e.stopPropagation();
       this.controller.metaObject.group.remove(targetController.metaObject.group);
     }
@@ -109,8 +108,7 @@ class MetaWall extends MRM.MetaBase {
    var targetController = e.detail.controller;
     var attrName = e.detail.attrName
 
-    if (targetController.tagName === 'meta-image' || targetController.tagName === 'meta-text' || targetController.tagName === 'meta-board') {
-
+    if (this.controller.isChildren(targetController.tagName) ){
       if(attrName === 'width' || attrName === 'height') {
         e.stopPropagation();
         this.controller.updateChildrenDisplayInline()

@@ -90,7 +90,7 @@ class MetaBoard extends MRM.MetaBase {
   metaAttached(e) {
     var targetController = e.detail.controller;
 
-    if (targetController.tagName === 'meta-image' || targetController.tagName === 'meta-text' ) {
+    if (this.controller.isChildren(targetController.tagName) ){
       e.stopPropagation();
       targetController.parent = this;
       this.controller.metaObject.group.add(targetController.metaObject.group);
@@ -101,7 +101,7 @@ class MetaBoard extends MRM.MetaBase {
   metaDetached(e) {
     var targetController = e.detail.controller;
 
-    if (targetController.tagName === 'meta-image' || targetController.tagName === 'meta-text') {
+    if (this.controller.isChildren(targetController.tagName) ){
       e.stopPropagation();
       this.controller.metaObject.group.remove(targetController.metaObject.group);
     }
@@ -111,8 +111,9 @@ class MetaBoard extends MRM.MetaBase {
     var targetController = e.detail.controller;
     var attrName = e.detail.attrName
 
-    if (targetController.tagName === 'meta-image' || targetController.tagName === 'meta-text') {
+    if (this.controller.isChildren(targetController.tagName) ){
 
+      // TODO: refactor to use propertiesSettings
       if(attrName === 'width' || attrName === 'height') {
         e.stopPropagation();
         this.controller.updateChildrenDisplayInline()

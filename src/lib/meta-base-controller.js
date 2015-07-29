@@ -40,10 +40,15 @@ export default class MetaBaseController{
   get metaChildrenNames(){
     return []
   }
+
   get metaChildrenQuerySelectorString(){
     return this.metaChildrenNames.map(function(selector){
       return `:scope > ${selector}`
     }).join(' ,')
+  }
+
+  isChildren(tagName) {
+    return this.metaChildrenNames.indexOf(tagName) != -1
   }
 
   isAllowedAttribute(attrName) {
