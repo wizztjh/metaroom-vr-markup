@@ -18,8 +18,8 @@ class MetaBoardController extends MRM.MetaBaseController {
     }
   }
 
-  templateID() {
-    return "#meta-board"
+  get tagName() {
+    return "meta-board"
   }
 
   createMetaObject(){
@@ -90,7 +90,7 @@ class MetaBoard extends MRM.MetaBase {
   metaAttached(e) {
     var targetController = e.detail.controller;
 
-    if (targetController.templateID() === '#meta-image' || targetController.templateID() === '#meta-text' ) {
+    if (targetController.tagName === 'meta-image' || targetController.tagName === 'meta-text' ) {
       e.stopPropagation();
       targetController.parent = this;
       this.controller.metaObject.group.add(targetController.metaObject.group);
@@ -101,7 +101,7 @@ class MetaBoard extends MRM.MetaBase {
   metaDetached(e) {
     var targetController = e.detail.controller;
 
-    if (targetController.templateID() === '#meta-image' || targetController.templateID() === '#meta-text') {
+    if (targetController.tagName === 'meta-image' || targetController.tagName === 'meta-text') {
       e.stopPropagation();
       this.controller.metaObject.group.remove(targetController.metaObject.group);
     }
@@ -111,7 +111,7 @@ class MetaBoard extends MRM.MetaBase {
     var targetController = e.detail.controller;
     var attrName = e.detail.attrName
 
-    if (targetController.templateID() === '#meta-image' || targetController.templateID() === '#meta-text') {
+    if (targetController.tagName === 'meta-image' || targetController.tagName === 'meta-text') {
 
       if(attrName === 'width' || attrName === 'height') {
         e.stopPropagation();

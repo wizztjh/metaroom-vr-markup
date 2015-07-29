@@ -14,8 +14,8 @@ class MetaFloorController extends MRM.MetaBaseWallController{
     return {};
   }
 
-  templateID() {
-    return "#meta-floor"
+  get tagName() {
+    return "meta-floor"
   }
 
   updateMetaObject() {

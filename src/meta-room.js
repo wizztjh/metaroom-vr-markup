@@ -13,8 +13,8 @@ class MetaRoomController extends MRM.MetaBaseController{
     }
   }
 
-  templateID() {
-    return "#meta-room";
+  get tagName() {
+    return "meta-room";
   }
 
   forEachMetaWallBase(callback) {
@@ -27,9 +27,9 @@ class MetaRoom extends HTMLElement {
     this.controller = new MetaRoomController(this);
     this.addEventListener('meta-attached', function(e){
       var targetController = e.detail.controller;
-      var templateID = targetController.templateID();
+      var tagName = targetController.tagName;
 
-      if (templateID == "#meta-wall" || templateID == '#meta-floor') {
+      if (tagName == "meta-wall" || tagName == 'meta-floor') {
         targetController.roomDimensionChange(this.getAttribute('width'), this.getAttribute('height'), this.getAttribute('depth'));
       }
     });

@@ -18,8 +18,8 @@ class MetaImageController extends MRM.MetaBaseController {
     }
   }
 
-  templateID() {
-    return "#meta-image"
+  get tagName() {
+    return "meta-image"
   }
 
   createMetaObject(){

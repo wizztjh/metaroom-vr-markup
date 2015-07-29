@@ -20,12 +20,12 @@ export default class MetaBaseController{
     });
   }
 
-  templateID(){
-    throw 'Please define a template id';
+  get tagName() {
+    throw 'Please define a tag name';
   }
 
   setupComponent() {
-    var template = document.importNode( owner.querySelector(this.templateID()).content, true)
+    var template = document.importNode( owner.querySelector("#" + this.tagName).content, true)
     this.dom.appendChild(template);
   }
 

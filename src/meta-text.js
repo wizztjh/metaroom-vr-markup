@@ -19,8 +19,8 @@ class MetaTextController extends MRM.MetaBaseController {
     }
   }
 
-  templateID() {
-    return "#meta-text"
+  get tagName() {
+    return "meta-text"
   }
 
   createMetaObject(){

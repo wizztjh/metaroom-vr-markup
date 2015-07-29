@@ -31,7 +31,7 @@ export default class MetaBase extends HTMLElement{
     if(this.controller.parent) {
       this.controller.parent.dispatchEvent(event);
     } else {
-      console.debug('no parent for', this.controller.templateID())
+      console.debug('no parent for', this.controller.tagName)
     }
   }
 

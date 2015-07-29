@@ -9,8 +9,8 @@ class MetaWallController extends MRM.MetaBaseWallController{
     this.updateMetaObject();
   }
 
-  templateID() {
-    return "#meta-wall"
+  get tagName() {
+    return "meta-wall"
   }
 
   get propertiesSettings(){
@@ -88,7 +88,7 @@ class MetaWall extends MRM.MetaBase {
     var targetController = e.detail.controller;
 
     // TODO: Please refactor this
-    if (targetController.templateID() == '#meta-image' || targetController.templateID() == '#meta-board' || targetController.templateID() === '#meta-text') {
+    if (targetController.tagName == 'meta-image' || targetController.tagName == 'meta-board' || targetController.tagName === 'meta-text') {
       e.stopPropagation();
       targetController.parent = this;
       this.controller.metaObject.group.add(targetController.metaObject.group);
@@ -99,7 +99,7 @@ class MetaWall extends MRM.MetaBase {
   metaDetached(e) {
     var targetController = e.detail.controller;
 
-    if (targetController.templateID() == '#meta-board') {
+    if (targetController.tagName == 'meta-board') {
       e.stopPropagation();
       this.controller.metaObject.group.remove(targetController.metaObject.group);
     }
@@ -109,7 +109,7 @@ class MetaWall extends MRM.MetaBase {
    var targetController = e.detail.controller;
     var attrName = e.detail.attrName
 
-    if (targetController.templateID() === '#meta-image' || targetController.templateID() === '#meta-text' || targetController.templateID() === '#meta-board') {
+    if (targetController.tagName === 'meta-image' || targetController.tagName === 'meta-text' || targetController.tagName === 'meta-board') {
 
       if(attrName === 'width' || attrName === 'height') {
         e.stopPropagation();
