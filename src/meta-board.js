@@ -94,8 +94,8 @@ class MetaBoardController extends MRM.MetaBaseController {
           nextComponentX += Number(child.controller.properties.width)/2;
         }
 
-        var mesh = child.controller.metaObject.mesh;
-        mesh.position.x = nextComponentX;
+        var group = child.controller.metaObject.group;
+        group.position.x = nextComponentX;
         nextComponentX += Number(child.controller.properties.width);
 
         if(child.controller.properties.height > biggestHeight) {
@@ -110,8 +110,8 @@ class MetaBoardController extends MRM.MetaBaseController {
       });
 
       line.forEach(function(child, childIndex){
-        var mesh = child.controller.metaObject.mesh;
-        mesh.position.y = baseLineY + child.controller.properties.height/2;
+        var group = child.controller.metaObject.group;
+        group.position.y = baseLineY + child.controller.properties.height/2;
       });
 
     });

@@ -102,13 +102,13 @@
           jlet('metaBoardHeight', function(){ return Number(J.metaBoardProperties.height)});
 
           jlet('metaImage', function(){ return J.metaBoard.querySelector('meta-image')});
-          jlet('metaImageMesh', function(){ return J.metaImage.controller.metaObject.mesh});
+          jlet('metaImageGroup', function(){ return J.metaImage.controller.metaObject.group});
           jlet('metaImageProperties', function(){ return J.metaImage.controller.properties});
           jlet('metaImageWidth', function(){ return Number(J.metaImageProperties.width)});
           jlet('metaImageHeight', function(){ return Number(J.metaImageProperties.height)});
 
           jlet('metaText', function(){ return J.metaBoard.querySelector('meta-text')});
-          jlet('metaTextMesh', function(){ return J.metaText.controller.metaObject.mesh});
+          jlet('metaTextGroup', function(){ return J.metaText.controller.metaObject.group});
           jlet('metaTextProperties', function(){ return J.metaText.controller.properties});
           jlet('metaTextWidth', function(){ return Number(J.metaTextProperties.width)});
           jlet('metaTextHeight', function(){ return Number(J.metaTextProperties.height)});
@@ -119,11 +119,11 @@
             var rightCornerX = -J.metaBoardWidth/2 + J.metaImageWidth/2
             ,   baseLineY = (J.metaBoardHeight/2) - J.metaImageHeight;
 
-            expect(J.metaImageMesh.position.x, 'meta-image x').to.equal( rightCornerX );
-            expect(J.metaImageMesh.position.y, 'meta-image y').to.equal( baseLineY + (J.metaImageHeight / 2));
+            expect(J.metaImageGroup.position.x, 'meta-image x').to.equal( rightCornerX );
+            expect(J.metaImageGroup.position.y, 'meta-image y').to.equal( baseLineY + (J.metaImageHeight / 2));
 
-            expect(J.metaTextMesh.position.x, 'meta-text x').to.equal( rightCornerX + J.metaImageWidth );
-            expect(J.metaTextMesh.position.y, 'meta-text y').to.equal( baseLineY + (J.metaTextHeight / 2) );
+            expect(J.metaTextGroup.position.x, 'meta-text x').to.equal( rightCornerX + J.metaImageWidth );
+            expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY + (J.metaTextHeight / 2) );
           });
 
           describe("width is smaller than the sum of width of childrens", function(){
@@ -135,11 +135,11 @@
               var rightCornerX = -J.metaBoardWidth/2 + J.metaImageWidth/2
               ,   baseLineY = (J.metaBoardHeight/2) - J.metaImageHeight;
 
-              expect(J.metaImageMesh.position.x, 'meta-image x').to.equal( -J.metaBoardWidth/2 + J.metaImageWidth/2 );
-              expect(J.metaImageMesh.position.y, 'meta-image y').to.equal( baseLineY + J.metaImageHeight/2 );
+              expect(J.metaImageGroup.position.x, 'meta-image x').to.equal( -J.metaBoardWidth/2 + J.metaImageWidth/2 );
+              expect(J.metaImageGroup.position.y, 'meta-image y').to.equal( baseLineY + J.metaImageHeight/2 );
 
-              expect(J.metaTextMesh.position.x, 'meta-text x').to.equal( -J.metaBoardWidth/2 + J.metaTextWidth/2 );
-              expect(J.metaTextMesh.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextHeight/2 );
+              expect(J.metaTextGroup.position.x, 'meta-text x').to.equal( -J.metaBoardWidth/2 + J.metaTextWidth/2 );
+              expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextHeight/2 );
             });
           });
 
@@ -152,11 +152,11 @@
               var rightCornerX = -J.metaBoardWidth/2 + J.metaImageWidth/2
               ,   baseLineY = (J.metaBoardHeight/2) - J.metaImageHeight;
 
-              expect(J.metaImageMesh.position.x, 'meta-image x').to.equal( -J.metaBoardWidth/2 + J.metaImageWidth/2 );
-              expect(J.metaImageMesh.position.y, 'meta-image y').to.equal( baseLineY + J.metaImageHeight/2 );
+              expect(J.metaImageGroup.position.x, 'meta-image x').to.equal( -J.metaBoardWidth/2 + J.metaImageWidth/2 );
+              expect(J.metaImageGroup.position.y, 'meta-image y').to.equal( baseLineY + J.metaImageHeight/2 );
 
-              expect(J.metaTextMesh.position.x, 'meta-text x').to.equal( -J.metaBoardWidth/2 + J.metaTextWidth/2 );
-              expect(J.metaTextMesh.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextHeight/2 );
+              expect(J.metaTextGroup.position.x, 'meta-text x').to.equal( -J.metaBoardWidth/2 + J.metaTextWidth/2 );
+              expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextHeight/2 );
             });
           });
 
@@ -171,11 +171,11 @@
               ,   baseLineY = (J.metaBoardHeight/2) - J.metaImageHeight;
 
               // NOTE: because the origin is on the center of the meta-object which is why we divide by 2
-              expect(J.metaImageMesh.position.x, 'meta-image x').to.equal( -J.metaBoardWidth/2 + J.metaImageWidth/2 );
-              expect(J.metaImageMesh.position.y, 'meta-image y').to.equal( baseLineY + J.metaImageHeight/2 );
+              expect(J.metaImageGroup.position.x, 'meta-image x').to.equal( -J.metaBoardWidth/2 + J.metaImageWidth/2 );
+              expect(J.metaImageGroup.position.y, 'meta-image y').to.equal( baseLineY + J.metaImageHeight/2 );
 
-              expect(J.metaTextMesh.position.x, 'meta-text x').to.equal( -J.metaBoardWidth/2 + J.metaTextWidth/2 );
-              expect(J.metaTextMesh.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextHeight/2 );
+              expect(J.metaTextGroup.position.x, 'meta-text x').to.equal( -J.metaBoardWidth/2 + J.metaTextWidth/2 );
+              expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextHeight/2 );
             });
 
           });

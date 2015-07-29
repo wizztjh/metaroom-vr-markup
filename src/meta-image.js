@@ -4,9 +4,7 @@ class MetaImageController extends MRM.MetaBaseController {
     this.setupComponent();
     this.parent = null;
 
-    this.metaObject = {
-      mesh: this.createMesh()
-    }
+    this.metaObject = this.createMetaObject()
     this.metaObject.mesh.position.set(0,0,0.2)
 
     this.updateMetaObject()
@@ -24,7 +22,7 @@ class MetaImageController extends MRM.MetaBaseController {
     return "#meta-image"
   }
 
-  createMesh(){
+  createMetaObject(){
     var planeHeight = 1;
     var planeWidth = 1;
     var texture = THREE.ImageUtils.loadTexture(
@@ -37,8 +35,14 @@ class MetaImageController extends MRM.MetaBaseController {
       color: 0x333333,
       side: THREE.DoubleSide
     });
+    var mesh = new THREE.Mesh(geometry, material);
+    var group = new THREE.Group();
+    group.add( mesh );
 
-    return new THREE.Mesh(geometry, material);
+    return {
+      mesh: mesh,
+      group: group
+    }
   }
 
   updateMetaObject(){

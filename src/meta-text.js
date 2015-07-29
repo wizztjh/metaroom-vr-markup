@@ -6,9 +6,7 @@ class MetaTextController extends MRM.MetaBaseController {
 
     this.properties.text = this.dom.innerText || '';
 
-    this.metaObject = {
-      mesh: this.createMesh()
-    }
+    this.metaObject = this.createMetaObject();
     this.metaObject.mesh.position.set(0,0,0.2)
 
     this.updateMetaObject()
@@ -25,7 +23,7 @@ class MetaTextController extends MRM.MetaBaseController {
     return "#meta-text"
   }
 
-  createMesh(){
+  createMetaObject(){
     var planeHeight = 1;
     var planeWidth = 1;
 
@@ -45,7 +43,15 @@ class MetaTextController extends MRM.MetaBaseController {
       side: THREE.DoubleSide
     });
 
-    return new THREE.Mesh(geometry, material);
+    var mesh = new THREE.Mesh(geometry, material);
+    var group = new THREE.Group();
+
+    group.add(mesh);
+
+    return {
+      mesh: mesh,
+      group: group
+    }
   }
 
   updateMetaObject(){
