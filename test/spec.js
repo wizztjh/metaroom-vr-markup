@@ -8,7 +8,7 @@ function shouldBehaveLikeAMetaObjectThatPositions(metaObjectName, position){
   it("sets the position of the object according to the attributes", function(){
     expect(J[metaObjectName].position.x, 'x').to.equal(position.x);
     expect(J[metaObjectName].position.y, 'y').to.equal(position.y);
-  });
+    });
 }
 function shouldBehaveLikeAMetaObjectThatScales(metaObjectName, scale){
   it("sets the dimension of the object", function(){
@@ -45,6 +45,35 @@ function shouldBehaveLikeARemoveableMetaObject(metaTagName, metaParentName){
       expect(metaParentChildrenUUID).to.not.include(metaObjectUUID);
     });
 
+  });
+}
+
+function shouldBehaveLikeAInlineMetaComponent(parentName, firstMetaComponentName, secondMetaComponentName){
+  it("alines from the top left corner", function () {
+    var parent = J[parentName]
+    ,   parentWidth = parent.controller.metaObject.mesh.scale.x
+    ,   parentHeight = parent.controller.metaObject.mesh.scale.y
+
+    ,   firstMetaComponent = J[firstMetaComponentName]
+    ,   secondMetaComponent = J[secondMetaComponentName]
+
+    ,   firstMetaComponentWidth = firstMetaComponent.controller.metaObject.mesh.scale.x
+    ,   secondMetaComponentWidth = secondMetaComponent.controller.metaObject.mesh.scale.x
+
+    ,   firstMetaComponentHeight = firstMetaComponent.controller.metaObject.mesh.scale.y
+    ,   secondMetaComponentHeight = secondMetaComponent.controller.metaObject.mesh.scale.y
+
+    ,   firstMetaComponentGroup = firstMetaComponent.controller.metaObject.group
+    ,   secondMetaComponentGroup = secondMetaComponent.controller.metaObject.group;
+
+    var rightCornerX = -parentWidth/2 + firstMetaComponentWidth/2
+    ,   baseLineY = (parentHeight/2) - firstMetaComponentHeight;
+
+    expect(firstMetaComponentGroup.position.x, firstMetaComponentName + ' x').to.equal( rightCornerX );
+    expect(firstMetaComponentGroup.position.y, firstMetaComponentName + ' y').to.equal( baseLineY + (firstMetaComponentHeight / 2));
+
+    expect(secondMetaComponentGroup.position.x, secondMetaComponentName + ' x').to.equal( rightCornerX + firstMetaComponentWidth/2 + secondMetaComponentWidth/2 );
+    expect(secondMetaComponentGroup.position.y, secondMetaComponentName + ' y').to.equal( baseLineY + (secondMetaComponentHeight / 2) );
   });
 }
 //sharedBehaviors end

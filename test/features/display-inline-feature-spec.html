@@ -24,9 +24,13 @@
             <meta-text width='3' height='1'>A place for you to build future VR websites collaboratively</meta-text>
           </meta-board>
 
+        </meta-wall>
+
+        <meta-wall id='meta-wall-for-image-and-text' align='right'>
           <meta-image id='meta-image-on-wall'src='img/VRcollab.png' width='3' height='2'></meta-image>
           <meta-text id='meta-text-on-wall' width='3' height='2'>This is it</meta-text>
         </meta-wall>
+
       </meta-room>
     </meta-verse>
   </div>
@@ -89,35 +93,23 @@
       describe("between meta-wall and meta-image, meta-text", function(){
         describe("when meta component with display: inline property is sibling", function(){
           beforeEach(function(){
+            jlet('metaWall', function(){ return document.querySelector('#meta-wall-for-image-and-text') })
             jlet('metaImage', function(){ return document.querySelector('#meta-image-on-wall')});
             jlet('metaText', function(){ return document.querySelector('#meta-text-on-wall')});
           });
 
-          it("alines from the top left corner", function () {
-            var rightCornerX = -J.metaWallWidth/2 + J.metaImageWidth/2
-            ,   baseLineY = (J.metaWallHeight/2) - J.metaBoardsHeight[0] - J.metaImageHeight;
-
-            expect(J.metaImageGroup.position.x, 'meta-image x').to.equal( rightCornerX );
-            expect(J.metaImageGroup.position.y, 'meta-image y').to.equal( baseLineY + (J.metaImageHeight / 2));
-
-            expect(J.metaTextGroup.position.x, 'meta-text x').to.equal( rightCornerX + J.metaImageWidth );
-            expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY + (J.metaTextHeight / 2) );
-          });
+          shouldBehaveLikeAInlineMetaComponent('metaWall', 'metaImage', 'metaText');
         });
       })
 
       describe("between meta-wall and meta-board", function(){
         describe("when meta component with display: inline property is sibling", function(){
-          it("alines from the top left corner", function () {
-            var rightCornerX = -J.metaWallWidth/2 + J.metaBoardsWidth[0]/2
-            ,   baseLineY = (J.metaWallHeight/2) - J.metaBoardsHeight[0];
-
-            expect(J.metaBoardsGroup[0].position.x, 'meta-board 1 x').to.equal( rightCornerX );
-            expect(J.metaBoardsGroup[0].position.y, 'meta-board 1 y').to.equal( baseLineY + (J.metaBoardsHeight[0] / 2));
-
-            expect(J.metaBoardsGroup[1].position.x, 'meta-board 2 x').to.equal( rightCornerX + J.metaBoardsWidth[0]/2 + J.metaBoardsWidth[1]/2 );
-            expect(J.metaBoardsGroup[1].position.y, 'meta-board 2 y').to.equal( baseLineY + (J.metaBoardsHeight[1] / 2) );
+          beforeEach(function(){
+            jlet('firstMetaBoard', function(){ return J.metaBoards[0]});
+            jlet('secondMetaBoard', function(){ return J.metaBoards[1]});
           });
+
+          shouldBehaveLikeAInlineMetaComponent('metaWall', 'firstMetaBoard', 'secondMetaBoard');
         });
       });
 
@@ -137,17 +129,9 @@
         });
 
         describe("when meta component with display: inline property is sibling", function() {
-          it("alines from the top left corner", function () {
-            var rightCornerX = -J.metaBoardWidth/2 + J.metaImageWidth/2
-            ,   baseLineY = (J.metaBoardHeight/2) - J.metaImageHeight;
+          shouldBehaveLikeAInlineMetaComponent('metaBoard', 'metaImage', 'metaText');
 
-            expect(J.metaImageGroup.position.x, 'meta-image x').to.equal( rightCornerX );
-            expect(J.metaImageGroup.position.y, 'meta-image y').to.equal( baseLineY + (J.metaImageHeight / 2));
-
-            expect(J.metaTextGroup.position.x, 'meta-text x').to.equal( rightCornerX + J.metaImageWidth );
-            expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY + (J.metaTextHeight / 2) );
-          });
-
+          // NOTE: Should be tested in unit spec level
           describe("width is smaller than the sum of width of childrens", function(){
             beforeEach(function(){
               jlet('metaBoard', function(){ return document.querySelector('#narrower-board')});
