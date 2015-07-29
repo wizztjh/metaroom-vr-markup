@@ -93,7 +93,7 @@ class MetaBoard extends MRM.MetaBase {
     if (targetController.templateID() === '#meta-image' || targetController.templateID() === '#meta-text' ) {
       e.stopPropagation();
       targetController.parent = this;
-      this.controller.metaObject.group.add(targetController.metaObject.mesh);
+      this.controller.metaObject.group.add(targetController.metaObject.group);
       this.controller.updateChildrenDisplayInline()
     }
   }
