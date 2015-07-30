@@ -1,0 +1,33 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
+</head>
+<body>
+  <div id='fixture'>
+    <meta-table width='3' height='4' depth='2' id="meta-table"></meta-table>
+  </div>
+  <script>
+    describe('<meta-table>', function() {
+      beforeEach(function(){
+        jlet("metaTable", function(){ return document.querySelector("#meta-table") });
+        jlet("metaTableController", function(){ return J.metaTable.controller});
+      });
+
+      describe("when initilize", function(){
+        it("sets the dimension of the object", function(){
+          expect(J.metaTableController.properties.width, 'width').to.equal(3);
+          expect(J.metaTableController.properties.height, 'height').to.equal(4);
+          expect(J.metaTableController.properties.depth, 'depth').to.equal(2);
+        });
+      });
+
+    });
+  </script>
+</body>
+</html>

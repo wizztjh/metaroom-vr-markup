@@ -6,6 +6,7 @@ class MetaTableController extends MRM.MetaBaseController{
     super(dom);
     this.dom = dom;
     this.setupComponent();
+    this.parent = null;
     this.metaObject = this.createMetaObject();
   }
 
@@ -18,6 +19,9 @@ class MetaTableController extends MRM.MetaBaseController{
   }
   get propertiesSettings() {
     return {
+      width: {type: Number, default: 1, attrName: 'width'},
+      height: {type: Number, default: 1, attrName: 'height'},
+      depth: {type: Number, default: 1, attrName: 'depth'}
     }
   }
 
