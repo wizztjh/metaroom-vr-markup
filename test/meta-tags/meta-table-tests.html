@@ -27,6 +27,19 @@
         });
       });
 
+      describe("when dimension changes", function(){
+        beforeEach(function(){
+          J.metaTable.setAttribute('width', 5);
+          J.metaTable.setAttribute('height', 8);
+          J.metaTable.setAttribute('depth', 4);
+        });
+
+        it("sets the new dimension to the object", function(){
+          expect(J.metaTableController.properties.width, 'width').to.equal(5);
+          expect(J.metaTableController.properties.height, 'height').to.equal(8);
+          expect(J.metaTableController.properties.depth, 'depth').to.equal(4);
+        });
+      });
     });
   </script>
 </body>
