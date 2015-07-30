@@ -49,6 +49,10 @@ class MetaTable extends MRM.MetaBase {
       e.stopPropagation();
       targetController.parent = this;
       this.controller.metaObject.group.add(targetController.metaObject.group);
+
+      targetController.properties.tableWidth = this.controller.properties.width
+      targetController.properties.tableHeight = this.controller.properties.height
+      targetController.properties.tableDepth = this.controller.properties.depth
     }
   }
 

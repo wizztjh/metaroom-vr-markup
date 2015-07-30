@@ -12,12 +12,41 @@ class MetaTsurfaceController extends MRM.MetaBaseController {
 
   get propertiesSettings() {
     return {
-      align: {type: String, default: "front", attrName: 'align'}
+      tableWidth: {
+        type: Number,
+        default: 1,
+        onChange: "updateDimension"
+      },
+      tableHeight: {
+        type: Number,
+        default: 1
+      },
+      tableDepth: {
+        type: Number,
+        default: 1,
+        onChange: "updateDimension"
+      },
+
+      width: {
+        type: Number,
+        default: 1,
+        onChange: "updateMetaObject"
+      },
+      height: {
+        type: Number,
+        default: 1,
+        onChange: "updateMetaObject"
+      }
     }
   }
 
   get tagName() {
     return "meta-tsurface"
+  }
+
+  updateDimension() {
+    this.properties.width = this.properties.tableWidth
+    this.properties.height = this.properties.tableDepth
   }
 
   createMetaObject(){
@@ -49,6 +78,8 @@ class MetaTsurfaceController extends MRM.MetaBaseController {
   }
 
   updateMetaObject(){
+    this.metaObject.mesh.scale.x = this.properties.width;
+    this.metaObject.mesh.scale.y = this.properties.height;
   }
 }
 

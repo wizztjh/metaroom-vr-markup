@@ -33,13 +33,22 @@
         jlet('metaTable', function(){ return document.querySelector('#main-meta-table')});
         jlet('metaTsurface', function(){ return document.querySelector('#main-meta-tsurface')});
 
-        jlet('metaTsurfaceGroup', function(){ return J.metaTable.controller.metaObject.group } );
-        jlet('metaTsurfaceMesh', function(){ return J.metaTable.controller.metaObject.mesh } );
+        jlet('metaTsurfaceGroup', function(){ return J.metaTsurface.controller.metaObject.group } );
+        jlet('metaTsurfaceMesh', function(){ return J.metaTsurface.controller.metaObject.mesh } );
       });
 
-      it("adds a cube to the surface", function(){
-        var metaTsurfaceGroup = J.metaTsurface.controller.metaObject.group
-        var tableGroupChildrenUUIDs = J.metaTable.controller.metaObject.group.children.map(function(child){ return child.uuid })
+      describe("when initialize", function(){
+        it("adds a cube to the surface", function(){
+          var metaTsurfaceGroup = J.metaTsurface.controller.metaObject.group
+          var tableGroupChildrenUUIDs = J.metaTable.controller.metaObject.group.children.map(function(child){ return child.uuid })
+
+          expect(tableGroupChildrenUUIDs).to.include(metaTsurfaceGroup.uuid)
+        });
+
+        it("sets the cube width and height base on meta-table", function(){
+          expect(J.metaTsurfaceMesh.scale.x, 'width').to.equal(Number(J.metaTable.getAttribute('width')))
+          expect(J.metaTsurfaceMesh.scale.y, 'height').to.equal(Number(J.metaTable.getAttribute('depth')))
+        });
       });
 
     });

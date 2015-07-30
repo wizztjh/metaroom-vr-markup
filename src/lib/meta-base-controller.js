@@ -14,8 +14,21 @@ export default class MetaBaseController{
         get: function(){
           return value
         },
-        set: function(inputValue){
+        set: (inputValue) => {
+          var oldValue = value;
+          var onChangeFunction = settings.onChange;
           value = settings.type(inputValue)
+
+          if(typeof settings.onChange === "string") {
+            onChangeFunction = this[settings.onChange]
+          }
+
+          if(typeof onChangeFunction === "function") {
+            if(oldValue !== value) {
+              onChangeFunction.call(this, value, oldValue, key)
+            }
+          }
+
         }
       })
     });
