@@ -51,6 +51,13 @@
         });
       });
 
+      describe("when meta table width and depth changes", function(){
+        it("updates the tsurface width and height", function(){
+          J.metaTable.setAttribute('width', 5);
+          expect(J.metaTsurfaceMesh.scale.x, 'width').to.equal(Number(J.metaTable.getAttribute('width')));
+        });
+      });
+
     });
   </script>
 </body>

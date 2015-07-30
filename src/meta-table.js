@@ -20,9 +20,36 @@ class MetaTableController extends MRM.MetaBaseController{
 
   get propertiesSettings() {
     return {
-      width: {type: Number, default: 1, attrName: 'width'},
-      height: {type: Number, default: 1, attrName: 'height'},
-      depth: {type: Number, default: 1, attrName: 'depth'}
+      width: {
+        type: Number,
+        default: 1,
+        attrName: 'width',
+        onChange: (value)=>{
+          this.forEachMetaChildren((child)=>{
+            child.controller.properties.tableWidth = value
+          })
+        }
+      },
+      height: {
+        type: Number,
+        default: 1,
+        attrName: 'height',
+        onChange: (value)=>{
+          this.forEachMetaChildren((child)=>{
+            child.controller.properties.tableHeight = value
+          })
+        }
+      },
+      depth: {
+        type: Number,
+        default: 1,
+        attrName: 'depth',
+        onChange: (value)=>{
+          this.forEachMetaChildren((child)=>{
+            child.controller.properties.tableDepth = value
+          })
+        }
+      }
     }
   }
 

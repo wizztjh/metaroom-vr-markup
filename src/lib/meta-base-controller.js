@@ -61,6 +61,10 @@ export default class MetaBaseController{
     }).join(' ,')
   }
 
+  forEachMetaChildren(callback){
+    [].forEach.call(this.dom.querySelectorAll(this.metaChildrenQuerySelectorString), callback)
+  }
+
   isChildren(tagName) {
     return this.metaChildrenNames.indexOf(tagName) != -1
   }
