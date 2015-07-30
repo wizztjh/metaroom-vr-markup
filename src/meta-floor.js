@@ -18,6 +18,11 @@ class MetaFloorController extends MRM.MetaBaseWallController{
     return "meta-floor"
   }
 
+  get metaChildrenNames(){
+    // TODO: we need to include meta-image, meta-board and meta-text
+    return ["meta-table"]
+  }
+
   updateMetaObject() {
     var mesh = this.metaObject.mesh;
     mesh.rotation.x = 90 * (Math.PI/180);
@@ -30,6 +35,16 @@ class MetaFloor extends MRM.MetaBase {
   createdCallback() {
     this.controller = new MetaFloorController(this);
     super.createdCallback();
+  }
+
+  metaAttached(e) {
+    var targetController = e.detail.controller;
+
+    if (this.controller.isChildren(targetController.tagName) ){
+      e.stopPropagation();
+      targetController.parent = this;
+      this.controller.metaObject.group.add(targetController.metaObject.group);
+    }
   }
 }
 
