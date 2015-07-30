@@ -7,7 +7,8 @@ export default class MetaBaseController{
     this.properties = {}
     this.propertiesKey.forEach((key) => {
       var settings = this.propertiesSettings[key]
-      var value = settings.type(this.dom.getAttribute(settings.attrName) || settings.default)
+      var attrValue = this.isAllowedAttribute(key) ? this.dom.getAttribute(settings.attrName) : null
+      var value = settings.type( attrValue || settings.default)
 
       Object.defineProperty(this.properties, key, {
         get: function(){
@@ -52,7 +53,10 @@ export default class MetaBaseController{
   }
 
   isAllowedAttribute(attrName) {
-    return this.propertiesKey.indexOf(attrName) != -1
+    var allowedkey = this.propertiesKey.filter((key) => {
+      return !!this.propertiesSettings[key].attrName;
+    });
+    return allowedkey.indexOf(attrName) != -1
   }
 
   updateChildrenDisplayInline() {
