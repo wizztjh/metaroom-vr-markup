@@ -1,0 +1,48 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
+</head>
+<body>
+
+  <div id='fixture'>
+    <meta-verse id="meta-verse">
+      <meta-room width='10' height='10' depth='10' id='main-meta-room'>
+        <meta-floor id='main-meta-floor'>
+          <meta-table width='3' height='4' depth='2' id='main-meta-table'>
+            <meta-tsurface align='front' id='main-meta-tsurface'>
+            </meta-tsurface>
+          </meta-table>
+        </meta-floor>
+        <meta-wall align='left' id='main-meta-wall'></meta-wall>
+      </meta-room>
+    </meta-verse>
+  </div>
+
+  <script>
+    describe('meta-tsurface', function() {
+      beforeEach(function(){
+        jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
+        jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
+        jlet('metaFloor', function(){ return document.querySelector('#main-meta-floor')});
+        jlet('metaTable', function(){ return document.querySelector('#main-meta-table')});
+        jlet('metaTsurface', function(){ return document.querySelector('#main-meta-tsurface')});
+
+        jlet('metaTsurfaceGroup', function(){ return J.metaTable.controller.metaObject.group } );
+        jlet('metaTsurfaceMesh', function(){ return J.metaTable.controller.metaObject.mesh } );
+      });
+
+      it("adds a cube to the surface", function(){
+        var metaTsurfaceGroup = J.metaTsurface.controller.metaObject.group
+        var tableGroupChildrenUUIDs = J.metaTable.controller.metaObject.group.children.map(function(child){ return child.uuid })
+      });
+
+    });
+  </script>
+</body>
+</html>

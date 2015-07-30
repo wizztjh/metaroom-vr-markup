@@ -17,6 +17,7 @@ class MetaTableController extends MRM.MetaBaseController{
       group: group
     }
   }
+
   get propertiesSettings() {
     return {
       width: {type: Number, default: 1, attrName: 'width'},
@@ -30,14 +31,36 @@ class MetaTableController extends MRM.MetaBaseController{
   }
 
   get metaChildrenNames(){
-    return []
+    return ['meta-tsurface']
   }
 }
 
 class MetaTable extends MRM.MetaBase {
   createdCallback() {
     this.controller = new MetaTableController(this);
+    super.createdCallback()
   }
+
+  //TODO: refactor this
+  metaAttached(e) {
+    var targetController = e.detail.controller;
+
+    if (this.controller.isChildren(targetController.tagName) ){
+      e.stopPropagation();
+      targetController.parent = this;
+      this.controller.metaObject.group.add(targetController.metaObject.group);
+    }
+  }
+
+  metaDetached(e) {
+    var targetController = e.detail.controller;
+
+    if (this.controller.isChildren(targetController.tagName) ){
+      e.stopPropagation();
+      this.controller.metaObject.group.remove(targetController.metaObject.group);
+    }
+  }
+
 }
 
 document.registerElement('meta-table', MetaTable);
