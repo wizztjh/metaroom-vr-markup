@@ -17,6 +17,10 @@ class MetaRoomController extends MRM.MetaBaseController{
     return "meta-room";
   }
 
+  get metaChildrenNames(){
+    return ["meta-wall", "meta-floor"]
+  }
+
   forEachMetaWallBase(callback) {
     [].forEach.call(this.dom.querySelectorAll("meta-wall, meta-floor"), callback)
   }
@@ -29,7 +33,7 @@ class MetaRoom extends HTMLElement {
       var targetController = e.detail.controller;
       var tagName = targetController.tagName;
 
-      if (tagName == "meta-wall" || tagName == 'meta-floor') {
+      if (this.controller.isChildren(targetController.tagName) ){
         targetController.roomDimensionChange(this.getAttribute('width'), this.getAttribute('height'), this.getAttribute('depth'));
       }
     });
