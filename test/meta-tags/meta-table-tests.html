@@ -10,7 +10,7 @@
 </head>
 <body>
   <div id='fixture'>
-    <meta-table width='3' height='4' depth='2' id="meta-table"></meta-table>
+    <meta-table width='3' height='4' length='2' id="meta-table"></meta-table>
   </div>
   <script>
     describe('<meta-table>', function() {
@@ -23,7 +23,7 @@
         it("sets the dimension of the object", function(){
           expect(J.metaTableController.properties.width, 'width').to.equal(3);
           expect(J.metaTableController.properties.height, 'height').to.equal(4);
-          expect(J.metaTableController.properties.depth, 'depth').to.equal(2);
+          expect(J.metaTableController.properties.length, 'length').to.equal(2);
         });
       });
 
@@ -31,13 +31,13 @@
         beforeEach(function(){
           J.metaTable.setAttribute('width', 5);
           J.metaTable.setAttribute('height', 8);
-          J.metaTable.setAttribute('depth', 4);
+          J.metaTable.setAttribute('length', 4);
         });
 
         it("sets the new dimension to the object", function(){
           expect(J.metaTableController.properties.width, 'width').to.equal(5);
           expect(J.metaTableController.properties.height, 'height').to.equal(8);
-          expect(J.metaTableController.properties.depth, 'depth').to.equal(4);
+          expect(J.metaTableController.properties.length, 'length').to.equal(4);
         });
       });
     });

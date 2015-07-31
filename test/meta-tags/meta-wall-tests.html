@@ -38,7 +38,8 @@
             stopPropagation: sinon.spy(),
             detail: {
               controller: {
-                tagName: "meta-picture"
+                tagName: "meta-picture",
+                isAllowedAttribute: function(){ return true }
               },
               attrName: 'width'
             }
