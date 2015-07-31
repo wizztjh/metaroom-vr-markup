@@ -31,13 +31,13 @@ class MetaRoomController extends MRM.MetaBaseController{
           })
         }
       },
-      depth:{
+      length:{
         type: Number,
         default: 1,
-        attrName: 'depth',
+        attrName: 'length',
         onChange: (value)=>{
           this.forEachMetaChildren((child)=>{
-            child.controller.properties.roomDepth = value
+            child.controller.properties.roomLength = value
           })
         }
       },
@@ -78,7 +78,7 @@ class MetaRoom extends MRM.MetaBase {
 
       targetController.properties.roomWidth = this.controller.properties.width
       targetController.properties.roomHeight = this.controller.properties.height
-      targetController.properties.roomDepth = this.controller.properties.depth
+      targetController.properties.roomLength = this.controller.properties.length
     }
   }
 

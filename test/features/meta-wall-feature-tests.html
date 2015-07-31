@@ -12,7 +12,7 @@
 
   <div id='fixture'>
     <meta-verse id="meta-verse">
-      <meta-room width='10' height='10' depth='10' id='main-meta-room'>
+      <meta-room width='10' height='10' length='10' id='main-meta-room'>
         <meta-wall align='left' id='main-meta-wall'></meta-wall>
       </meta-room>
     </meta-verse>
@@ -103,9 +103,9 @@
 
         });
 
-        describe("when the room depth changes", function(){
+        describe("when the room length changes", function(){
           it("sets the scale of the meta object", function(){
-            J.metaRoom.setAttribute('depth', 20);
+            J.metaRoom.setAttribute('length', 20);
             expect(J.metaWallMesh.scale.x, 'x').to.equal(20);
             expect(J.metaWallMesh.scale.y, 'y').to.equal(10);
             expect(J.metaWallMesh.scale.z, 'z').to.equal(1);

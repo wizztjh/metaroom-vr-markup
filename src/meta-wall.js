@@ -28,7 +28,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
         default: 1,
         onChange: "updateMetaObject"
       },
-      roomDepth: {
+      roomLength: {
         type: Number,
         default: 1,
         onChange: "updateMetaObject"
@@ -48,15 +48,15 @@ class MetaWallController extends MRM.MetaBaseWallController{
     switch(this.properties.align) {
       case 'left':
       case 'right':
-      mesh.scale.set(this.properties.roomDepth, this.properties.roomHeight , 1);
-      this.properties.width = this.properties.roomDepth
+      mesh.scale.set(this.properties.roomLength, this.properties.roomHeight , 1);
+      this.properties.width = this.properties.roomLength
       this.properties.height = this.properties.roomHeight
       break;
 
       case 'ceiling':
-      mesh.scale.set(this.properties.roomWidth, this.properties.roomDepth , 1);
+      mesh.scale.set(this.properties.roomWidth, this.properties.roomLength , 1);
       this.properties.width = this.properties.roomWidth
-      this.properties.height = this.properties.roomDepth
+      this.properties.height = this.properties.roomLength
       break;
 
       case 'front':
@@ -74,10 +74,10 @@ class MetaWallController extends MRM.MetaBaseWallController{
         group.position.set(-(this.properties.roomWidth/2), this.properties.roomHeight/2, 0);
         break;
       case 'front':
-        group.position.set(0, (this.properties.roomHeight/2), -(this.properties.roomDepth/2));
+        group.position.set(0, (this.properties.roomHeight/2), -(this.properties.roomLength/2));
         break;
       case 'back':
-        group.position.set(0, (this.properties.roomHeight/2), this.properties.roomDepth/2);
+        group.position.set(0, (this.properties.roomHeight/2), this.properties.roomLength/2);
         break;
       case 'ceiling':
         group.rotation.x = 90 * (Math.PI/180);

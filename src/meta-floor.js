@@ -24,7 +24,7 @@ class MetaFloorController extends MRM.MetaBaseWallController{
         default: 1,
         onChange: "updateMetaObject"
       },
-      roomDepth: {
+      roomLength: {
         type: Number,
         default: 1,
         onChange: "updateMetaObject"
@@ -46,7 +46,7 @@ class MetaFloorController extends MRM.MetaBaseWallController{
     var group = this.metaObject.group;
     group.rotation.x = 90 * (Math.PI/180);
     group.position.set(0, 0 , 0);
-    mesh.scale.set(this.properties.roomWidth, this.properties.roomDepth , 1);
+    mesh.scale.set(this.properties.roomWidth, this.properties.roomLength , 1);
   }
 }
 
