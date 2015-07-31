@@ -11,7 +11,25 @@ class MetaFloorController extends MRM.MetaBaseWallController{
   }
 
   get propertiesSettings(){
-    return {};
+    return {
+      width: { type: Number, default: 1 },
+      height: { type: Number, default: 1 },
+      roomWidth: {
+        type: Number,
+        default: 1,
+        onChange: "updateMetaObject"
+      },
+      roomHeight: {
+        type: Number,
+        default: 1,
+        onChange: "updateMetaObject"
+      },
+      roomDepth: {
+        type: Number,
+        default: 1,
+        onChange: "updateMetaObject"
+      }
+    };
   }
 
   get tagName() {
@@ -25,9 +43,10 @@ class MetaFloorController extends MRM.MetaBaseWallController{
 
   updateMetaObject() {
     var mesh = this.metaObject.mesh;
-    mesh.rotation.x = 90 * (Math.PI/180);
-    mesh.position.set(0, 0 , 0);
-    mesh.scale.set(this.roomWidth, this.roomDepth , 1);
+    var group = this.metaObject.group;
+    group.rotation.x = 90 * (Math.PI/180);
+    group.position.set(0, 0 , 0);
+    mesh.scale.set(this.properties.roomWidth, this.properties.roomDepth , 1);
   }
 }
 

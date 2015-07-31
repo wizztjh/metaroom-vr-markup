@@ -6,10 +6,49 @@ class MetaRoomController extends MRM.MetaBaseController{
     super(dom);
     this.dom = dom;
     this.setupComponent();
+    this.metaObject = this.createMetaObject();
   }
 
   get propertiesSettings() {
     return {
+      width: {
+        type: Number,
+        default: 1,
+        attrName: 'width',
+        onChange: (value)=>{
+          this.forEachMetaChildren((child)=>{
+            child.controller.properties.roomWidth = value
+          })
+        }
+      },
+      height: {
+        type: Number,
+        default: 1,
+        attrName: 'height',
+        onChange: (value)=>{
+          this.forEachMetaChildren((child)=>{
+            child.controller.properties.roomHeight = value
+          })
+        }
+      },
+      depth:{
+        type: Number,
+        default: 1,
+        attrName: 'depth',
+        onChange: (value)=>{
+          this.forEachMetaChildren((child)=>{
+            child.controller.properties.roomDepth = value
+          })
+        }
+      },
+    }
+  }
+
+  createMetaObject(){
+    var group = new THREE.Group();
+
+    return {
+      group: group
     }
   }
 
@@ -20,45 +59,35 @@ class MetaRoomController extends MRM.MetaBaseController{
   get metaChildrenNames(){
     return ["meta-wall", "meta-floor"]
   }
-
-  forEachMetaWallBase(callback) {
-    [].forEach.call(this.dom.querySelectorAll("meta-wall, meta-floor"), callback)
-  }
 }
 
-class MetaRoom extends HTMLElement {
+//TODO: create a unit spec for MetaRoom
+class MetaRoom extends MRM.MetaBase {
   createdCallback() {
     this.controller = new MetaRoomController(this);
-    this.addEventListener('meta-attached', function(e){
-      var targetController = e.detail.controller;
-      var tagName = targetController.tagName;
-
-      if (this.controller.isChildren(targetController.tagName) ){
-        targetController.roomDimensionChange(this.getAttribute('width'), this.getAttribute('height'), this.getAttribute('depth'));
-      }
-    });
+    super.createdCallback()
   }
 
-  attributeChangedCallback(attrName, oldValue, newValue) {
-    switch(attrName) {
-      //TODO: write unit test for this
-      case 'height':
-        this.controller.forEachMetaWallBase(function(metaWallBase){
-          metaWallBase.controller.roomHeightChange(newValue)
-        });
-        break;
+  metaAttached(e) {
+    var targetController = e.detail.controller;
 
-      case 'depth':
-        this.controller.forEachMetaWallBase(function(metaWallBase){
-          metaWallBase.controller.roomDepthChange(newValue)
-        });
-        break;
+    if (this.controller.isChildren(targetController.tagName) ){
+      e.stopPropagation();
+      targetController.parent = this;
+      this.controller.metaObject.group.add(targetController.metaObject.group);
 
-      case 'width':
-        this.controller.forEachMetaWallBase(function(metaWallBase){
-          metaWallBase.controller.roomWidthChange(newValue)
-        });
-        break;
+      targetController.properties.roomWidth = this.controller.properties.width
+      targetController.properties.roomHeight = this.controller.properties.height
+      targetController.properties.roomDepth = this.controller.properties.depth
+    }
+  }
+
+  metaDetached(e) {
+    var targetController = e.detail.controller;
+
+    if (this.controller.isChildren(targetController.tagName) ){
+      e.stopPropagation();
+      this.controller.metaObject.group.remove(targetController.metaObject.group);
     }
   }
 

@@ -17,7 +17,22 @@ class MetaWallController extends MRM.MetaBaseWallController{
     return {
       align: { type: String, default: "front", attrName: "align" },
       width: { type: Number, default: 1 },
-      height: { type: Number, default: 1 }
+      height: { type: Number, default: 1 },
+      roomWidth: {
+        type: Number,
+        default: 1,
+        onChange: "updateMetaObject"
+      },
+      roomHeight: {
+        type: Number,
+        default: 1,
+        onChange: "updateMetaObject"
+      },
+      roomDepth: {
+        type: Number,
+        default: 1,
+        onChange: "updateMetaObject"
+      }
     }
   }
 
@@ -33,22 +48,22 @@ class MetaWallController extends MRM.MetaBaseWallController{
     switch(this.properties.align) {
       case 'left':
       case 'right':
-      mesh.scale.set(this.roomDepth, this.roomHeight , 1);
-      this.properties.width = this.roomDepth
-      this.properties.height = this.roomHeight
+      mesh.scale.set(this.properties.roomDepth, this.properties.roomHeight , 1);
+      this.properties.width = this.properties.roomDepth
+      this.properties.height = this.properties.roomHeight
       break;
 
       case 'ceiling':
-      mesh.scale.set(this.roomWidth, this.roomDepth , 1);
-      this.properties.width = this.roomWidth
-      this.properties.height = this.roomDepth
+      mesh.scale.set(this.properties.roomWidth, this.properties.roomDepth , 1);
+      this.properties.width = this.properties.roomWidth
+      this.properties.height = this.properties.roomDepth
       break;
 
       case 'front':
       case 'back':
-      mesh.scale.set(this.roomWidth, this.roomHeight , 1);
-      this.properties.width = this.roomWidth
-      this.properties.height = this.roomHeight
+      mesh.scale.set(this.properties.roomWidth, this.properties.roomHeight , 1);
+      this.properties.width = this.properties.roomWidth
+      this.properties.height = this.properties.roomHeight
       break;
 
     }
@@ -56,21 +71,21 @@ class MetaWallController extends MRM.MetaBaseWallController{
     switch (this.properties.align) {
       case 'left':
         group.rotation.y = 90 * (Math.PI/180);
-        group.position.set(-(this.roomWidth/2), this.roomHeight/2, 0);
+        group.position.set(-(this.properties.roomWidth/2), this.properties.roomHeight/2, 0);
         break;
       case 'front':
-        group.position.set(0, (this.roomHeight/2), -(this.roomDepth/2));
+        group.position.set(0, (this.properties.roomHeight/2), -(this.properties.roomDepth/2));
         break;
       case 'back':
-        group.position.set(0, (this.roomHeight/2), this.roomDepth/2);
+        group.position.set(0, (this.properties.roomHeight/2), this.properties.roomDepth/2);
         break;
       case 'ceiling':
         group.rotation.x = 90 * (Math.PI/180);
-        group.position.set(0, (this.roomHeight), 0);
+        group.position.set(0, (this.properties.roomHeight), 0);
         break;
       case 'right':
         group.rotation.y = 270 * (Math.PI/180);
-        group.position.set(this.roomWidth/2, this.roomHeight/2, 0);
+        group.position.set(this.properties.roomWidth/2, this.properties.roomHeight/2, 0);
         break;
     }
     this.updateChildrenDisplayInline();

@@ -27,18 +27,19 @@
         jlet('metaFloorMesh', function(){ return J.metaFloor.controller.metaObject.mesh });
         jlet('metaFloorGroup', function(){ return J.metaFloor.controller.metaObject.group });
 
-        jlet('sceneUUIDs', function(){
-          return J.metaVerse.controller.gameObject.scene.children.map(function(child){
+        jlet('metaRoomChildrenUUID', function(){
+          return J.metaRoom.controller.metaObject.group.children.map(function(child){
             return child.uuid;
           });
         });
+
 
       });
 
       describe("when it is added within meta-room", function(){
 
         it("adds a group to meta-verse", function(){
-          expect(J.sceneUUIDs).to.include(J.metaFloor.controller.metaObject.group.uuid);
+          expect(J.metaRoomChildrenUUID).to.include(J.metaFloor.controller.metaObject.group.uuid);
         });
 
         it("adds a plan to the group", function(){

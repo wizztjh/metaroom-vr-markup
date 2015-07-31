@@ -28,8 +28,8 @@
         jlet('metaWallMesh', function(){ return J.metaWall.controller.metaObject.mesh });
         jlet('metaWallGroup', function(){ return J.metaWall.controller.metaObject.group });
 
-        jlet('sceneUUIDs', function(){
-          return J.metaVerse.controller.gameObject.scene.children.map(function(child){
+        jlet('metaRoomChildrenUUID', function(){
+          return J.metaRoom.controller.metaObject.group.children.map(function(child){
             return child.uuid;
           });
         });
@@ -39,7 +39,7 @@
       describe("when it is added within meta-room", function(){
 
         it("adds a group to meta-verse", function(){
-          expect(J.sceneUUIDs).to.include(J.metaWall.controller.metaObject.group.uuid);
+          expect(J.metaRoomChildrenUUID).to.include(J.metaWall.controller.metaObject.group.uuid);
         });
 
         it("adds a plan to the group", function(){
@@ -81,16 +81,11 @@
         describe("when meta-wall is deleted", function(){
           it("removes the meta object from the scene", function(){
             var metaWallUUID;
-            var sceneUUIDs;
 
             J.metaWall.remove();
             metaWallUUID = J.metaWall.controller.metaObject.group.uuid;
 
-            sceneUUIDs = J.metaVerse.controller.gameObject.scene.children.map(function(child){
-              return child.uuid;
-            });
-
-            expect(sceneUUIDs).to.not.include(metaWallUUID);
+            expect(J.metaRoomChildrenUUID).to.not.include(metaWallUUID);
 
           });
         });
@@ -111,8 +106,8 @@
         describe("when the room depth changes", function(){
           it("sets the scale of the meta object", function(){
             J.metaRoom.setAttribute('depth', 20);
-            expect(J.metaWallMesh.scale.x, 'x').to.equal('20');
-            expect(J.metaWallMesh.scale.y, 'y').to.equal('10');
+            expect(J.metaWallMesh.scale.x, 'x').to.equal(20);
+            expect(J.metaWallMesh.scale.y, 'y').to.equal(10);
             expect(J.metaWallMesh.scale.z, 'z').to.equal(1);
           });
         });
