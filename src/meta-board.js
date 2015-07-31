@@ -59,7 +59,7 @@ class MetaBoardController extends MRM.MetaBaseController {
   }
 
   get metaChildrenNames(){
-    return ["meta-text", "meta-image"]
+    return ["meta-text", "meta-picture"]
   }
 
 

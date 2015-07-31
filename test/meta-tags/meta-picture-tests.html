@@ -10,19 +10,19 @@
 </head>
 <body>
   <div id='fixture'>
-    <meta-image id="meta-image" width="5"></meta-image>
+    <meta-picture id="meta-picture" width="5"></meta-picture>
   </div>
   <script>
-    describe('<meta-image>', function() {
+    describe('<meta-picture>', function() {
       beforeEach(function(){
-        jlet("metaImage", function(){ return document.querySelector("#meta-image") });
+        jlet("metaPicture", function(){ return document.querySelector("#meta-picture") });
       })
 
       describe('when width is updated', function(){
         it("triggers meta-attribute-change", function(){
           var spy = sinon.spy(function(){})
-          J.metaImage.addEventListener('meta-attribute-change', spy, false)
-          J.metaImage.setAttribute('width', 3);
+          J.metaPicture.addEventListener('meta-attribute-change', spy, false)
+          J.metaPicture.setAttribute('width', 3);
 
           assert.isTrue(spy.called);
         });

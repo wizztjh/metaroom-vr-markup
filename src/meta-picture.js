@@ -1,4 +1,4 @@
-class MetaImageController extends MRM.MetaBaseController {
+class MetaPictureController extends MRM.MetaBaseController {
   constructor(dom){
     super(dom)
     this.setupComponent();
@@ -19,7 +19,7 @@ class MetaImageController extends MRM.MetaBaseController {
   }
 
   get tagName() {
-    return "meta-image"
+    return "meta-picture"
   }
 
   createMetaObject(){
@@ -53,11 +53,11 @@ class MetaImageController extends MRM.MetaBaseController {
   }
 }
 
-class MetaImage extends MRM.MetaBase {
+class MetaPicture extends MRM.MetaBase {
   createdCallback() {
-    this.controller = new MetaImageController(this);
+    this.controller = new MetaPictureController(this);
     super.createdCallback();
   }
 }
 
-document.registerElement('meta-image', MetaImage);
+document.registerElement('meta-picture', MetaPicture);
