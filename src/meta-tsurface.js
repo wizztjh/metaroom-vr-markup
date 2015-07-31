@@ -21,7 +21,7 @@ class MetaTsurfaceController extends MRM.MetaBaseController {
         type: Number,
         default: 1
       },
-      tableDepth: {
+      tableLength: {
         type: Number,
         default: 1,
         onChange: "updateDimension"
@@ -32,7 +32,7 @@ class MetaTsurfaceController extends MRM.MetaBaseController {
         default: 1,
         onChange: "updateMetaObject"
       },
-      height: {
+      length: {
         type: Number,
         default: 1,
         onChange: "updateMetaObject"
@@ -46,7 +46,7 @@ class MetaTsurfaceController extends MRM.MetaBaseController {
 
   updateDimension() {
     this.properties.width = this.properties.tableWidth
-    this.properties.height = this.properties.tableDepth
+    this.properties.length = this.properties.tableLength
   }
 
   createMetaObject(){
@@ -79,7 +79,7 @@ class MetaTsurfaceController extends MRM.MetaBaseController {
 
   updateMetaObject(){
     this.metaObject.mesh.scale.x = this.properties.width;
-    this.metaObject.mesh.scale.y = this.properties.height;
+    this.metaObject.mesh.scale.y = this.properties.length;
   }
 }
 

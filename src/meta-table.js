@@ -40,13 +40,13 @@ class MetaTableController extends MRM.MetaBaseController{
           })
         }
       },
-      depth: {
+      length: {
         type: Number,
         default: 1,
-        attrName: 'depth',
+        attrName: 'length',
         onChange: (value)=>{
           this.forEachMetaChildren((child)=>{
-            child.controller.properties.tableDepth = value
+            child.controller.properties.tableLength = value
           })
         }
       }
@@ -79,7 +79,7 @@ class MetaTable extends MRM.MetaBase {
 
       targetController.properties.tableWidth = this.controller.properties.width
       targetController.properties.tableHeight = this.controller.properties.height
-      targetController.properties.tableDepth = this.controller.properties.depth
+      targetController.properties.tableLength = this.controller.properties.length
     }
   }
 
