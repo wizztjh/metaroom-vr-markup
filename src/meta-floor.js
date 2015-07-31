@@ -44,7 +44,7 @@ class MetaFloorController extends MRM.MetaBaseWallController{
   updateMetaObject() {
     var mesh = this.metaObject.mesh;
     var group = this.metaObject.group;
-    group.rotation.x = 90 * (Math.PI/180);
+    group.rotation.x = 270 * (Math.PI/180);
     group.position.set(0, 0 , 0);
     mesh.scale.set(this.properties.roomWidth, this.properties.roomLength , 1);
   }

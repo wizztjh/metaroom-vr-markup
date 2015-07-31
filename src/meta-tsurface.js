@@ -19,7 +19,8 @@ class MetaTsurfaceController extends MRM.MetaBaseController {
       },
       tableHeight: {
         type: Number,
-        default: 1
+        default: 1,
+        onChange: "updateMetaObject"
       },
       tableLength: {
         type: Number,
@@ -80,6 +81,8 @@ class MetaTsurfaceController extends MRM.MetaBaseController {
   updateMetaObject(){
     this.metaObject.mesh.scale.x = this.properties.width;
     this.metaObject.mesh.scale.y = this.properties.length;
+
+    this.metaObject.group.position.z = this.properties.tableHeight;
   }
 }
 
