@@ -124,7 +124,7 @@ class MetaWall extends MRM.MetaBase {
     var attrName = e.detail.attrName
 
     if (this.controller.isChildren(targetController.tagName) ){
-      if(attrName === 'width' || attrName === 'height') {
+      if(targetController.isAllowedAttribute(attrName)) {
         e.stopPropagation();
         this.controller.updateChildrenDisplayInline()
       }
