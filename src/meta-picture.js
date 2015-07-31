@@ -13,7 +13,7 @@ class MetaPictureController extends MRM.MetaBaseController {
   get propertiesSettings() {
     return {
       width: {type: Number, default: 1, attrName: 'width'},
-      height: {type: Number, default: 1, attrName: 'height'},
+      length: {type: Number, default: 1, attrName: 'length'},
       src: {type: String, default: '', attrName: 'src'},
     }
   }
@@ -23,13 +23,13 @@ class MetaPictureController extends MRM.MetaBaseController {
   }
 
   createMetaObject(){
-    var planeHeight = 1;
+    var planeLength = 1;
     var planeWidth = 1;
     var texture = THREE.ImageUtils.loadTexture(
       this.properties.src
     );
 
-    var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight,1,1);
+    var geometry = new THREE.PlaneGeometry(planeWidth, planeLength,1,1);
     var material = new THREE.MeshBasicMaterial({
       map: texture,
       color: 0x333333,
@@ -49,7 +49,7 @@ class MetaPictureController extends MRM.MetaBaseController {
     var mesh = this.metaObject.mesh;
 
     mesh.scale.x = this.properties.width
-    mesh.scale.y = this.properties.height
+    mesh.scale.y = this.properties.length
   }
 }
 

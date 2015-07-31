@@ -15,7 +15,7 @@ class MetaTextController extends MRM.MetaBaseController {
   get propertiesSettings() {
     return {
       width: {type: Number, default: 1, attrName: 'width'},
-      height: {type: Number, default: 1, attrName: 'height'}
+      length: {type: Number, default: 1, attrName: 'length'}
     }
   }
 
@@ -24,7 +24,7 @@ class MetaTextController extends MRM.MetaBaseController {
   }
 
   createMetaObject(){
-    var planeHeight = 1;
+    var planeLength = 1;
     var planeWidth = 1;
 
     var canvas1 = document.createElement('canvas');
@@ -36,7 +36,7 @@ class MetaTextController extends MRM.MetaBaseController {
 
     var texture = new THREE.Texture(canvas1);
     texture.needsUpdate = true;
-    var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight,1,1);
+    var geometry = new THREE.PlaneGeometry(planeWidth, planeLength,1,1);
     var material = new THREE.MeshBasicMaterial({
       map: texture,
       color: 0x333333,
@@ -57,7 +57,7 @@ class MetaTextController extends MRM.MetaBaseController {
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
     mesh.scale.x = this.properties.width
-    mesh.scale.y = this.properties.height
+    mesh.scale.y = this.properties.length
   }
 }
 

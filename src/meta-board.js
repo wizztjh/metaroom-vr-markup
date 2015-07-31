@@ -14,7 +14,7 @@ class MetaBoardController extends MRM.MetaBaseController {
   get propertiesSettings() {
     return {
       width: {type: Number, default: 1, attrName: 'width'},
-      height: {type: Number, default: 1, attrName: 'height'}
+      length: {type: Number, default: 1, attrName: 'length'}
     }
   }
 
@@ -23,7 +23,7 @@ class MetaBoardController extends MRM.MetaBaseController {
   }
 
   createMetaObject(){
-    var planeHeight = 1;
+    var planeLength = 1;
     var planeWidth = 1;
     var texture = THREE.ImageUtils.loadTexture(
       'img/box.png'
@@ -32,7 +32,7 @@ class MetaBoardController extends MRM.MetaBaseController {
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.set(10, 10);
 
-    var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight,1,1);
+    var geometry = new THREE.PlaneGeometry(planeWidth, planeLength,1,1);
     var material = new THREE.MeshBasicMaterial({
       // map: texture,
       color: 0x333333,
@@ -53,7 +53,7 @@ class MetaBoardController extends MRM.MetaBaseController {
     var group = this.metaObject.group;
 
     mesh.scale.x = this.properties.width
-    mesh.scale.y = this.properties.height
+    mesh.scale.y = this.properties.length
 
     this.updateChildrenDisplayInline();
   }
@@ -113,8 +113,8 @@ class MetaBoard extends MRM.MetaBase {
 
     if (this.controller.isChildren(targetController.tagName) ){
 
-      // TODO: refactor to use propertiesSettings
-      if(attrName === 'width' || attrName === 'height') {
+      // NOTE: dont need to refactor this. Because this look at children attr changes. If it is width and length then it will update the display inline
+      if(attrName === 'width' || attrName === 'length') {
         e.stopPropagation();
         this.controller.updateChildrenDisplayInline()
       }

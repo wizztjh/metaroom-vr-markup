@@ -14,21 +14,21 @@
     <meta-verse id="meta-verse">
       <meta-room width='8' height='4' length='10' id='main-meta-room'>
         <meta-wall align='left' id='main-meta-wall'>
-          <meta-board width='4' height='5' id='narrower-board'>
-            <meta-picture src='img/VRcollab.png' width='3' height='2'></meta-picture>
-            <meta-text width='3' height='1'>Test</meta-text>
+          <meta-board width='4' length='5' id='narrower-board'>
+            <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
+            <meta-text width='3' length='1'>Test</meta-text>
           </meta-board>
 
-          <meta-board width='6' height='5' id='main-meta-board'>
-            <meta-picture src='img/VRcollab.png' width='3' height='2'></meta-picture>
-            <meta-text width='3' height='1'>A place for you to build future VR websites collaboratively</meta-text>
+          <meta-board width='6' length='5' id='main-meta-board'>
+            <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
+            <meta-text width='3' length='1'>A place for you to build future VR websites collaboratively</meta-text>
           </meta-board>
 
         </meta-wall>
 
         <meta-wall id='meta-wall-for-picture-and-text' align='right'>
-          <meta-picture id='meta-picture-on-wall'src='img/VRcollab.png' width='3' height='2'></meta-picture>
-          <meta-text id='meta-text-on-wall' width='3' height='2'>This is it</meta-text>
+          <meta-picture id='meta-picture-on-wall'src='img/VRcollab.png' width='3' length='2'></meta-picture>
+          <meta-text id='meta-text-on-wall' width='3' length='2'>This is it</meta-text>
         </meta-wall>
 
       </meta-room>
@@ -51,18 +51,18 @@
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
 
         jlet('metaWallWidth', function(){ return J.metaWall.controller.metaObject.mesh.scale.x });
-        jlet('metaWallHeight', function(){ return J.metaWall.controller.metaObject.mesh.scale.y});
+        jlet('metaWallLength', function(){ return J.metaWall.controller.metaObject.mesh.scale.y});
 
         //NOTE: we define metaPicture and metaText below
         jlet('metaPictureGroup', function(){ return J.metaPicture.controller.metaObject.group});
         jlet('metaPictureProperties', function(){ return J.metaPicture.controller.properties});
         jlet('metaPictureWidth', function(){ return Number(J.metaPictureProperties.width)});
-        jlet('metaPictureHeight', function(){ return Number(J.metaPictureProperties.height)});
+        jlet('metaPictureLength', function(){ return Number(J.metaPictureProperties.length)});
 
         jlet('metaTextGroup', function(){ return J.metaText.controller.metaObject.group});
         jlet('metaTextProperties', function(){ return J.metaText.controller.properties});
         jlet('metaTextWidth', function(){ return Number(J.metaTextProperties.width)});
-        jlet('metaTextHeight', function(){ return Number(J.metaTextProperties.height)});
+        jlet('metaTextLength', function(){ return Number(J.metaTextProperties.length)});
 
         jlet('metaBoards', function(){ return document.querySelectorAll('meta-board') });
 
@@ -86,7 +86,7 @@
           })
         });
 
-        jlet('metaBoardsHeight', function() { return getProperty(J.metaBoardsController, 'height') });
+        jlet('metaBoardsLength', function() { return getProperty(J.metaBoardsController, 'length') });
         jlet('metaBoardsWidth', function() { return getProperty(J.metaBoardsController, 'width') });
       });
 
@@ -121,7 +121,7 @@
           jlet('metaBoardMesh', function(){ return J.metaBoard.controller.metaObject.mesh});
           jlet('metaBoardProperties', function(){ return J.metaBoard.controller.properties});
           jlet('metaBoardWidth', function(){ return Number(J.metaBoardProperties.width)});
-          jlet('metaBoardHeight', function(){ return Number(J.metaBoardProperties.height)});
+          jlet('metaBoardLength', function(){ return Number(J.metaBoardProperties.length)});
 
           jlet('metaPicture', function(){ return J.metaBoard.querySelector('meta-picture')});
 
@@ -139,13 +139,13 @@
 
             it("goes to the next line", function(){
               var rightCornerX = -J.metaBoardWidth/2 + J.metaPictureWidth/2
-              ,   baseLineY = (J.metaBoardHeight/2) - J.metaPictureHeight;
+              ,   baseLineY = (J.metaBoardLength/2) - J.metaPictureLength;
 
               expect(J.metaPictureGroup.position.x, 'meta-picture x').to.equal( -J.metaBoardWidth/2 + J.metaPictureWidth/2 );
-              expect(J.metaPictureGroup.position.y, 'meta-picture y').to.equal( baseLineY + J.metaPictureHeight/2 );
+              expect(J.metaPictureGroup.position.y, 'meta-picture y').to.equal( baseLineY + J.metaPictureLength/2 );
 
               expect(J.metaTextGroup.position.x, 'meta-text x').to.equal( -J.metaBoardWidth/2 + J.metaTextWidth/2 );
-              expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextHeight/2 );
+              expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextLength/2 );
             });
           });
 
@@ -156,32 +156,32 @@
 
             it("realign the children", function(){
               var rightCornerX = -J.metaBoardWidth/2 + J.metaPictureWidth/2
-              ,   baseLineY = (J.metaBoardHeight/2) - J.metaPictureHeight;
+              ,   baseLineY = (J.metaBoardLength/2) - J.metaPictureLength;
 
               expect(J.metaPictureGroup.position.x, 'meta-picture x').to.equal( -J.metaBoardWidth/2 + J.metaPictureWidth/2 );
-              expect(J.metaPictureGroup.position.y, 'meta-picture y').to.equal( baseLineY + J.metaPictureHeight/2 );
+              expect(J.metaPictureGroup.position.y, 'meta-picture y').to.equal( baseLineY + J.metaPictureLength/2 );
 
               expect(J.metaTextGroup.position.x, 'meta-text x').to.equal( -J.metaBoardWidth/2 + J.metaTextWidth/2 );
-              expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextHeight/2 );
+              expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextLength/2 );
             });
           });
 
           describe("when siblings's dimension changes", function(){
             asyncBeforeEach(function(){
               J.metaPicture.setAttribute('width', 5);
-              J.metaPicture.setAttribute('height', 5);
+              J.metaPicture.setAttribute('length', 5);
             });
 
             it("realign the all the siblings", function(){
               var rightCornerX = -J.metaBoardWidth/2 + J.metaPictureWidth/2
-              ,   baseLineY = (J.metaBoardHeight/2) - J.metaPictureHeight;
+              ,   baseLineY = (J.metaBoardLength/2) - J.metaPictureLength;
 
               // NOTE: because the origin is on the center of the meta-object which is why we divide by 2
               expect(J.metaPictureGroup.position.x, 'meta-picture x').to.equal( -J.metaBoardWidth/2 + J.metaPictureWidth/2 );
-              expect(J.metaPictureGroup.position.y, 'meta-picture y').to.equal( baseLineY + J.metaPictureHeight/2 );
+              expect(J.metaPictureGroup.position.y, 'meta-picture y').to.equal( baseLineY + J.metaPictureLength/2 );
 
               expect(J.metaTextGroup.position.x, 'meta-text x').to.equal( -J.metaBoardWidth/2 + J.metaTextWidth/2 );
-              expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextHeight/2 );
+              expect(J.metaTextGroup.position.y, 'meta-text y').to.equal( baseLineY - J.metaTextLength/2 );
             });
 
           });

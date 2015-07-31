@@ -3,9 +3,6 @@ import MetaBaseController from "./meta-base-controller.js"
 export default class MetaBaseWallController extends MetaBaseController {
   constructor(dom) {
     super(dom)
-    this.roomWidth = 10
-    this.roomHeight = 10
-    this.roomDepth = 10
   }
 
   createMetaObject() {
@@ -33,32 +30,5 @@ export default class MetaBaseWallController extends MetaBaseController {
       mesh: mesh,
       group: group
     };
-  }
-
-  roomDimensionChange(width, height, depth) {
-    this.roomHeight = height
-    this.roomWidth = width
-    this.roomDepth = depth
-    this.updateMetaObject()
-  }
-
-  roomHeightChange(height) {
-    this.roomHeight = height
-    this.updateMetaObject()
-  }
-
-  roomDepthChange(depth) {
-    this.roomDepth = depth
-    this.updateMetaObject()
-  }
-
-  roomWidthChange(width) {
-    this.roomWidth = width
-    this.updateMetaObject()
-  }
-
-  alignChange(align) {
-    this.align = align
-    this.updateMetaObject()
   }
 }

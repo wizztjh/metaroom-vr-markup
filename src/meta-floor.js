@@ -13,7 +13,7 @@ class MetaFloorController extends MRM.MetaBaseWallController{
   get propertiesSettings(){
     return {
       width: { type: Number, default: 1 },
-      height: { type: Number, default: 1 },
+      length: { type: Number, default: 1 },
       roomWidth: {
         type: Number,
         default: 1,

@@ -101,9 +101,9 @@ export default class MetaBaseController{
       lines[currentLine].push(child);
     });
 
-    var biggestHeightForEachLine = []
+    var biggestLengthForEachLine = []
     lines.forEach(function(line, lineIndex){
-      var biggestHeight = 0
+      var biggestLength = 0
       ,   baseLineY
       ,   nextComponentX = -(Number(parent.properties.width)/2);
       line.forEach(function(child, childIndex){
@@ -114,20 +114,20 @@ export default class MetaBaseController{
         group.position.x = nextComponentX;
         nextComponentX += child.controller.properties.width/2;
 
-        if(child.controller.properties.height > biggestHeight) {
-          biggestHeight = Number(child.controller.properties.height)
+        if(child.controller.properties.length > biggestLength) {
+          biggestLength = Number(child.controller.properties.length)
         }
       });
 
-      biggestHeightForEachLine.push(biggestHeight)
+      biggestLengthForEachLine.push(biggestLength)
 
-      baseLineY = Number(parent.properties.height)/2 - biggestHeightForEachLine.reduce((previousValue, currentValue) => {
+      baseLineY = Number(parent.properties.length)/2 - biggestLengthForEachLine.reduce((previousValue, currentValue) => {
         return previousValue += currentValue
       });
 
       line.forEach(function(child, childIndex){
         var group = child.controller.metaObject.group;
-        group.position.y = baseLineY + child.controller.properties.height/2;
+        group.position.y = baseLineY + child.controller.properties.length/2;
       });
 
     });
