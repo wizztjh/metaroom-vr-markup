@@ -27,6 +27,7 @@ export default class GameObject{
     function animate() {
       self.controls.update();
       // Render the scene through the manager.
+      self.camera.position.y = 5;
       self.manager.render(self.scene, self.camera);
       requestAnimationFrame(animate);
     }
