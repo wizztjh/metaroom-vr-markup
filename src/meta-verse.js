@@ -6,6 +6,7 @@ class MetaVerseController{
   constructor(dom){
     this.dom = dom;
     this.gameObject = new MRM.GameObject();
+    this.globalMetaStyle = {}
 
     this.setupComponent();
   }
@@ -17,6 +18,20 @@ class MetaVerseController{
     template.appendChild( this.gameObject.renderer.domElement );
 
     this.dom.appendChild(template);
+  }
+
+  updateMetaStyle(metaStyles) {
+    metaStyles.forEach((metaStyle) => {
+      metaStyle.selector.forEach((selector) => {
+        this.globalMetaStyle[selector] = this.globalMetaStyle[selector] || {}
+
+        metaStyle.declarations.forEach((declaration) => {
+          this.globalMetaStyle[selector][declaration.property] = declaration.value
+        })
+
+      })
+    });
+
   }
 }
 
@@ -30,12 +45,21 @@ class MetaVerse extends HTMLElement {
 
       controller.parent = this;
       //TODO: need to find a better way to store the objects, it should be tree form
-      this.controller.gameObject.add(controller.metaObject);
+      if(controller.tagName == 'meta-room') {
+        this.controller.gameObject.add(controller.metaObject);
+      } else if(controller.tagName == 'meta-style') {
+        console.log(controller.metaStyle, "local MetaStyle");
+        this.controller.updateMetaStyle(controller.metaStyle);
+      }
     }, false);
 
-    this.addEventListener('meta-detached', function(e){
-      this.controller.gameObject.remove(e.detail.controller.metaObject);
-    }, false);
+    // this.addEventListener('meta-detached', function(e){
+    //   var controller = e.detail.controller;
+    //   if(controller.tagName == 'meta-room') {
+    //     this.controller.gameObject.remove(e.detail.controller.metaObject);
+    //   }
+    //   // TODO: do something if meta-style is removed
+    // }, false);
   }
 }
 

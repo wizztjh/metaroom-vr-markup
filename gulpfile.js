@@ -51,7 +51,6 @@ gulp.task('build:js', function () {
 
   return bundleStream.bundle()
     .pipe(source('lib.js'))
-    .pipe($.streamify($.uglify()))
     .on('error', $.util.log)
     .pipe(gulp.dest('dist'));
 });
@@ -72,7 +71,6 @@ gulp.task('copy:webComponentsJS', function () {
       debug: true,
       transform: [babelify]
     }))
-    .pipe($.uglify())
     .pipe(gulp.dest('dist'));
 });
 

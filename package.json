@@ -25,6 +25,7 @@
     "babel": "^5.6.7",
     "babelify": "^6.1.2",
     "browserify": "^10.2.4",
+    "css": "reworkcss/css",
     "del": "^1.2.0",
     "es6ify": "^1.6.0",
     "fs": "0.0.2",

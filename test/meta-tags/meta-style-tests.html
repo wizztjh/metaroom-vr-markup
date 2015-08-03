@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
+</head>
+<body>
+  <div id='fixture'>
+    <meta-style id="meta-style">
+      .main-wall {
+        material-color: red;
+      }
+    </meta-style>
+  </div>
+  <script>
+    describe('<meta-style>', function() {
+      beforeEach(function(){
+        jlet("metaStyle", function(){ return document.querySelector("#meta-style") });
+      });
+
+      describe("when initialized", function(){
+        it("parses the global metaStyle", function(){
+          expect(J.metaStyle.controller.globalMetaStyle.length).to.equal(1)
+          expect(J.metaStyle.controller.globalMetaStyle[0].selectors).to.have.members(['.main-wall'])
+          expect(J.metaStyle.controller.globalMetaStyle[0]).to.have.deep.property("declarations[0].property", 'material-color')
+          expect(J.metaStyle.controller.globalMetaStyle[0]).to.have.deep.property("declarations[0].value", 'red')
+        });
+      });
+    });
+  </script>
+</body>
+</html>
