@@ -75,7 +75,7 @@ class MetaVerse extends HTMLElement {
 
     this.addEventListener('meta-ready', (e) => {
       var globalMetaStyle = this.controller.globalMetaStyle
-      Object.keys(globalMetaStyle).forEach((selector) => {
+      Object.keys(globalMetaStyle).sort().reverse().forEach((selector) => {
         [].forEach.call( this.querySelectorAll(selector), function(metaComponent){
 
           var metaStyleProperties = globalMetaStyle[selector]
