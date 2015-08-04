@@ -9,7 +9,6 @@ class MetaVerseController{
     this.globalMetaStyle = {}
 
     this.setupComponent();
-    this.triggerMetaReady();
   }
 
   setupComponent() {
@@ -72,6 +71,8 @@ class MetaVerseController{
 
 class MetaVerse extends HTMLElement {
   createdCallback() {
+    this.controller = new MetaVerseController(this);
+
     this.addEventListener('meta-ready', (e) => {
       var globalMetaStyle = this.controller.globalMetaStyle
       Object.keys(globalMetaStyle).forEach((selector) => {
@@ -85,7 +86,8 @@ class MetaVerse extends HTMLElement {
 
       })
     })
-    this.controller = new MetaVerseController(this);
+    //TODO: refactor this whole mess, we need to trigger the meta ready after we listen to meta-ready
+    this.controller.triggerMetaReady()
 
     //TODO: Since `this` inside this event listerner is the dom itself, lets move it to Metaverse HTMLElement
     this.addEventListener('meta-attached', function(e){
