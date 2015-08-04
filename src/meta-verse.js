@@ -9,6 +9,7 @@ class MetaVerseController{
     this.globalMetaStyle = {}
 
     this.setupComponent();
+    this.triggerMetaReady();
   }
 
   setupComponent() {
@@ -21,16 +22,42 @@ class MetaVerseController{
   }
 
   updateMetaStyle(metaStyles) {
-    metaStyles.forEach((metaStyle) => {
-      metaStyle.selector.forEach((selector) => {
-        this.globalMetaStyle[selector] = this.globalMetaStyle[selector] || {}
+    if(metaStyles){
+      metaStyles.forEach((metaStyle) => {
+        metaStyle.selectors.forEach((selector) => {
+          this.globalMetaStyle[selector] = this.globalMetaStyle[selector] || {}
 
-        metaStyle.declarations.forEach((declaration) => {
-          this.globalMetaStyle[selector][declaration.property] = declaration.value
+          metaStyle.declarations.forEach((declaration) => {
+            this.globalMetaStyle[selector][declaration.property] = declaration.value
+          })
+
         })
+      });
+    }
+  }
+  getAllMetaChildren(){
+    return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface, meta-tbottom");
+  }
 
-      })
-    });
+  triggerMetaReady(){
+    var metaVerse = this;
+    var metaChildren = this.getAllMetaChildren();
+    var count = metaChildren.length;
+
+    if (count ===0 ) {
+      var event = new CustomEvent('meta-ready', {});
+      metaVerse.dom.dispatchEvent(event);
+    } else {
+      [].forEach.call(metaChildren, function(metaTag){
+        metaTag.addEventListener('meta-ready', function(){
+          count--;
+          if(count <= 0){
+            var event = new CustomEvent('meta-ready', {});
+            metaVerse.dom.dispatchEvent(event);
+          }
+        })
+      });
+    }
 
   }
 }
@@ -38,6 +65,19 @@ class MetaVerseController{
 class MetaVerse extends HTMLElement {
   createdCallback() {
     this.controller = new MetaVerseController(this);
+    this.addEventListener('meta-ready', (e) => {
+      var globalMetaStyle = this.controller.globalMetaStyle
+      Object.keys(globalMetaStyle).forEach((selector) => {
+        [].forEach.call( this.querySelectorAll(selector), function(metaComponent){
+
+          var metaStyleProperties = globalMetaStyle[selector]
+          Object.keys(metaStyleProperties).forEach(function(property){
+            metaComponent.controller.metaStyle[property] = metaStyleProperties[property]
+          });
+        })
+
+      })
+    })
 
     //TODO: Since `this` inside this event listerner is the dom itself, lets move it to Metaverse HTMLElement
     this.addEventListener('meta-attached', function(e){
@@ -48,7 +88,6 @@ class MetaVerse extends HTMLElement {
       if(controller.tagName == 'meta-room') {
         this.controller.gameObject.add(controller.metaObject);
       } else if(controller.tagName == 'meta-style') {
-        console.log(controller.metaStyle, "local MetaStyle");
         this.controller.updateMetaStyle(controller.metaStyle);
       }
     }, false);
@@ -60,6 +99,10 @@ class MetaVerse extends HTMLElement {
     //   }
     //   // TODO: do something if meta-style is removed
     // }, false);
+  }
+
+  attachedCallback(){
+
   }
 }
 

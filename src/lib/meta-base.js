@@ -15,6 +15,9 @@ export default class MetaBase extends HTMLElement{
   }
 
   attachedCallback() {
+    var event = new CustomEvent('meta-ready', {});
+    this.dispatchEvent(event);
+
     var event = new CustomEvent('meta-attached', {
       'detail': {'controller': this.controller},
       bubbles: true
@@ -59,5 +62,4 @@ export default class MetaBase extends HTMLElement{
 
     this.dispatchEvent(event);
   }
-
 }

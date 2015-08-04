@@ -28,7 +28,7 @@
   </div>
 
   <script>
-    describe('meta-style', function() {
+    describe('meta-verse', function() {
       beforeEach(function(){
         jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
@@ -37,12 +37,14 @@
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
       });
 
-      describe("with id selector", function(){
-        it("it applies the meta-style to the meta component", function(){
-          expect(Object.keys(J.metaWall.controller.metaStyle).length).to.equal(1)
-          expect(J.metaWall.controller.metaStyle["material-color"]).to.equal('red');
-        });
-      });
+      // describe("with globalMetaStyle", function(){
+      //   it("it applies the meta-style to the meta component", function(){
+      //     expect(J.metaWall.controller.metaStyle.length).to.equal(1)
+      //     expect(J.metaWall.controller.metaStyle[0].selectors).to.have.members(['#main-meta-wall'])
+      //     expect(J.metaWall.controller.metaStyle[0]).to.have.deep.property("declarations[0].property", 'material-color')
+      //     expect(J.metaWall.controller.metaStyle[0]).to.have.deep.property("declarations[0].value", 'red')
+      //   });
+      // });
 
     });
   </script>

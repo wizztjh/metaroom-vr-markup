@@ -4,6 +4,7 @@ var owner = (document._currentScript || document.currentScript).ownerDocument;
 export default class MetaBaseController{
   constructor(dom) {
     this.dom = dom;
+    this.metaStyle = {}
     this.properties = {}
     this.propertiesKey.forEach((key) => {
       var settings = this.propertiesSettings[key]

@@ -9,7 +9,7 @@ class MetaStyleController extends MRM.MetaBaseController{
     this.dom = dom;
     this.setupComponent();
     this.parent = null;
-    this.globalMetaStyle = this.createGlobalMetaStyle();
+    this.metaStyle = this.createGlobalMetaStyle();
   }
 
   createGlobalMetaStyle(){

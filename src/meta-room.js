@@ -70,7 +70,6 @@ class MetaRoom extends MRM.MetaBase {
 
   metaAttached(e) {
     var targetController = e.detail.controller;
-
     if (this.controller.isChildren(targetController.tagName) ){
       e.stopPropagation();
       targetController.parent = this;
