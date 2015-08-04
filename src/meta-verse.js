@@ -6,6 +6,7 @@ class MetaVerseController{
   constructor(dom){
     this.dom = dom;
     this.gameObject = new MRM.GameObject();
+    this.globalMetaStyle = {}
 
     this.setupComponent();
   }
@@ -18,11 +19,75 @@ class MetaVerseController{
 
     this.dom.appendChild(template);
   }
+
+  updateMetaStyle(metaStyles) {
+    if(metaStyles){
+      metaStyles.forEach((metaStyle) => {
+        metaStyle.selectors.forEach((selector) => {
+          this.globalMetaStyle[selector] = this.globalMetaStyle[selector] || {}
+
+          metaStyle.declarations.forEach((declaration) => {
+            this.globalMetaStyle[selector][declaration.property] = declaration.value
+          })
+
+        })
+      });
+    }
+  }
+  getAllMetaChildren(){
+    return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface");
+  }
+
+  triggerMetaReady(){
+    var metaVerse = this;
+    var metaChildren = this.getAllMetaChildren();
+    var count = metaChildren.length;
+
+    if (count ===0 ) {
+      var event = new CustomEvent('meta-ready', {});
+      metaVerse.dom.dispatchEvent(event);
+    } else {
+      [].forEach.call(metaChildren, function(metaTag){
+        if(metaTag.controller){
+          count--;
+          if(count <= 0){
+            var event = new CustomEvent('meta-ready', {});
+            metaVerse.dom.dispatchEvent(event);
+          }
+        } else {
+          metaTag.addEventListener('meta-ready', function(){
+            count--;
+            if(count <= 0){
+              var event = new CustomEvent('meta-ready', {});
+              metaVerse.dom.dispatchEvent(event);
+            }
+          })
+        }
+      });
+    }
+
+  }
 }
 
 class MetaVerse extends HTMLElement {
   createdCallback() {
     this.controller = new MetaVerseController(this);
+
+    this.addEventListener('meta-ready', (e) => {
+      var globalMetaStyle = this.controller.globalMetaStyle
+      Object.keys(globalMetaStyle).sort().reverse().forEach((selector) => {
+        [].forEach.call( this.querySelectorAll(selector), function(metaComponent){
+
+          var metaStyleProperties = globalMetaStyle[selector]
+          Object.keys(metaStyleProperties).forEach(function(property){
+            metaComponent.controller.metaStyle[property] = metaStyleProperties[property]
+          });
+        })
+
+      })
+    })
+    //TODO: refactor this whole mess, we need to trigger the meta ready after we listen to meta-ready
+    this.controller.triggerMetaReady()
 
     //TODO: Since `this` inside this event listerner is the dom itself, lets move it to Metaverse HTMLElement
     this.addEventListener('meta-attached', function(e){
@@ -30,12 +95,24 @@ class MetaVerse extends HTMLElement {
 
       controller.parent = this;
       //TODO: need to find a better way to store the objects, it should be tree form
-      this.controller.gameObject.add(controller.metaObject);
+      if(controller.tagName == 'meta-room') {
+        this.controller.gameObject.add(controller.metaObject);
+      } else if(controller.tagName == 'meta-style') {
+        this.controller.updateMetaStyle(controller.metaStyle);
+      }
     }, false);
 
-    this.addEventListener('meta-detached', function(e){
-      this.controller.gameObject.remove(e.detail.controller.metaObject);
-    }, false);
+    // this.addEventListener('meta-detached', function(e){
+    //   var controller = e.detail.controller;
+    //   if(controller.tagName == 'meta-room') {
+    //     this.controller.gameObject.remove(e.detail.controller.metaObject);
+    //   }
+    //   // TODO: do something if meta-style is removed
+    // }, false);
+  }
+
+  attachedCallback(){
+
   }
 }
 

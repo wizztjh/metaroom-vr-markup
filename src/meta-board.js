@@ -71,22 +71,6 @@ class MetaBoard extends MRM.MetaBase {
     super.createdCallback();
   }
 
-  attachedCallback() {
-    var event = new CustomEvent('meta-attached', {
-      'detail': {'controller': this.controller},
-      bubbles: true
-    });
-    this.dispatchEvent(event);
-  }
-
-  detachedCallback() {
-    var event = new CustomEvent('meta-detached', {
-      'detail': {'controller': this.controller},
-      bubbles: true
-    });
-    this.controller.parent.dispatchEvent(event);
-  }
-
   metaAttached(e) {
     var targetController = e.detail.controller;
 

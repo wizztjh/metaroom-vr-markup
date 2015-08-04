@@ -4,20 +4,127 @@
   <meta charset="utf-8">
   <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
   <script src="../../bower_components/web-component-tester/browser.js"></script>
+
+  <script src='../spec.js'></script>
+
   <link rel="import" href="../../dist/metaroom-markup.html">
+
 </head>
 <body>
-  <meta-verse id="meta-verse"></meta-verse>
+
+  <div id='fixture'>
+    <meta-verse id="meta-verse"></meta-verse>
+  </div>
+
   <script>
     describe('<meta-verse>', function() {
-      var metaVerse = document.querySelector('#meta-verse');
+      beforeEach(function(){
+        jlet('metaVerse', function(){ return document.querySelector("#meta-verse") });
+      });
 
       it('got a gameObject', function() {
-        expect(metaVerse.controller).to.have.property("gameObject");
+        expect(J.metaVerse.controller).to.have.property("gameObject");
       });
 
       it('appends a canvas', function(){
-        expect(metaVerse.querySelectorAll("canvas")).to.have.length(1);
+        expect(J.metaVerse.querySelector("canvas#hpml-webgl-canvas")).not.to.be.null;
+      });
+
+      describe("#triggerMetaReady", function(){
+        it("triggers meta-ready when all children is ready", function(){
+          var addEventListenerStub1 = sinon.stub()
+          var addEventListenerStub2 = sinon.stub()
+
+          var metaReadyEventspy = sinon.spy()
+
+          sinon.stub(J.metaVerse.controller, 'getAllMetaChildren').returns(
+            [
+              {
+                addEventListener: addEventListenerStub1
+              },
+              {
+                addEventListener: addEventListenerStub2
+              }
+            ]
+          );
+
+          J.metaVerse.addEventListener('meta-ready', metaReadyEventspy)
+
+          J.metaVerse.controller.triggerMetaReady()
+          expect(metaReadyEventspy).to.not.been.called
+
+          expect(addEventListenerStub1).to.have.been.called
+          addEventListenerStub1.args[0][1]()
+          expect(metaReadyEventspy).to.not.been.called
+
+          expect(addEventListenerStub2).to.have.been.called
+          addEventListenerStub2.args[0][1]()
+          expect(metaReadyEventspy).to.have.been.called
+
+        });
+
+        describe("when no children", function(){
+          it("trigger the event right away", function(){
+            var metaReadyEventspy = sinon.spy()
+
+            sinon.stub(J.metaVerse.controller, 'getAllMetaChildren').returns([])
+            J.metaVerse.addEventListener('meta-ready', metaReadyEventspy)
+
+            J.metaVerse.controller.triggerMetaReady()
+            expect(metaReadyEventspy).to.have.been.called
+          })
+        })
+      });
+
+      describe("events", function(){
+        describe("when meta-style is attached", function(){
+
+          it("concat the globalMetaStyle", function(){
+
+            J.metaVerse.dispatchEvent(new CustomEvent('meta-attached', {
+              detail: {
+                controller: {
+                  tagName: 'meta-style',
+                  metaStyle: [
+                    {
+                      selectors: ['.picture-2'],
+                      declarations: [
+                        {
+                          "property": "mesh-color",
+                          "value": 'blue'
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }));
+
+            J.metaVerse.dispatchEvent(new CustomEvent('meta-attached', {
+              detail: {
+                controller: {
+                  tagName: 'meta-style',
+                  metaStyle: [
+                    {
+                      selectors: ['.picture-1'],
+                      declarations: [
+                        {
+                          "property": "mesh-color",
+                          "value": 'red'
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }));
+
+            expect(J.metaVerse.controller.globalMetaStyle[".picture-1"]).to.deep.equal({"mesh-color": "red"})
+            expect(J.metaVerse.controller.globalMetaStyle[".picture-2"]).to.deep.equal({"mesh-color": "blue"})
+
+          });
+
+        });
       });
 
     });

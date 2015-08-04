@@ -4,7 +4,6 @@ class MetaWallController extends MRM.MetaBaseWallController{
     this.dom = dom;
     this.metaObject = this.createMetaObject();
     this.setupComponent();
-    this.metaVerse = null;
 
     this.updateMetaObject();
   }
@@ -101,7 +100,6 @@ class MetaWall extends MRM.MetaBase {
 
   metaAttached(e) {
     var targetController = e.detail.controller;
-
     if (this.controller.isChildren(targetController.tagName) ){
       e.stopPropagation();
       targetController.parent = this;

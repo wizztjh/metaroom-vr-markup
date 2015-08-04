@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
+</head>
+<body>
+
+  <div id='fixture'>
+    <meta-verse id="meta-verse">
+      <meta-style>
+        #main-meta-wall {
+          material-color: red;
+        }
+
+        meta-picture {
+          material-color: blue;
+        }
+
+        #that-wall {
+          material-color: yellow;
+        }
+
+        .pretty-wall {
+          material-color: green;
+        }
+      </meta-style>
+      <meta-room width='10' height='10' length='10' id='main-meta-room'>
+        <meta-floor id='main-meta-floor'>
+          <meta-picture id='that-wall' class='pretty-wall' ></meta-picture>
+          <meta-table width='3' height='4' length='2' id='main-meta-table'>
+          </meta-table>
+        </meta-floor>
+        <meta-wall align='left' id='main-meta-wall'></meta-wall>
+      </meta-room>
+    </meta-verse>
+  </div>
+
+  <script>
+    describe('meta-style', function() {
+      beforeEach(function(){
+        jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
+        jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
+        jlet('metaFloor', function(){ return document.querySelector('#main-meta-floor')});
+        jlet('metaTable', function(){ return document.querySelector('#main-meta-table')});
+        jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
+        jlet('metaPicture', function(){ return document.querySelector('#that-wall')});
+      });
+
+      it("follows css priority", function(){
+        expect((J.metaPicture.controller.metaStyle["material-color"])).to.equal("yellow");
+      });
+
+      describe("with id selector", function(){
+        it("it applies the meta-style to the meta component", function(){
+          expect(Object.keys(J.metaWall.controller.metaStyle).length).to.equal(1)
+          expect(J.metaWall.controller.metaStyle["material-color"]).to.equal('red');
+        });
+      });
+
+
+
+    });
+  </script>
+</body>
+</html>
