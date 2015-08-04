@@ -66,24 +66,6 @@ class MetaText extends MRM.MetaBase {
     this.controller = new MetaTextController(this);
     super.createdCallback();
   }
-
-  // TODO: remove this cause we got this in metabase
-  attachedCallback() {
-    var event = new CustomEvent('meta-attached', {
-      'detail': {'controller': this.controller},
-      bubbles: true
-    });
-    this.dispatchEvent(event);
-  }
-
-  detachedCallback() {
-    var event = new CustomEvent('meta-detached', {
-      'detail': {'controller': this.controller},
-      bubbles: true
-    });
-    this.controller.parent.dispatchEvent(event);
-  }
-
 }
 
 document.registerElement('meta-text', MetaText);

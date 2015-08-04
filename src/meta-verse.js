@@ -36,7 +36,7 @@ class MetaVerseController{
     }
   }
   getAllMetaChildren(){
-    return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface, meta-tbottom");
+    return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface");
   }
 
   triggerMetaReady(){
@@ -49,13 +49,21 @@ class MetaVerseController{
       metaVerse.dom.dispatchEvent(event);
     } else {
       [].forEach.call(metaChildren, function(metaTag){
-        metaTag.addEventListener('meta-ready', function(){
+        if(metaTag.controller){
           count--;
           if(count <= 0){
             var event = new CustomEvent('meta-ready', {});
             metaVerse.dom.dispatchEvent(event);
           }
-        })
+        } else {
+          metaTag.addEventListener('meta-ready', function(){
+            count--;
+            if(count <= 0){
+              var event = new CustomEvent('meta-ready', {});
+              metaVerse.dom.dispatchEvent(event);
+            }
+          })
+        }
       });
     }
 
@@ -64,7 +72,6 @@ class MetaVerseController{
 
 class MetaVerse extends HTMLElement {
   createdCallback() {
-    this.controller = new MetaVerseController(this);
     this.addEventListener('meta-ready', (e) => {
       var globalMetaStyle = this.controller.globalMetaStyle
       Object.keys(globalMetaStyle).forEach((selector) => {
@@ -78,6 +85,7 @@ class MetaVerse extends HTMLElement {
 
       })
     })
+    this.controller = new MetaVerseController(this);
 
     //TODO: Since `this` inside this event listerner is the dom itself, lets move it to Metaverse HTMLElement
     this.addEventListener('meta-attached', function(e){
