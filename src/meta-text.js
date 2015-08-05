@@ -1,4 +1,4 @@
-class MetaTextController extends MRM.MetaBaseController {
+class MetaTextController extends MRM.MetaComponentController {
   constructor(dom){
     super(dom)
     this.setupComponent();
@@ -70,7 +70,7 @@ class MetaTextController extends MRM.MetaBaseController {
   }
 }
 
-class MetaText extends MRM.MetaBase {
+class MetaText extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaTextController(this);
     super.createdCallback();

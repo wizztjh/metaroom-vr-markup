@@ -1,4 +1,4 @@
-class MetaBoardController extends MRM.MetaBaseController {
+class MetaBoardController extends MRM.MetaComponentController {
   constructor(dom){
     super(dom)
     this.dom = dom;
@@ -73,7 +73,7 @@ class MetaBoardController extends MRM.MetaBaseController {
 
 }
 
-class MetaBoard extends MRM.MetaBase {
+class MetaBoard extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaBoardController(this);
     super.createdCallback();

@@ -115,7 +115,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
 
 }
 
-class MetaWall extends MRM.MetaBase {
+class MetaWall extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaWallController(this);
     super.createdCallback();

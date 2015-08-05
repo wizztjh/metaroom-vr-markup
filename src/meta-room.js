@@ -1,7 +1,7 @@
 // Shim & native-safe ownerDocument lookup
 var owner = (document._currentScript || document.currentScript).ownerDocument;
 
-class MetaRoomController extends MRM.MetaBaseController{
+class MetaRoomController extends MRM.MetaComponentController{
   constructor(dom){
     super(dom);
     this.dom = dom;
@@ -62,7 +62,7 @@ class MetaRoomController extends MRM.MetaBaseController{
 }
 
 //TODO: create a unit spec for MetaRoom
-class MetaRoom extends MRM.MetaBase {
+class MetaRoom extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaRoomController(this);
     super.createdCallback()

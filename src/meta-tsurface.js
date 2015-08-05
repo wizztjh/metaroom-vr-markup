@@ -1,4 +1,4 @@
-class MetaTsurfaceController extends MRM.MetaBaseController {
+class MetaTsurfaceController extends MRM.MetaComponentController {
   constructor(dom){
     super(dom)
     this.dom = dom;
@@ -93,7 +93,7 @@ class MetaTsurfaceController extends MRM.MetaBaseController {
   }
 }
 
-class MetaTsurface extends MRM.MetaBase {
+class MetaTsurface extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaTsurfaceController(this);
   }

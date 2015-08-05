@@ -3,7 +3,7 @@ var owner = (document._currentScript || document.currentScript).ownerDocument;
 
 import CSS from 'css'
 
-class MetaStyleController extends MRM.MetaBaseController{
+class MetaStyleController extends MRM.MetaComponentController{
   constructor(dom){
     super(dom);
     this.dom = dom;
@@ -31,7 +31,7 @@ class MetaStyleController extends MRM.MetaBaseController{
   }
 }
 
-class MetaStyle extends MRM.MetaBase {
+class MetaStyle extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaStyleController(this);
     super.createdCallback()

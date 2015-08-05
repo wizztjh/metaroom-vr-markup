@@ -1,4 +1,4 @@
-class MetaPictureController extends MRM.MetaBaseController {
+class MetaPictureController extends MRM.MetaComponentController {
   constructor(dom){
     super(dom)
     this.setupComponent();
@@ -62,7 +62,7 @@ class MetaPictureController extends MRM.MetaBaseController {
   }
 }
 
-class MetaPicture extends MRM.MetaBase {
+class MetaPicture extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaPictureController(this);
     super.createdCallback();

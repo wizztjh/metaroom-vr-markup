@@ -2,8 +2,9 @@
 //TODO: Move child element of meta-verse inside meta-verse-content #98917702
 var owner = (document._currentScript || document.currentScript).ownerDocument;
 
-class MetaVerseController{
+class MetaVerseController extends MRM.MetaBaseController {
   constructor(dom){
+    super()
     this.dom = dom;
     this.gameObject = new MRM.GameObject();
     this.globalMetaStyle = {}
@@ -95,7 +96,7 @@ class MetaVerseController{
 
 }
 
-class MetaVerse extends HTMLElement {
+class MetaVerse extends MRM.MetaBase {
   createdCallback() {
     this.controller = new MetaVerseController(this);
 

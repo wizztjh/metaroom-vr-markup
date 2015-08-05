@@ -1,6 +1,6 @@
-import MetaBaseController from "./meta-base-controller.js"
+import MetaComponentController from "./meta-component-controller.js"
 
-export default class MetaBaseWallController extends MetaBaseController {
+export default class MetaBaseWallController extends MetaComponentController {
   constructor(dom) {
     super(dom)
   }
