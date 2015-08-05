@@ -4,8 +4,9 @@ var owner = (document._currentScript || document.currentScript).ownerDocument;
 export default class MetaBaseController{
   constructor(dom) {
     this.dom = dom;
-    this.metaStyle = {}
+    this.metaStyle = new MRM.MetaStyle(this)
     this.properties = {}
+    // TODO: create a class for property, to use the set and get of class
     this.propertiesKey.forEach((key) => {
       var settings = this.propertiesSettings[key]
       var attrValue = this.isAllowedAttribute(key) ? this.dom.getAttribute(settings.attrName) : null

@@ -25,12 +25,20 @@
         #that-pic{
           material-color: blue;
         }
+
+        #main-tsurface{
+          material-color: magenta;
+        }
+
+        #left-wall{
+          material-color: chocolate;
+        }
       </meta-style>
 
       <meta-room width='10' height='10' length='20'>
         <!-- maybe we should make all the left wall and right wall to meta&#45;wall with left , right, top , floor alignement -->
 
-        <meta-wall align='left'>
+        <meta-wall align='left' id='left-wall'>
           <meta-picture src='img/VRcollab.png' width='6' length='2'></meta-picture>
           <meta-picture src='img/VRcollab.png' width='4' length='2'></meta-picture>
           <meta-board id='vrcollab-poster' width='6' length='3'>
@@ -65,7 +73,7 @@
 
           <meta-table width='5' length='4' height='3' meta-style='table-padding: 1'>
 
-            <meta-tsurface>
+            <meta-tsurface id='main-tsurface'>
               <meta-tr>
                 <meta-td>
                   <meta-item src='phone.obj' alt='call us by +6598144461' pickup='true'></meta-item>

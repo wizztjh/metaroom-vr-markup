@@ -28,15 +28,22 @@
         .pretty-wall {
           material-color: green;
         }
+        .pretty-tsurface{
+          material-color: red;
+        }
+
       </meta-style>
+
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
         <meta-floor id='main-meta-floor'>
           <meta-picture id='that-wall' class='pretty-wall' ></meta-picture>
           <meta-table width='3' height='4' length='2' id='main-meta-table'>
+            <meta-tsurface id="main-meta-tsurface" class="pretty-tsurface"></meta-tsurface>
           </meta-table>
         </meta-floor>
         <meta-wall align='left' id='main-meta-wall'></meta-wall>
       </meta-room>
+
     </meta-verse>
   </div>
 
@@ -49,6 +56,7 @@
         jlet('metaTable', function(){ return document.querySelector('#main-meta-table')});
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
         jlet('metaPicture', function(){ return document.querySelector('#that-wall')});
+        jlet('metaTsurface', function(){ return document.querySelector('#main-meta-tsurface')});
       });
 
       it("follows css priority", function(){
@@ -57,12 +65,20 @@
 
       describe("with id selector", function(){
         it("it applies the meta-style to the meta component", function(){
-          expect(Object.keys(J.metaWall.controller.metaStyle).length).to.equal(1)
+          // NOTE: we do metaStyle.metaStyle because that is the object that contain the meta style properties and value
+          expect(Object.keys(J.metaWall.controller.metaStyle.metaStyle).length).to.equal(1)
           expect(J.metaWall.controller.metaStyle["material-color"]).to.equal('red');
         });
       });
 
-
+      describe("set the material-color", function(){
+        it("changes the tsurface mesh color", function(){
+          var material = J.metaTsurface.controller.metaObject.mesh.material
+          expect(material.color.r).to.equal(1);
+          expect(material.color.g).to.equal(0);
+          expect(material.color.b).to.equal(0);
+        });
+      });
 
     });
   </script>
