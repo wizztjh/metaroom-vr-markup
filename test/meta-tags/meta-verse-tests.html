@@ -36,14 +36,15 @@
           var addEventListenerStub2 = sinon.stub()
 
           var metaReadyEventspy = sinon.spy()
+          sinon.spy(J.metaVerse.controller, 'propagateMetaStyle')
 
           sinon.stub(J.metaVerse.controller, 'getAllMetaChildren').returns(
             [
               {
-                addEventListener: addEventListenerStub1
+                addEventListener: addEventListenerStub1,
               },
               {
-                addEventListener: addEventListenerStub2
+                addEventListener: addEventListenerStub2,
               }
             ]
           );
@@ -51,15 +52,15 @@
           J.metaVerse.addEventListener('meta-ready', metaReadyEventspy)
 
           J.metaVerse.controller.triggerMetaReady()
-          expect(metaReadyEventspy).to.not.been.called
+          expect(metaReadyEventspy, 'after triggerMetaReady').to.not.been.called
 
           expect(addEventListenerStub1).to.have.been.called
           addEventListenerStub1.args[0][1]()
-          expect(metaReadyEventspy).to.not.been.called
+          expect(metaReadyEventspy, 'after first meta component ready').to.not.been.called
 
           expect(addEventListenerStub2).to.have.been.called
           addEventListenerStub2.args[0][1]()
-          expect(metaReadyEventspy).to.have.been.called
+          expect(metaReadyEventspy, 'after all meta component ready').to.have.been.called
 
         });
 

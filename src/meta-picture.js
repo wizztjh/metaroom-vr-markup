@@ -22,6 +22,15 @@ class MetaPictureController extends MRM.MetaBaseController {
     return "meta-picture"
   }
 
+  get eventActionSettings(){
+    return {
+      "width": ["updateChildrenDisplayInline"],
+      "length": ["updateChildrenDisplayInline"],
+      "class": ["propagateMetaStyle"],
+      "id": ["propagateMetaStyle"]
+    }
+  }
+
   createMetaObject(){
     var planeLength = 1;
     var planeWidth = 1;

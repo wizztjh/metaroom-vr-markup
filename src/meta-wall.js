@@ -32,6 +32,15 @@ class MetaWallController extends MRM.MetaBaseWallController{
         default: 1,
         onChange: "updateMetaObject"
       }
+    };
+  }
+
+  get eventActionSettings(){
+    return {
+      "width": ["updateChildrenDisplayInline"],
+      "length": ["updateChildrenDisplayInline"],
+      "class": ["propagateMetaStyle"],
+      "id": ["propagateMetaStyle"]
     }
   }
 
@@ -69,21 +78,35 @@ class MetaWallController extends MRM.MetaBaseWallController{
 
     switch (this.properties.align) {
       case 'left':
+        group.rotation.x = 0
         group.rotation.y = 90 * (Math.PI/180);
+        group.rotation.z = 0
         group.position.set(-(this.properties.roomWidth/2), this.properties.roomHeight/2, 0);
         break;
       case 'front':
         group.position.set(0, (this.properties.roomHeight/2), -(this.properties.roomLength/2));
+        group.rotation.x = 0
+        group.rotation.y = 0
+        group.rotation.z = 0
+        break;
         break;
       case 'back':
         group.position.set(0, (this.properties.roomHeight/2), this.properties.roomLength/2);
+        group.rotation.x = 0
+        group.rotation.y = 1180 * (Math.PI/180);
+        group.rotation.z = 0
         break;
       case 'ceiling':
         group.rotation.x = 90 * (Math.PI/180);
+        group.rotation.y = 0
+        group.rotation.z = 0
+
         group.position.set(0, (this.properties.roomHeight), 0);
         break;
       case 'right':
+        group.rotation.x = 0
         group.rotation.y = 270 * (Math.PI/180);
+        group.rotation.z = 0
         group.position.set(this.properties.roomWidth/2, this.properties.roomHeight/2, 0);
         break;
     }
@@ -118,15 +141,20 @@ class MetaWall extends MRM.MetaBase {
   }
 
   metaChildAttributeChanged(e){
-   var targetController = e.detail.controller;
+    var targetController = e.detail.controller;
     var attrName = e.detail.attrName
 
     if (this.controller.isChildren(targetController.tagName) ){
       if(targetController.isAllowedAttribute(attrName)) {
-        e.stopPropagation();
-        this.controller.updateChildrenDisplayInline()
+        if (e.detail.actions.updateChildrenDisplayInline) {
+
+          this.controller.updateChildrenDisplayInline()
+          delete e.detail.actions.updateChildrenDisplayInline
+
+        }
       }
     }
+
   }
 }
 

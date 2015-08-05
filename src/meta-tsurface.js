@@ -10,6 +10,13 @@ class MetaTsurfaceController extends MRM.MetaBaseController {
     this.updateMetaObject()
   }
 
+  get eventActionSettings(){
+    return {
+      "class": ["propagateMetaStyle"],
+      "id": ["propagateMetaStyle"]
+    }
+  }
+
   get propertiesSettings() {
     return {
       tableWidth: {

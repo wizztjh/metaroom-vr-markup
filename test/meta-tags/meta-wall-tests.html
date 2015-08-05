@@ -30,7 +30,7 @@
       });
 
       //TODO: write a spec for that test if the update of children attribute will trigger updateChildrenDisplayInline
-      describe('when child attribute updated', function(){
+      describe('when child attribute updated and with event action', function(){
         it("updates the child position", function(){
           updateChildSpy = sinon.spy(J.metaWall.controller, 'updateChildrenDisplayInline')
 
@@ -41,7 +41,8 @@
                 tagName: "meta-picture",
                 isAllowedAttribute: function(){ return true }
               },
-              attrName: 'width'
+              attrName: 'width',
+              actions: {"updateChildrenDisplayInline": true}
             }
           })
 

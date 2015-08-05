@@ -78,6 +78,10 @@ export default class MetaBaseController{
     return allowedkey.indexOf(attrName) != -1
   }
 
+  get eventActionSettings(){
+    return {};
+  }
+
   updateChildrenDisplayInline() {
 
     // TODO: change the board to parent to make it generic

@@ -62,6 +62,14 @@ class MetaBoardController extends MRM.MetaBaseController {
     return ["meta-text", "meta-picture"]
   }
 
+  get eventActionSettings(){
+    return {
+      "width": ["updateChildrenDisplayInline"],
+      "length": ["updateChildrenDisplayInline"],
+      "class": ["propagateMetaStyle"],
+      "id": ["propagateMetaStyle"]
+    }
+  }
 
 }
 
@@ -97,10 +105,9 @@ class MetaBoard extends MRM.MetaBase {
 
     if (this.controller.isChildren(targetController.tagName) ){
 
-      // NOTE: dont need to refactor this. Because this look at children attr changes. If it is width and length then it will update the display inline
-      if(attrName === 'width' || attrName === 'length') {
-        e.stopPropagation();
+      if (e.detail.actions.updateChildrenDisplayInline) {
         this.controller.updateChildrenDisplayInline()
+        delete e.detail.actions.updateChildrenDisplayInline
       }
     }
 

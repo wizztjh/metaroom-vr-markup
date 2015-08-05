@@ -20,6 +20,7 @@ class MetaVerseController{
     this.dom.appendChild(template);
   }
 
+  // TODO: rename to update global metaStyle
   updateMetaStyle(metaStyles) {
     if(metaStyles){
       metaStyles.forEach((metaStyle) => {
@@ -34,6 +35,7 @@ class MetaVerseController{
       });
     }
   }
+
   getAllMetaChildren(){
     return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface");
   }
@@ -68,6 +70,16 @@ class MetaVerseController{
 
   propagateMetaStyle(){
     var globalMetaStyle = this.globalMetaStyle
+    var metaChildren = this.getAllMetaChildren();
+
+    [].forEach.call(metaChildren, function(metaTag){
+      if(metaTag.controller) {
+        if(metaTag.controller.metaStyle.clear){
+          metaTag.controller.metaStyle.clear()
+        }
+      }
+    });
+
     // NOTE: we sort and reverse because we want to prioritize id -> class -> meta tag
     Object.keys(globalMetaStyle).sort().reverse().forEach((selector) => {
       [].forEach.call( this.dom.querySelectorAll(selector), function(metaComponent){
@@ -106,18 +118,25 @@ class MetaVerse extends HTMLElement {
       }
     }, false);
 
-    // this.addEventListener('meta-detached', function(e){
-    //   var controller = e.detail.controller;
-    //   if(controller.tagName == 'meta-room') {
-    //     this.controller.gameObject.remove(e.detail.controller.metaObject);
-    //   }
-    //   // TODO: do something if meta-style is removed
-    // }, false);
+    this.addEventListener('meta-attribute-change', function(e){
+      var targetController = e.detail.controller;
+      var attrName = e.detail.attrName
+
+      if (e.detail.actions.propagateMetaStyle) {
+        this.controller.propagateMetaStyle()
+        delete e.detail.actions.propagateMetaStyle
+      }
+    }, false);
+
+    this.addEventListener('meta-detached', function(e){
+      var controller = e.detail.controller;
+      if(controller.tagName == 'meta-room') {
+        this.controller.gameObject.remove(e.detail.controller.metaObject);
+      }
+      // TODO: do something if meta-style is removed
+    }, false);
   }
 
-  attachedCallback(){
-
-  }
 }
 
 document.registerElement('meta-verse', MetaVerse);

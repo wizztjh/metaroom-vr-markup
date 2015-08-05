@@ -19,6 +19,15 @@ class MetaTextController extends MRM.MetaBaseController {
     }
   }
 
+  get eventActionSettings(){
+    return {
+      "width": ["updateChildrenDisplayInline"],
+      "length": ["updateChildrenDisplayInline"],
+      "class": ["propagateMetaStyle"],
+      "id": ["propagateMetaStyle"]
+    }
+  }
+
   get tagName() {
     return "meta-text"
   }

@@ -39,6 +39,12 @@ export default class MetaBase extends HTMLElement{
   }
 
   attributeChangedCallback(attrName, oldValue, newValue) {
+    var actionsArray = this.controller.eventActionSettings[attrName] || [];
+
+    var actions = actionsArray.reduce(function(memo, action){
+      memo[action] = true
+      return memo
+    }, {});
 
     //TODO: move this to controller
     if(this.controller.isAllowedAttribute(attrName)){
@@ -50,12 +56,14 @@ export default class MetaBase extends HTMLElement{
     }
 
     // TODO: maybe we can add a new propertiesSettings `bubbleUp` to enable the event bubbling when attribute changes
+
     var event = new CustomEvent('meta-attribute-change', {
       'detail': {
         'attrName': attrName,
         'oldValue': oldValue,
         'newValue': newValue,
-        'controller': this.controller
+        'controller': this.controller,
+        'actions': actions
       },
       bubbles: true
     });

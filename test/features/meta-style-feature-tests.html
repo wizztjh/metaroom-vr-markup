@@ -31,7 +31,12 @@
         .pretty-tsurface{
           material-color: red;
         }
-
+        .blue-right-wall{
+          material-color: magenta;
+        }
+        .yellow-right-wall{
+          material-color: yellow;
+        }
       </meta-style>
 
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
@@ -42,6 +47,7 @@
           </meta-table>
         </meta-floor>
         <meta-wall align='left' id='main-meta-wall'></meta-wall>
+        <meta-wall class='blue-right-wall' align='right' id='right-meta-wall'></meta-wall>
       </meta-room>
 
     </meta-verse>
@@ -57,6 +63,7 @@
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
         jlet('metaPicture', function(){ return document.querySelector('#that-wall')});
         jlet('metaTsurface', function(){ return document.querySelector('#main-meta-tsurface')});
+        jlet('metaRightWall', function(){ return document.querySelector('#right-meta-wall')});
       });
 
       it("follows css priority", function(){
@@ -77,6 +84,14 @@
           expect(material.color.r).to.equal(1);
           expect(material.color.g).to.equal(0);
           expect(material.color.b).to.equal(0);
+        });
+      });
+
+      describe("when change the class of meta component changes", function(){
+        it("changes the meta style of the meta component to the new meta style", function(){
+          J.metaRightWall.className = "yellow-right-wall";
+          var materialColor = J.metaRightWall.controller.metaStyle.metaStyle["material-color"];
+          expect(materialColor).to.equal("yellow");
         });
       });
 

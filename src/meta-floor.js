@@ -41,6 +41,13 @@ class MetaFloorController extends MRM.MetaBaseWallController{
     return ["meta-table"]
   }
 
+  get eventActionSettings(){
+    return {
+      "class": ["propagateMetaStyle"],
+      "id": ["propagateMetaStyle"]
+    }
+  }
+
   updateMetaObject() {
     var mesh = this.metaObject.mesh;
     var group = this.metaObject.group;
