@@ -18,6 +18,9 @@
         jlet("metaWall", function(){ return document.querySelector("#meta-wall") });
       });
 
+      shouldBehaveLikeAMetaComponentThatTriggersEventWhenClassUpdates('metaWall')
+      shouldBehaveLikeAMetaComponentThatTriggersEventWhenIDUpdates('metaWall')
+
       describe('when align is updated', function() {
         describe('to left', function() {
 

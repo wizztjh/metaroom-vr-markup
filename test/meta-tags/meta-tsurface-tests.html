@@ -20,6 +20,9 @@
         jlet("metaTsurfaceMetaObject", function(){ return J.metaTsurfaceController.metaObject});
       });
 
+      shouldBehaveLikeAMetaComponentThatTriggersEventWhenClassUpdates('metaTsurface')
+      shouldBehaveLikeAMetaComponentThatTriggersEventWhenIDUpdates('metaTsurface')
+
       describe("when initilize", function(){
         it("added a box to the group", function(){
           expect(J.metaTsurfaceMetaObject.group.children[0].uuid).to.equal(J.metaTsurfaceMetaObject.mesh.uuid)

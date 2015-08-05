@@ -76,6 +76,43 @@ function shouldBehaveLikeAInlineMetaComponent(parentName, firstMetaComponentName
     expect(secondMetaComponentGroup.position.y, secondMetaComponentName + ' y').to.equal( baseLineY + (secondMetaComponentLength / 2) );
   });
 }
+
+function shouldBehaveLikeAMetaComponentThatTriggersEventWhenIDUpdates(componentName){
+  describe("when id is updated", function(){
+    it("triggers an event with propagateMetaStyle action", function(){
+      var metaAttributeChangeEventSpy = sinon.spy();
+      var event;
+
+      J[componentName].addEventListener('meta-attribute-change', metaAttributeChangeEventSpy, false)
+      J[componentName].setAttribute("id", "picture1");
+
+      expect(metaAttributeChangeEventSpy).to.have.been.called
+
+      event = metaAttributeChangeEventSpy.args[0][0]
+
+      expect(event).to.have.deep.property("detail.actions.propagateMetaStyle")
+    });
+  });
+}
+
+function shouldBehaveLikeAMetaComponentThatTriggersEventWhenClassUpdates(componentName){
+  describe("when class is updated", function(){
+    it("triggers an event with propagateMetaStyle action", function(){
+      var metaAttributeChangeEventSpy = sinon.spy();
+      var event;
+
+      J[componentName].addEventListener('meta-attribute-change', metaAttributeChangeEventSpy, false)
+      J[componentName].setAttribute("class", "picture1");
+
+      expect(metaAttributeChangeEventSpy).to.have.been.called
+
+      event = metaAttributeChangeEventSpy.args[0][0]
+
+      expect(event).to.have.deep.property("detail.actions.propagateMetaStyle")
+    });
+  });
+}
+
 //sharedBehaviors end
 
 afterEach(function(){

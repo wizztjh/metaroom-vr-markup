@@ -10,26 +10,26 @@
 </head>
 <body>
   <div id='fixture'>
-    <meta-picture id="meta-picture" width="5"></meta-picture>
+    <meta-board id="meta-board" width="5"></meta-board>
   </div>
   <script>
-    describe('<meta-picture>', function() {
+    describe('<meta-board>', function() {
       beforeEach(function(){
-        jlet("metaPicture", function(){ return document.querySelector("#meta-picture") });
+        jlet("metaBoard", function(){ return document.querySelector("#meta-board") });
       })
 
       describe('when width is updated', function(){
         it("triggers meta-attribute-change", function(){
           var spy = sinon.spy(function(){})
-          J.metaPicture.addEventListener('meta-attribute-change', spy, false)
-          J.metaPicture.setAttribute('width', 3);
+          J.metaBoard.addEventListener('meta-attribute-change', spy, false)
+          J.metaBoard.setAttribute('width', 3);
 
           assert.isTrue(spy.called);
         });
       });
 
-      shouldBehaveLikeAMetaComponentThatTriggersEventWhenClassUpdates('metaPicture')
-      shouldBehaveLikeAMetaComponentThatTriggersEventWhenIDUpdates('metaPicture')
+      shouldBehaveLikeAMetaComponentThatTriggersEventWhenClassUpdates('metaBoard')
+      shouldBehaveLikeAMetaComponentThatTriggersEventWhenIDUpdates('metaBoard')
 
     });
   </script>
