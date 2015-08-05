@@ -93,7 +93,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
       case 'back':
         group.position.set(0, (this.properties.roomHeight/2), this.properties.roomLength/2);
         group.rotation.x = 0
-        group.rotation.y = 1180 * (Math.PI/180);
+        group.rotation.y = 180 * (Math.PI/180);
         group.rotation.z = 0
         break;
       case 'ceiling':
