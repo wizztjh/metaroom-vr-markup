@@ -26,6 +26,7 @@ gulp.task('build:cleanup', function(cb) {
 
 gulp.task('build:html', function () {
   return gulp.src(['dist/metaroom-markup.local.html'])
+    .pipe($.plumber())
     .pipe($.vulcanize({
       excludes: [
       ],
@@ -50,6 +51,7 @@ gulp.task('build:js', function () {
   });
 
   return bundleStream.bundle()
+    .pipe($.plumber())
     .pipe(source('lib.js'))
     .on('error', $.util.log)
     .pipe(gulp.dest('dist'));

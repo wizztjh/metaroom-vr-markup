@@ -42,31 +42,45 @@ class MetaVerseController{
     var metaVerse = this;
     var metaChildren = this.getAllMetaChildren();
     var count = metaChildren.length;
+    var event = new CustomEvent('meta-ready', {});
+
+    function dispatchWhenAllReady(){
+      count--;
+      if(count <= 0){
+        metaVerse.dom.dispatchEvent(event);
+      }
+    }
 
     if (count ===0 ) {
-      var event = new CustomEvent('meta-ready', {});
-      metaVerse.dom.dispatchEvent(event);
+      dispatchWhenAllReady();
     } else {
       [].forEach.call(metaChildren, function(metaTag){
         if(metaTag.controller){
-          count--;
-          if(count <= 0){
-            var event = new CustomEvent('meta-ready', {});
-            metaVerse.dom.dispatchEvent(event);
-          }
+          dispatchWhenAllReady();
         } else {
           metaTag.addEventListener('meta-ready', function(){
-            count--;
-            if(count <= 0){
-              var event = new CustomEvent('meta-ready', {});
-              metaVerse.dom.dispatchEvent(event);
-            }
+            dispatchWhenAllReady();
           })
         }
       });
     }
-
   }
+
+  propagateMetaStyle(){
+    var globalMetaStyle = this.globalMetaStyle
+    // NOTE: we sort and reverse because we want to prioritize id -> class -> meta tag
+    Object.keys(globalMetaStyle).sort().reverse().forEach((selector) => {
+      [].forEach.call( this.dom.querySelectorAll(selector), function(metaComponent){
+        var metaStyleProperties = globalMetaStyle[selector]
+
+        Object.keys(metaStyleProperties).forEach(function(property){
+          metaComponent.controller.metaStyle[property] = metaStyleProperties[property]
+        });
+      })
+
+    })
+  }
+
 }
 
 class MetaVerse extends HTMLElement {
@@ -74,17 +88,7 @@ class MetaVerse extends HTMLElement {
     this.controller = new MetaVerseController(this);
 
     this.addEventListener('meta-ready', (e) => {
-      var globalMetaStyle = this.controller.globalMetaStyle
-      Object.keys(globalMetaStyle).sort().reverse().forEach((selector) => {
-        [].forEach.call( this.querySelectorAll(selector), function(metaComponent){
-
-          var metaStyleProperties = globalMetaStyle[selector]
-          Object.keys(metaStyleProperties).forEach(function(property){
-            metaComponent.controller.metaStyle[property] = metaStyleProperties[property]
-          });
-        })
-
-      })
+      this.controller.propagateMetaStyle();
     })
     //TODO: refactor this whole mess, we need to trigger the meta ready after we listen to meta-ready
     this.controller.triggerMetaReady()
