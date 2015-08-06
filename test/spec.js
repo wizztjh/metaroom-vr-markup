@@ -2,22 +2,18 @@
 var J = {}
 var fixtureHTML = ""
 
+var shouldBehaveLikeA ={}
+
 //sharedBehaviors start
 //TODO: we should move all the sharedBehaviors to different files
-function shouldBehaveLikeAMetaObjectThatPositions(metaObjectName, position){
-  it("sets the position of the object according to the attributes", function(){
-    expect(J[metaObjectName].position.x, 'x').to.equal(position.x);
-    expect(J[metaObjectName].position.y, 'y').to.equal(position.y);
-    });
-}
-function shouldBehaveLikeAMetaObjectThatScales(metaObjectName, scale){
+shouldBehaveLikeA["MetaObject that scales"] = function (metaObjectName, scale){
   it("sets the dimension of the object", function(){
     expect(J[metaObjectName].scale.x, 'width').to.equal(scale.x);
     expect(J[metaObjectName].scale.y, 'length').to.equal(scale.y);
   });
 }
 
-function shouldBehaveLikeAPlaneAddingMetaTag(metaTagName, metaParentName){
+shouldBehaveLikeA["Plane Adding MetaTag"] = function(metaTagName, metaParentName){
   it("adds a plane to "+ metaParentName +" group", function(){
     var metaChildrenUUID = J[metaParentName].controller.metaObject.group.children.map(function(child){
       return child.uuid;
@@ -29,7 +25,7 @@ function shouldBehaveLikeAPlaneAddingMetaTag(metaTagName, metaParentName){
   });
 }
 
-function shouldBehaveLikeARemoveableMetaObject(metaTagName, metaParentName){
+shouldBehaveLikeA["Removeable MetaObject"] = function(metaTagName, metaParentName){
   describe("when the "+ metaTagName +" is removed", function(){
     beforeEach(function(){
       J[metaTagName].remove();
@@ -48,7 +44,7 @@ function shouldBehaveLikeARemoveableMetaObject(metaTagName, metaParentName){
   });
 }
 
-function shouldBehaveLikeAInlineMetaComponent(parentName, firstMetaComponentName, secondMetaComponentName){
+shouldBehaveLikeA["Inline MetaComponent"] = function (parentName, firstMetaComponentName, secondMetaComponentName){
   it("alines from the top left corner", function () {
     var parent = J[parentName]
     ,   parentWidth = parent.controller.metaObject.mesh.scale.x
@@ -77,7 +73,7 @@ function shouldBehaveLikeAInlineMetaComponent(parentName, firstMetaComponentName
   });
 }
 
-function shouldBehaveLikeAMetaComponentThatTriggersEventWhenIDUpdates(componentName){
+shouldBehaveLikeA["MetaComponent That Triggers Event When ID Updates"] = function(componentName){
   describe("when id is updated", function(){
     it("triggers an event with propagateMetaStyle action", function(){
       var metaAttributeChangeEventSpy = sinon.spy();
@@ -95,7 +91,7 @@ function shouldBehaveLikeAMetaComponentThatTriggersEventWhenIDUpdates(componentN
   });
 }
 
-function shouldBehaveLikeAMetaComponentThatTriggersEventWhenClassUpdates(componentName){
+shouldBehaveLikeA["MetaComponent That Triggers Event When Class Updates"] = function(componentName){
   describe("when class is updated", function(){
     it("triggers an event with propagateMetaStyle action", function(){
       var metaAttributeChangeEventSpy = sinon.spy();

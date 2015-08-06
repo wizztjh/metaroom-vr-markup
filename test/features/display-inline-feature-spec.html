@@ -98,7 +98,7 @@
             jlet('metaText', function(){ return document.querySelector('#meta-text-on-wall')});
           });
 
-          shouldBehaveLikeAInlineMetaComponent('metaWall', 'metaPicture', 'metaText');
+          shouldBehaveLikeA["Inline MetaComponent"]('metaWall', 'metaPicture', 'metaText');
         });
       })
 
@@ -109,7 +109,7 @@
             jlet('secondMetaBoard', function(){ return J.metaBoards[1]});
           });
 
-          shouldBehaveLikeAInlineMetaComponent('metaWall', 'firstMetaBoard', 'secondMetaBoard');
+          shouldBehaveLikeA["Inline MetaComponent"]('metaWall', 'firstMetaBoard', 'secondMetaBoard');
         });
       });
 
@@ -129,7 +129,7 @@
         });
 
         describe("when meta component with display: inline property is sibling", function() {
-          shouldBehaveLikeAInlineMetaComponent('metaBoard', 'metaPicture', 'metaText');
+          shouldBehaveLikeA["Inline MetaComponent"]('metaBoard', 'metaPicture', 'metaText');
 
           // NOTE: Should be tested in unit spec level
           describe("width is smaller than the sum of width of childrens", function(){

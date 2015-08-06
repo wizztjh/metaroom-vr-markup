@@ -37,8 +37,8 @@
       });
 
       describe("when initilize", function(){
-        shouldBehaveLikeAMetaObjectThatScales("metaTextMesh", { x: 3, y: 1 });
-        shouldBehaveLikeAPlaneAddingMetaTag('metaText', 'metaBoard')
+        shouldBehaveLikeA['MetaObject that scales']("metaTextMesh", { x: 3, y: 1 });
+        shouldBehaveLikeA["Plane Adding MetaTag"]('metaText', 'metaBoard');
 
         it('updates the texture based on src', function(){
           expect(J.metaText.controller.metaObject.mesh.material.map.image.tagName).to.equal("CANVAS");
@@ -48,11 +48,11 @@
           beforeEach(function(){
             jlet('metaText', function(){ return document.querySelector('#meta-text-on-wall')});
           });
-          shouldBehaveLikeAPlaneAddingMetaTag('metaText', 'metaWall')
+          shouldBehaveLikeA['Plane Adding MetaTag']('metaText', 'metaWall');
         });
       });
 
-      shouldBehaveLikeARemoveableMetaObject('metaText', 'metaBoard')
+      shouldBehaveLikeA["Removeable MetaObject"]('metaText', 'metaBoard');
 
     });
   </script>

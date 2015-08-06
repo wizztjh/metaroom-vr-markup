@@ -37,8 +37,8 @@
       });
 
       describe("when initilize", function(){
-        shouldBehaveLikeAMetaObjectThatScales('metaPictureMesh', {x: 3, y: 4});
-        shouldBehaveLikeAPlaneAddingMetaTag('metaPicture', 'metaBoard')
+        shouldBehaveLikeA['MetaObject that scales']('metaPictureMesh', {x: 3, y: 4});
+        shouldBehaveLikeA['Plane Adding MetaTag']('metaPicture', 'metaBoard');
 
         it('updates the texture based on src', function(){
           expect(J.metaPicture.controller.metaObject.mesh.material.map.sourceFile).to.equal("fixtures/ball.png");
@@ -48,11 +48,11 @@
           beforeEach(function(){
             jlet('metaPicture', function(){ return document.querySelector('#meta-picture-on-wall')});
           });
-          shouldBehaveLikeAPlaneAddingMetaTag('metaPicture', 'metaWall')
+          shouldBehaveLikeA['Plane Adding MetaTag']('metaPicture', 'metaWall');
         });
       });
 
-      shouldBehaveLikeARemoveableMetaObject('metaPicture', 'metaBoard')
+      shouldBehaveLikeA["Removeable MetaObject"]('metaPicture', 'metaBoard');
     });
   </script>
 </body>
