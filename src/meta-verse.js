@@ -99,46 +99,46 @@ class MetaVerseController extends MRM.MetaBaseController {
 class MetaVerse extends MRM.MetaBase {
   createdCallback() {
     this.controller = new MetaVerseController(this);
+    super.createdCallback()
 
     this.addEventListener('meta-ready', (e) => {
       this.controller.propagateMetaStyle();
     })
     //TODO: refactor this whole mess, we need to trigger the meta ready after we listen to meta-ready
     this.controller.triggerMetaReady()
+  }
 
-    //TODO: Since `this` inside this event listerner is the dom itself, lets move it to Metaverse HTMLElement
-    this.addEventListener('meta-attached', function(e){
-      var controller = e.detail.controller;
+  metaAttached(e){
+    var controller = e.detail.controller;
 
-      controller.parent = this;
-      //TODO: need to find a better way to store the objects, it should be tree form
-      if(controller.tagName == 'meta-room') {
-        this.controller.gameObject.add(controller.metaObject);
-      } else if(controller.tagName == 'meta-style') {
-        this.controller.updateMetaStyle(controller.metaStyle);
+    controller.parent = this;
+    //TODO: need to find a better way to store the objects, it should be tree form
+    if(controller.tagName == 'meta-room') {
+      this.controller.gameObject.add(controller.metaObject);
+    } else if(controller.tagName == 'meta-style') {
+      this.controller.updateMetaStyle(controller.metaStyle);
+    }
+  }
+
+  metaDetached(e) {
+    var controller = e.detail.controller;
+    if(controller.tagName == 'meta-room') {
+      this.controller.gameObject.remove(e.detail.controller.metaObject);
+    }
+    // TODO: do something if meta-style is removed
+  }
+
+  metaChildAttributeChanged(e) {
+    var targetController = e.detail.controller;
+
+    if (e.detail.actions.propagateMetaStyle) {
+      if (targetController.tagName === 'meta-style') {
+        this.controller.globalMetaStyle = {}
+        this.controller.updateMetaStyle(targetController.metaStyle);
       }
-    }, false);
-
-    this.addEventListener('meta-attribute-change', function(e){
-      var targetController = e.detail.controller;
-
-      if (e.detail.actions.propagateMetaStyle) {
-        if (targetController.tagName === 'meta-style') {
-          this.controller.globalMetaStyle = {}
-          this.controller.updateMetaStyle(targetController.metaStyle);
-        }
-        this.controller.propagateMetaStyle()
-        delete e.detail.actions.propagateMetaStyle
-      }
-    }, false);
-
-    this.addEventListener('meta-detached', function(e){
-      var controller = e.detail.controller;
-      if(controller.tagName == 'meta-room') {
-        this.controller.gameObject.remove(e.detail.controller.metaObject);
-      }
-      // TODO: do something if meta-style is removed
-    }, false);
+      this.controller.propagateMetaStyle()
+      delete e.detail.actions.propagateMetaStyle
+    }
   }
 
 }
