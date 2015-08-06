@@ -45407,8 +45407,7 @@ var MetaStyleController = (function (_MRM$MetaComponentController) {
     this.setupComponent();
     this.parent = null;
     this.metaStyle = this.createGlobalMetaStyle();
-
-    var observer = new MutationObserver(function (mutations) {
+    this.mutationObserver = new MutationObserver(function (mutations) {
       mutations.forEach(function (mutation) {
         _this.metaStyle = _this.createGlobalMetaStyle();
         var event = new CustomEvent('meta-attribute-change', {
@@ -45421,9 +45420,7 @@ var MetaStyleController = (function (_MRM$MetaComponentController) {
         _this.dom.dispatchEvent(event);
       });
     });
-    var config = { subtree: true, childList: true, characterData: true };
-    // TODO: disconnect the observer in detach
-    observer.observe(dom, config);
+    this.mutationObserver.observe(dom, { subtree: true, childList: true, characterData: true });
   }
 
   _inherits(MetaStyleController, _MRM$MetaComponentController);
@@ -45468,6 +45465,13 @@ var MetaStyle = (function (_MRM$MetaComponent) {
     value: function createdCallback() {
       this.controller = new MetaStyleController(this);
       _get(Object.getPrototypeOf(MetaStyle.prototype), 'createdCallback', this).call(this);
+    }
+  }, {
+    key: 'detachedCallback',
+    value: function detachedCallback() {
+      _get(Object.getPrototypeOf(MetaStyle.prototype), 'detachedCallback', this).call(this);
+      // TODO: write test for this
+      this.controller.mutationObserver.disconnect();
     }
   }]);
 
