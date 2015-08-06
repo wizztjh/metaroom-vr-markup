@@ -31,6 +31,13 @@
       shouldBehaveLikeA["MetaComponent That Triggers Event When Class Updates"]('metaBoard');
       shouldBehaveLikeA["MetaComponent That Triggers Event When ID Updates"]('metaBoard')
 
+      describe("events", function(){
+        shouldBehaveLikeA['Surface']("metaBoard", 'meta-picture')
+        shouldBehaveLikeA['Surface']("metaBoard", 'meta-text')
+        shouldBehaveLikeA['Surface']("metaBoard", 'meta-table')
+        // TODO: fix this
+        // shouldBehaveLikeA['Surface']("metaBoard", 'meta-board')
+      });
     });
   </script>
 </body>

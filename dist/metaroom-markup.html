@@ -40051,7 +40051,7 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
   }, {
     key: "metaChildrenNames",
     get: function get() {
-      return ["meta-board", "meta-picture", "meta-text"];
+      return ["meta-board", "meta-picture", "meta-text", "meta-table"];
     }
   }]);
 
@@ -40194,7 +40194,7 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
     key: "metaChildrenNames",
     get: function get() {
       // TODO: we need to include meta-image, meta-board and meta-text
-      return ["meta-table"];
+      return ["meta-table", "meta-picture", "meta-text", "meta-board"];
     }
   }, {
     key: "eventActionSettings",
@@ -40342,7 +40342,7 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
   }, {
     key: 'metaChildrenNames',
     get: function get() {
-      return ['meta-text', 'meta-picture'];
+      return ['meta-text', 'meta-picture', 'meta-table'];
     }
   }, {
     key: 'eventActionSettings',

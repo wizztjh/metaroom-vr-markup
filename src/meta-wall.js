@@ -45,7 +45,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
   }
 
   get metaChildrenNames(){
-    return ["meta-board", "meta-picture", "meta-text"]
+    return ["meta-board", "meta-picture", "meta-text", "meta-table"]
   }
 
   updateMetaObject(){

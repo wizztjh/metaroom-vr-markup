@@ -43,38 +43,13 @@
         });
       });
 
-      describe("#updateChildrenDisplayInline", function(){
-        beforeEach(function(){
-          jlet("childrens", function(){
-            return [
-              {
-                controller: {
-                  properties: {
-                    width: 5,
-                    length: 4
-                  },
-                  metaObject: {
-                    mesh: {},
-                    group: {
-                      position: { x: 0, y:0 }
-                    }
-                  }
-                }
-              }
-            ]
-          })
-          sinon.stub(J.metaFloor.controller, 'getMetaChildren').returns(J.childrens)
-
-          J.metaFloor.controller.properties.width =10
-          J.metaFloor.controller.properties.length =20
-        })
-        describe("when one children", function(){
-          it("align on the top left", function(){
-            J.metaFloor.controller.updateChildrenDisplayInline()
-            expect(J.childrens[0].controller.metaObject.group.position).to.deep.equal({x: -2.5, y: 8})
-          });
-        })
+      describe("events", function(){
+        shouldBehaveLikeA['Surface']("metaFloor", 'meta-table')
+        shouldBehaveLikeA['Surface']("metaFloor", 'meta-picture')
+        shouldBehaveLikeA['Surface']("metaFloor", 'meta-board')
+        shouldBehaveLikeA['Surface']("metaFloor", 'meta-text')
       });
+
     });
   </script>
 </body>

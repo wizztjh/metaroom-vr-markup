@@ -59,7 +59,7 @@ class MetaBoardController extends MRM.MetaComponentController {
   }
 
   get metaChildrenNames(){
-    return ["meta-text", "meta-picture"]
+    return ["meta-text", "meta-picture", "meta-table"]
   }
 
   get eventActionSettings(){

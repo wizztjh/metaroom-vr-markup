@@ -6,6 +6,96 @@ var shouldBehaveLikeA ={}
 
 //sharedBehaviors start
 //TODO: we should move all the sharedBehaviors to different files
+shouldBehaveLikeA["Surface"] = function (metaObjectName, childrenTagName){
+  describe("for children " + childrenTagName, function () {
+
+    describe("#updateChildrenDisplayInline", function(){
+      beforeEach(function(){
+        jlet("childrens", function(){
+          return [
+            {
+              controller: {
+                properties: {
+                  width: 5,
+                  length: 4
+                },
+                metaObject: {
+                  mesh: {},
+                  group: {
+                    position: { x: 0, y:0 }
+                  }
+                }
+              }
+            }
+          ]
+        })
+        sinon.stub(J[metaObjectName].controller, 'getMetaChildren').returns(J.childrens)
+
+        J[metaObjectName].controller.properties.width =10
+        J[metaObjectName].controller.properties.length =20
+      })
+      describe("when one children", function(){
+        it("align on the top left", function(){
+          J[metaObjectName].controller.updateChildrenDisplayInline()
+          expect(J.childrens[0].controller.metaObject.group.position).to.deep.equal({x: -2.5, y: 8})
+        });
+      })
+    });
+
+    describe('when children bubble up a meta attached event', function(){
+      beforeEach(function(){
+        sinon.stub(J[metaObjectName].controller, 'updateChildrenDisplayInline')
+        sinon.stub(J[metaObjectName].controller.metaObject.group, 'add');
+        J[metaObjectName].metaAttached({
+          stopPropagation: sinon.spy(),
+          detail: {
+            controller: {
+              tagName: childrenTagName,
+              isAllowedAttribute: function(){ return true },
+              parent: {},
+              metaObject: {
+                group: {
+                  position: {x:1}
+                }
+              }
+            }
+          }
+        });
+      });
+
+      it("added it to the meta object group", function(){
+        assert.isTrue(J[metaObjectName].controller.metaObject.group.add.called);
+        expect(J[metaObjectName].controller.metaObject.group.add).to.have.been.calledWith({ position: {x: 1}})
+      });
+
+      it("updates inline display of its children", function(){
+        expect(J[metaObjectName].controller.updateChildrenDisplayInline).to.have.been.called;
+      });
+    })
+
+    describe('when child attribute updated and with event action', function(){
+      it("updates the child position", function(){
+        updateChildSpy = sinon.spy(J[metaObjectName].controller, 'updateChildrenDisplayInline')
+
+        J[metaObjectName].metaChildAttributeChanged({
+          stopPropagation: sinon.spy(),
+          detail: {
+            controller: {
+              tagName: "meta-picture",
+              isAllowedAttribute: function(){ return true }
+            },
+            attrName: 'width',
+            actions: {"updateChildrenDisplayInline": true}
+          }
+        })
+
+        assert.isTrue(updateChildSpy.called);
+      });
+    });
+  });
+
+}
+
 shouldBehaveLikeA["MetaObject that scales"] = function (metaObjectName, scale){
   it("sets the dimension of the object", function(){
     expect(J[metaObjectName].scale.x, 'width').to.equal(scale.x);

@@ -32,25 +32,11 @@
         });
       });
 
-      //TODO: write a spec for that test if the update of children attribute will trigger updateChildrenDisplayInline
-      describe('when child attribute updated and with event action', function(){
-        it("updates the child position", function(){
-          updateChildSpy = sinon.spy(J.metaWall.controller, 'updateChildrenDisplayInline')
-
-          J.metaWall.metaChildAttributeChanged({
-            stopPropagation: sinon.spy(),
-            detail: {
-              controller: {
-                tagName: "meta-picture",
-                isAllowedAttribute: function(){ return true }
-              },
-              attrName: 'width',
-              actions: {"updateChildrenDisplayInline": true}
-            }
-          })
-
-          assert.isTrue(updateChildSpy.called);
-        });
+      describe("events", function(){
+        shouldBehaveLikeA['Surface']("metaWall", 'meta-table')
+        shouldBehaveLikeA['Surface']("metaWall", 'meta-picture')
+        shouldBehaveLikeA['Surface']("metaWall", 'meta-board')
+        shouldBehaveLikeA['Surface']("metaWall", 'meta-text')
       });
 
     });
