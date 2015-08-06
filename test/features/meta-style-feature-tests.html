@@ -12,7 +12,7 @@
 
   <div id='fixture'>
     <meta-verse id="meta-verse">
-      <meta-style>
+      <meta-style id="main-meta-style">
         #main-meta-wall {
           material-color: red;
         }
@@ -64,6 +64,8 @@
         jlet('metaPicture', function(){ return document.querySelector('#that-wall')});
         jlet('metaTsurface', function(){ return document.querySelector('#main-meta-tsurface')});
         jlet('metaRightWall', function(){ return document.querySelector('#right-meta-wall')});
+        jlet('metaStyle', function(){ return document.querySelector('#main-meta-style')});
+
       });
 
       it("follows css priority", function(){
@@ -93,6 +95,25 @@
           var materialColor = J.metaRightWall.controller.metaStyle.metaStyle["material-color"];
           expect(materialColor).to.equal("yellow");
         });
+      });
+
+      describe("meta-style's text content is changed", function(){
+        asyncBeforeEach(function(){
+          J.metaStyle.textContent = "#main-meta-wall { material-color: yellow; }";
+        });
+        it("updates the meta components' metaStyle", function(){
+          var materialColor;
+
+          materialColor = J.metaWall.controller.metaStyle.metaStyle["material-color"];
+          expect(materialColor).to.equal("yellow");
+        });
+
+        it("resets the meta component that is not selected", function(){
+          var material = J.metaTsurface.controller.metaObject.mesh.material
+          expect(material.color.r).to.equal(1);
+          expect(material.color.g).to.equal(1);
+          expect(material.color.b).to.equal(1);
+        })
       });
 
     });

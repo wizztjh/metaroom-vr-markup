@@ -45,7 +45,7 @@ gulp.task('build:html', function () {
 gulp.task('build:js', function () {
   var bundleStream = browserify({
     entries: './src/lib/lib.js',
-    debug: true,
+    debug: false,
     // defining transforms here will avoid crashing your stream
     transform: [babelify]
   });
@@ -70,7 +70,7 @@ gulp.task('copy:webComponentsJS', function () {
   ])
     .pipe($.plumber())
     .pipe($.browserify({
-      debug: true,
+      debug: false,
       transform: [babelify]
     }))
     .pipe(gulp.dest('dist'));

@@ -5,8 +5,11 @@ export default class MetaStyle {
   }
 
   set ["material-color"](color) {
-    this.controller.metaObject.mesh.material.color.set(color)
-    this.metaStyle["material-color"] = color
+    var mesh = this.controller.metaObject.mesh
+    if (mesh) {
+      mesh.material.color.set(color)
+      this.metaStyle["material-color"] = color
+    }
     return color;
   }
 
@@ -17,6 +20,7 @@ export default class MetaStyle {
   clear(){
     //TODO: need to set everything back to default
     this.metaStyle = {}
+    this["material-color"] = "white";
   }
 
 }

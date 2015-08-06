@@ -121,9 +121,12 @@ class MetaVerse extends MRM.MetaBase {
 
     this.addEventListener('meta-attribute-change', function(e){
       var targetController = e.detail.controller;
-      var attrName = e.detail.attrName
 
       if (e.detail.actions.propagateMetaStyle) {
+        if (targetController.tagName === 'meta-style') {
+          this.controller.globalMetaStyle = {}
+          this.controller.updateMetaStyle(targetController.metaStyle);
+        }
         this.controller.propagateMetaStyle()
         delete e.detail.actions.propagateMetaStyle
       }

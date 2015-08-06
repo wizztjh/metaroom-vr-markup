@@ -10,6 +10,23 @@ class MetaStyleController extends MRM.MetaComponentController{
     this.setupComponent();
     this.parent = null;
     this.metaStyle = this.createGlobalMetaStyle();
+
+    var observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        this.metaStyle = this.createGlobalMetaStyle();
+        var event = new CustomEvent('meta-attribute-change', {
+          'detail': {
+            'controller': this,
+            'actions': {propagateMetaStyle: true }
+          },
+          bubbles: true
+        });
+        this.dom.dispatchEvent(event);
+      });
+    });
+    var config = { subtree: true , childList: true, characterData: true};
+    // TODO: disconnect the observer in detach
+    observer.observe(dom, config);
   }
 
   createGlobalMetaStyle(){
@@ -36,7 +53,6 @@ class MetaStyle extends MRM.MetaComponent {
     this.controller = new MetaStyleController(this);
     super.createdCallback()
   }
-
 }
 
 document.registerElement('meta-style', MetaStyle);
