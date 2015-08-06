@@ -39326,6 +39326,11 @@ var MetaComponentController = (function (_MetaBaseController) {
       return allowedkey.indexOf(attrName) != -1;
     }
   }, {
+    key: "getMetaChildren",
+    value: function getMetaChildren() {
+      return this.dom.querySelectorAll(this.metaChildrenQuerySelectorString);
+    }
+  }, {
     key: "updateChildrenDisplayInline",
     value: function updateChildrenDisplayInline() {
 
@@ -39333,8 +39338,7 @@ var MetaComponentController = (function (_MetaBaseController) {
       var parent = this;
       // TODO: only select the direct child
       // TODO: refactore this mess
-      var children = parent.dom.querySelectorAll(this.metaChildrenQuerySelectorString);
-
+      var children = this.getMetaChildren();
       var lines = [];
       var currentLine = 0;
       var currentLineWidth = 0;
@@ -40149,9 +40153,14 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
     value: function updateMetaObject() {
       var mesh = this.metaObject.mesh;
       var group = this.metaObject.group;
+      this.properties.width = this.properties.roomWidth;
+      this.properties.length = this.properties.roomLength;
+
       group.rotation.x = 270 * (Math.PI / 180);
       group.position.set(0, 0, 0);
       mesh.scale.set(this.properties.roomWidth, this.properties.roomLength, 1);
+
+      this.updateChildrenDisplayInline();
     }
   }, {
     key: "propertiesSettings",
@@ -40224,6 +40233,22 @@ var MetaFloor = (function (_MRM$MetaComponent) {
         e.stopPropagation();
         targetController.parent = this;
         this.controller.metaObject.group.add(targetController.metaObject.group);
+        this.controller.updateChildrenDisplayInline();
+      }
+    }
+  }, {
+    key: "metaChildAttributeChanged",
+    value: function metaChildAttributeChanged(e) {
+      var targetController = e.detail.controller;
+      var attrName = e.detail.attrName;
+      if (this.controller.isChildren(targetController.tagName)) {
+        if (targetController.isAllowedAttribute(attrName)) {
+          if (e.detail.actions.updateChildrenDisplayInline) {
+
+            this.controller.updateChildrenDisplayInline();
+            delete e.detail.actions.updateChildrenDisplayInline;
+          }
+        }
       }
     }
   }]);
@@ -40820,11 +40845,11 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
     value: function createMetaObject() {
       var height = 1;
       var width = 1;
-      var depth = 1;
+      var depth = 0.25;
       var texture = THREE.ImageUtils.loadTexture("img/box.png");
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(20, 20);
+      texture.repeat.set(10, 10);
 
       var geometry = new THREE.BoxGeometry(width, height, depth);
       var material = new THREE.MeshBasicMaterial({

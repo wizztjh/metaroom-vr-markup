@@ -80,14 +80,17 @@ export default class MetaComponentController extends MetaBaseController{
     return {};
   }
 
+  getMetaChildren(){
+    return this.dom.querySelectorAll(this.metaChildrenQuerySelectorString);
+  }
+
   updateChildrenDisplayInline() {
 
     // TODO: change the board to parent to make it generic
     var parent = this;
     // TODO: only select the direct child
     // TODO: refactore this mess
-    var children = parent.dom.querySelectorAll(this.metaChildrenQuerySelectorString);
-
+    var children = this.getMetaChildren()
     var lines = [];
     var currentLine = 0;
     var currentLineWidth = 0;

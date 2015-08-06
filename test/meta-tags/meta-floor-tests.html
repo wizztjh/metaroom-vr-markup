@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
+</head>
+<body>
+  <div id='fixture'>
+    <meta-floor id="meta-floor"></meta-floor>
+  </div>
+  <script>
+    describe('<meta-floor>', function() {
+      beforeEach(function(){
+        jlet("metaFloor", function(){ return document.querySelector("#meta-floor") });
+      });
+
+      shouldBehaveLikeA["MetaComponent That Triggers Event When Class Updates"]('metaFloor')
+      shouldBehaveLikeA["MetaComponent That Triggers Event When ID Updates"]('metaFloor')
+
+
+      // TODO: create unit spec for each children
+      describe('when child attribute updated and with event action', function(){
+        it("updates the child position", function(){
+          updateChildSpy = sinon.spy(J.metaFloor.controller, 'updateChildrenDisplayInline')
+
+          J.metaFloor.metaChildAttributeChanged({
+            stopPropagation: sinon.spy(),
+            detail: {
+              controller: {
+                tagName: "meta-table",
+                isAllowedAttribute: function(){ return true }
+              },
+              attrName: 'width',
+              actions: {"updateChildrenDisplayInline": true}
+            }
+          })
+
+          assert.isTrue(updateChildSpy.called);
+        });
+      });
+
+      describe("#updateChildrenDisplayInline", function(){
+        beforeEach(function(){
+          jlet("childrens", function(){
+            return [
+              {
+                controller: {
+                  properties: {
+                    width: 5,
+                    length: 4
+                  },
+                  metaObject: {
+                    mesh: {},
+                    group: {
+                      position: { x: 0, y:0 }
+                    }
+                  }
+                }
+              }
+            ]
+          })
+          sinon.stub(J.metaFloor.controller, 'getMetaChildren').returns(J.childrens)
+
+          J.metaFloor.controller.properties.width =10
+          J.metaFloor.controller.properties.length =20
+        })
+        describe("when one children", function(){
+          it("align on the top left", function(){
+            J.metaFloor.controller.updateChildrenDisplayInline()
+            expect(J.childrens[0].controller.metaObject.group.position).to.deep.equal({x: -2.5, y: 8})
+          });
+        })
+      });
+    });
+  </script>
+</body>
+</html>

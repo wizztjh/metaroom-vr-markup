@@ -51,9 +51,14 @@ class MetaFloorController extends MRM.MetaBaseWallController{
   updateMetaObject() {
     var mesh = this.metaObject.mesh;
     var group = this.metaObject.group;
+    this.properties.width = this.properties.roomWidth;
+    this.properties.length = this.properties.roomLength;
+
     group.rotation.x = 270 * (Math.PI/180);
     group.position.set(0, 0 , 0);
     mesh.scale.set(this.properties.roomWidth, this.properties.roomLength , 1);
+
+    this.updateChildrenDisplayInline();
   }
 }
 
@@ -70,6 +75,22 @@ class MetaFloor extends MRM.MetaComponent {
       e.stopPropagation();
       targetController.parent = this;
       this.controller.metaObject.group.add(targetController.metaObject.group);
+      this.controller.updateChildrenDisplayInline();
+    }
+  }
+
+  metaChildAttributeChanged(e){
+    var targetController = e.detail.controller;
+    var attrName = e.detail.attrName
+    if (this.controller.isChildren(targetController.tagName) ){
+      if(targetController.isAllowedAttribute(attrName)) {
+        if (e.detail.actions.updateChildrenDisplayInline) {
+
+          this.controller.updateChildrenDisplayInline()
+          delete e.detail.actions.updateChildrenDisplayInline
+
+        }
+      }
     }
   }
 }
