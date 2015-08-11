@@ -44249,6 +44249,7 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
     this.dom = dom;
     this.gameObject = new MRM.GameObject();
     this.globalMetaStyle = {};
+    this.ready = false;
 
     this.setupComponent();
   }
@@ -44301,6 +44302,7 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
       function dispatchWhenAllReady() {
         count--;
         if (count <= 0) {
+          metaVerse.ready = true;
           metaVerse.dom.dispatchEvent(event);
         }
       }
@@ -44324,6 +44326,9 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
     value: function propagateMetaStyle() {
       var _this2 = this;
 
+      if (this.ready === false) {
+        return;
+      }
       var globalMetaStyle = this.globalMetaStyle;
       var metaChildren = this.getAllMetaChildren();
 
@@ -44405,15 +44410,12 @@ var MetaVerse = (function (_MRM$MetaBase) {
 
       // TODO: move this to a mixin with meta component
       var targetController = e.detail.controller;
-      if (this.controller.isChildren(targetController.tagName)) {
-        _.forEach(e.detail.actions, function (value, action) {
-          if (typeof _this4.controller[action] === "function") {
-            console.log("metaAttached", _this4.controller.tagName);
-            _this4.controller[action].call(_this4.controller, targetController);
-            delete e.detail.actions[action];
-          }
-        });
-      }
+      _.forEach(e.detail.actions, function (value, action) {
+        if (typeof _this4.controller[action] === "function") {
+          _this4.controller[action].call(_this4.controller, targetController);
+          delete e.detail.actions[action];
+        }
+      });
     }
   }, {
     key: "metaDetached",
@@ -45008,7 +45010,8 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
     get: function get() {
       return {
         'attachMetaObject': true,
-        'updateChildrenDisplayInline': true
+        'updateChildrenDisplayInline': true,
+        'propagateMetaStyle': true
       };
     }
   }, {

@@ -25,7 +25,8 @@ class MetaBoardController extends MRM.MetaComponentController {
   get metaAttachedActions(){
     return {
       "attachMetaObject": true,
-      "updateChildrenDisplayInline": true
+      "updateChildrenDisplayInline": true,
+      "propagateMetaStyle": true
     }
   }
 

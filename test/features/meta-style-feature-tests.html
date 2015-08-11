@@ -140,8 +140,10 @@
         })
       });
       describe("when a new meta component is added", function(){
-        it("should apply the meta style", function(){
+        asyncBeforeEach(function(){
           J.metaWall.innerHTML = "<meta-board id='created-meta-board' class='red'></meta-board>";
+        });
+        it("should apply the meta style", function(){
           var metaBoard = J.metaVerse.querySelector("#created-meta-board")
           expect(metaBoard.controller.metaStyle['material-color']).to.equal("red");
         });

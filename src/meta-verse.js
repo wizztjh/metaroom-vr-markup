@@ -8,6 +8,7 @@ class MetaVerseController extends MRM.MetaBaseController {
     this.dom = dom;
     this.gameObject = new MRM.GameObject();
     this.globalMetaStyle = {}
+    this.ready = false;
 
     this.setupComponent();
   }
@@ -59,6 +60,7 @@ class MetaVerseController extends MRM.MetaBaseController {
     function dispatchWhenAllReady(){
       count--;
       if(count <= 0){
+        metaVerse.ready = true;
         metaVerse.dom.dispatchEvent(event);
       }
     }
@@ -79,6 +81,9 @@ class MetaVerseController extends MRM.MetaBaseController {
   }
 
   propagateMetaStyle(){
+    if (this.ready === false) {
+      return;
+    }
     var globalMetaStyle = this.globalMetaStyle
     var metaChildren = this.getAllMetaChildren();
 
@@ -133,15 +138,12 @@ class MetaVerse extends MRM.MetaBase {
   metaAttached(e) {
     // TODO: move this to a mixin with meta component
     var targetController = e.detail.controller;
-    if (this.controller.isChildren(targetController.tagName) ){
-      _.forEach(e.detail.actions, (value, action) => {
-        if (typeof this.controller[action] === 'function') {
-          console.log("metaAttached", this.controller.tagName)
-          this.controller[action].call(this.controller, targetController)
-          delete e.detail.actions[action]
-        }
-      })
-    }
+    _.forEach(e.detail.actions, (value, action) => {
+      if (typeof this.controller[action] === 'function') {
+        this.controller[action].call(this.controller, targetController)
+        delete e.detail.actions[action]
+      }
+    })
   }
 
   metaDetached(e) {
