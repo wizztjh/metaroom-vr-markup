@@ -17,6 +17,13 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
     }
   }
 
+  get metaAttachedActions(){
+    return {
+      "attachMetaObject": true,
+      "updateTableDimension": true
+    }
+  }
+
   get propertiesSettings() {
     return {
       tableWidth: {
@@ -91,6 +98,7 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
 
     this.metaObject.group.position.z = this.properties.tableHeight;
   }
+
 }
 
 class MetaTsurface extends MRM.MetaComponent {

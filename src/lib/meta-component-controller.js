@@ -39,6 +39,15 @@ export default class MetaComponentController extends MetaBaseController{
     });
   }
 
+  get metaAttachedActions(){
+    return {}
+  }
+
+  attachMetaObject(targetController){
+    targetController.parent = this
+    this.metaObject.group.add(targetController.metaObject.group)
+  }
+
   get tagName() {
     throw 'Please define a tag name';
   }

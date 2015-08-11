@@ -22,6 +22,13 @@ class MetaBoardController extends MRM.MetaComponentController {
     return "meta-board"
   }
 
+  get metaAttachedActions(){
+    return {
+      "attachMetaObject": true,
+      "updateChildrenDisplayInline": true
+    }
+  }
+
   createMetaObject(){
     var planeLength = 1;
     var planeWidth = 1;
@@ -77,17 +84,6 @@ class MetaBoard extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaBoardController(this);
     super.createdCallback();
-  }
-
-  metaAttached(e) {
-    var targetController = e.detail.controller;
-
-    if (this.controller.isChildren(targetController.tagName) ){
-      e.stopPropagation();
-      targetController.parent = this;
-      this.controller.metaObject.group.add(targetController.metaObject.group);
-      this.controller.updateChildrenDisplayInline()
-    }
   }
 
   metaDetached(e) {

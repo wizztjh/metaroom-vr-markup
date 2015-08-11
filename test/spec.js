@@ -49,6 +49,10 @@ shouldBehaveLikeA["Surface"] = function (metaObjectName, childrenTagName){
         J[metaObjectName].metaAttached({
           stopPropagation: sinon.spy(),
           detail: {
+            actions: {
+              updateChildrenDisplayInline: true,
+              attachMetaObject: true
+            },
             controller: {
               tagName: childrenTagName,
               isAllowedAttribute: function(){ return true },
@@ -110,7 +114,6 @@ shouldBehaveLikeA["Plane Adding MetaTag"] = function(metaTagName, metaParentName
     });
 
     var metaObjectUUID = J[metaTagName].controller.metaObject.group.uuid;
-
     expect(metaChildrenUUID).to.include(metaObjectUUID);
   });
 }
@@ -246,9 +249,9 @@ function inNextTick(callback){
   };
 }
 
-function asyncBeforeEach(callback){
+function asyncBeforeEach(callback, time){
   beforeEach(function(done){
     callback()
-    setTimeout(function(){ done() })
+    setTimeout(function(){ done() }, time)
   })
 }

@@ -43699,6 +43699,16 @@ var MetaBaseController = (function () {
       var template = document.importNode(owner.querySelector("#" + this.tagName).content, true);
       this.dom.appendChild(template);
     }
+  }, {
+    key: "isChildren",
+    value: function isChildren(tagName) {
+      return this.metaChildrenNames.indexOf(tagName) != -1;
+    }
+  }, {
+    key: "metaChildrenNames",
+    get: function get() {
+      return [];
+    }
   }]);
 
   return MetaBaseController;
@@ -43885,6 +43895,12 @@ var MetaComponentController = (function (_MetaBaseController) {
   _inherits(MetaComponentController, _MetaBaseController);
 
   _createClass(MetaComponentController, [{
+    key: "attachMetaObject",
+    value: function attachMetaObject(targetController) {
+      targetController.parent = this;
+      this.metaObject.group.add(targetController.metaObject.group);
+    }
+  }, {
     key: "forEachMetaChildren",
     value: function forEachMetaChildren(callback) {
       [].forEach.call(this.dom.querySelectorAll(this.metaChildrenQuerySelectorString), callback);
@@ -43968,6 +43984,11 @@ var MetaComponentController = (function (_MetaBaseController) {
       });
     }
   }, {
+    key: "metaAttachedActions",
+    get: function get() {
+      return {};
+    }
+  }, {
     key: "tagName",
     get: function get() {
       throw "Please define a tag name";
@@ -44045,7 +44066,10 @@ var MetaComponent = (function (_MetaBase) {
       this.dispatchEvent(event);
 
       var event = new CustomEvent('meta-attached', {
-        'detail': { 'controller': this.controller },
+        'detail': {
+          'controller': this.controller,
+          'actions': this.controller.metaAttachedActions
+        },
         bubbles: true
       });
       this.dispatchEvent(event);
@@ -44059,7 +44083,7 @@ var MetaComponent = (function (_MetaBase) {
       });
 
       if (this.controller.parent) {
-        this.controller.parent.dispatchEvent(event);
+        this.controller.parent.dom.dispatchEvent(event);
       } else {
         console.debug('no parent for', this.controller.tagName);
       }
@@ -44097,6 +44121,21 @@ var MetaComponent = (function (_MetaBase) {
       });
 
       this.dispatchEvent(event);
+    }
+  }, {
+    key: 'metaAttached',
+    value: function metaAttached(e) {
+      var _this = this;
+
+      var targetController = e.detail.controller;
+      if (this.controller.isChildren(targetController.tagName)) {
+        _.forEach(e.detail.actions, function (value, action) {
+          if (typeof _this.controller[action] === 'function') {
+            _this.controller[action](targetController);
+            delete e.detail.actions[action];
+          }
+        });
+      }
     }
   }]);
 
@@ -44230,9 +44269,10 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
     key: "updateMetaStyle",
 
     // TODO: rename to update global metaStyle
-    value: function updateMetaStyle(metaStyles) {
+    value: function updateMetaStyle(targetController) {
       var _this = this;
 
+      var metaStyles = targetController.metaStyle;
       if (metaStyles) {
         metaStyles.forEach(function (metaStyle) {
           metaStyle.selectors.forEach(function (selector) {
@@ -44314,6 +44354,22 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
         }
       });
     }
+  }, {
+    key: "attachMetaObject",
+    value: function attachMetaObject(targetController) {
+      targetController.parent = this;
+      this.gameObject.add(targetController.metaObject);
+    }
+  }, {
+    key: "tagName",
+    get: function get() {
+      return "meta-verse";
+    }
+  }, {
+    key: "metaChildrenNames",
+    get: function get() {
+      return ["meta-style", "meta-room"];
+    }
   }]);
 
   return MetaVerseController;
@@ -44345,14 +44401,18 @@ var MetaVerse = (function (_MRM$MetaBase) {
   }, {
     key: "metaAttached",
     value: function metaAttached(e) {
-      var controller = e.detail.controller;
+      var _this4 = this;
 
-      controller.parent = this;
-      //TODO: need to find a better way to store the objects, it should be tree form
-      if (controller.tagName == "meta-room") {
-        this.controller.gameObject.add(controller.metaObject);
-      } else if (controller.tagName == "meta-style") {
-        this.controller.updateMetaStyle(controller.metaStyle);
+      // TODO: move this to a mixin with meta component
+      var targetController = e.detail.controller;
+      if (this.controller.isChildren(targetController.tagName)) {
+        _.forEach(e.detail.actions, function (value, action) {
+          if (typeof _this4.controller[action] === "function") {
+            console.log("metaAttached", _this4.controller.tagName);
+            _this4.controller[action].call(_this4.controller, targetController);
+            delete e.detail.actions[action];
+          }
+        });
       }
     }
   }, {
@@ -44372,7 +44432,7 @@ var MetaVerse = (function (_MRM$MetaBase) {
       if (e.detail.actions.propagateMetaStyle) {
         if (targetController.tagName === "meta-style") {
           this.controller.globalMetaStyle = {};
-          this.controller.updateMetaStyle(targetController.metaStyle);
+          this.controller.updateMetaStyle(targetController);
         }
         this.controller.propagateMetaStyle();
         delete e.detail.actions.propagateMetaStyle;
@@ -44422,6 +44482,20 @@ var MetaRoomController = (function (_MRM$MetaComponentController) {
 
       return {
         group: group
+      };
+    }
+  }, {
+    key: 'assignRoomDimension',
+    value: function assignRoomDimension(targetController) {
+      targetController.properties.roomWidth = this.properties.width;
+      targetController.properties.roomHeight = this.properties.height;
+      targetController.properties.roomLength = this.properties.length;
+    }
+  }, {
+    key: 'metaAttachedActions',
+    get: function get() {
+      return {
+        attachMetaObject: true
       };
     }
   }, {
@@ -44493,20 +44567,6 @@ var MetaRoom = (function (_MRM$MetaComponent) {
     value: function createdCallback() {
       this.controller = new MetaRoomController(this);
       _get(Object.getPrototypeOf(MetaRoom.prototype), 'createdCallback', this).call(this);
-    }
-  }, {
-    key: 'metaAttached',
-    value: function metaAttached(e) {
-      var targetController = e.detail.controller;
-      if (this.controller.isChildren(targetController.tagName)) {
-        e.stopPropagation();
-        targetController.parent = this;
-        this.controller.metaObject.group.add(targetController.metaObject.group);
-
-        targetController.properties.roomWidth = this.controller.properties.width;
-        targetController.properties.roomHeight = this.controller.properties.height;
-        targetController.properties.roomLength = this.controller.properties.length;
-      }
     }
   }, {
     key: 'metaDetached',
@@ -44650,6 +44710,14 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
       };
     }
   }, {
+    key: "metaAttachedActions",
+    get: function get() {
+      return {
+        attachMetaObject: true,
+        assignRoomDimension: true
+      };
+    }
+  }, {
     key: "eventActionSettings",
     get: function get() {
       return {
@@ -44683,17 +44751,6 @@ var MetaWall = (function (_MRM$MetaComponent) {
     value: function createdCallback() {
       this.controller = new MetaWallController(this);
       _get(Object.getPrototypeOf(MetaWall.prototype), "createdCallback", this).call(this);
-    }
-  }, {
-    key: "metaAttached",
-    value: function metaAttached(e) {
-      var targetController = e.detail.controller;
-      if (this.controller.isChildren(targetController.tagName)) {
-        e.stopPropagation();
-        targetController.parent = this;
-        this.controller.metaObject.group.add(targetController.metaObject.group);
-        this.controller.updateChildrenDisplayInline();
-      }
     }
   }, {
     key: "metaDetached",
@@ -44774,6 +44831,14 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
       this.updateChildrenDisplayInline();
     }
   }, {
+    key: "metaAttachedActions",
+    get: function get() {
+      return {
+        attachMetaObject: true,
+        assignRoomDimension: true
+      };
+    }
+  }, {
     key: "propertiesSettings",
     get: function get() {
       return {
@@ -44834,18 +44899,6 @@ var MetaFloor = (function (_MRM$MetaComponent) {
     value: function createdCallback() {
       this.controller = new MetaFloorController(this);
       _get(Object.getPrototypeOf(MetaFloor.prototype), "createdCallback", this).call(this);
-    }
-  }, {
-    key: "metaAttached",
-    value: function metaAttached(e) {
-      var targetController = e.detail.controller;
-
-      if (this.controller.isChildren(targetController.tagName)) {
-        e.stopPropagation();
-        targetController.parent = this;
-        this.controller.metaObject.group.add(targetController.metaObject.group);
-        this.controller.updateChildrenDisplayInline();
-      }
     }
   }, {
     key: "metaChildAttributeChanged",
@@ -44951,6 +45004,14 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
       return 'meta-board';
     }
   }, {
+    key: 'metaAttachedActions',
+    get: function get() {
+      return {
+        'attachMetaObject': true,
+        'updateChildrenDisplayInline': true
+      };
+    }
+  }, {
     key: 'metaChildrenNames',
     get: function get() {
       return ['meta-text', 'meta-picture', 'meta-table'];
@@ -44984,18 +45045,6 @@ var MetaBoard = (function (_MRM$MetaComponent) {
     value: function createdCallback() {
       this.controller = new MetaBoardController(this);
       _get(Object.getPrototypeOf(MetaBoard.prototype), 'createdCallback', this).call(this);
-    }
-  }, {
-    key: 'metaAttached',
-    value: function metaAttached(e) {
-      var targetController = e.detail.controller;
-
-      if (this.controller.isChildren(targetController.tagName)) {
-        e.stopPropagation();
-        targetController.parent = this;
-        this.controller.metaObject.group.add(targetController.metaObject.group);
-        this.controller.updateChildrenDisplayInline();
-      }
     }
   }, {
     key: 'metaDetached',
@@ -45096,6 +45145,14 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
         width: { type: Number, 'default': 1, attrName: 'width' },
         length: { type: Number, 'default': 1, attrName: 'length' },
         src: { type: String, 'default': '', attrName: 'src' }
+      };
+    }
+  }, {
+    key: 'metaAttachedActions',
+    get: function get() {
+      return {
+        attachMetaObject: true,
+        updateChildrenDisplayInline: true
       };
     }
   }, {
@@ -45231,6 +45288,14 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
       };
     }
   }, {
+    key: 'metaAttachedActions',
+    get: function get() {
+      return {
+        'attachMetaObject': true,
+        'updateChildrenDisplayInline': true
+      };
+    }
+  }, {
     key: 'tagName',
     get: function get() {
       return 'meta-text';
@@ -45300,6 +45365,21 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
 
       return {
         group: group
+      };
+    }
+  }, {
+    key: "updateTableDimension",
+    value: function updateTableDimension(targetController) {
+      targetController.properties.tableWidth = this.properties.width;
+      targetController.properties.tableHeight = this.properties.height;
+      targetController.properties.tableLength = this.properties.length;
+    }
+  }, {
+    key: "metaAttachedActions",
+    get: function get() {
+      return {
+        "attachMetaObject": true,
+        "updateChildrenDisplayInline": true
       };
     }
   }, {
@@ -45379,23 +45459,6 @@ var MetaTable = (function (_MRM$MetaComponent) {
     value: function createdCallback() {
       this.controller = new MetaTableController(this);
       _get(Object.getPrototypeOf(MetaTable.prototype), "createdCallback", this).call(this);
-    }
-  }, {
-    key: "metaAttached",
-
-    //TODO: refactor this
-    value: function metaAttached(e) {
-      var targetController = e.detail.controller;
-
-      if (this.controller.isChildren(targetController.tagName)) {
-        e.stopPropagation();
-        targetController.parent = this;
-        this.controller.metaObject.group.add(targetController.metaObject.group);
-
-        targetController.properties.tableWidth = this.controller.properties.width;
-        targetController.properties.tableHeight = this.controller.properties.height;
-        targetController.properties.tableLength = this.controller.properties.length;
-      }
     }
   }, {
     key: "metaDetached",
@@ -45492,6 +45555,14 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
       return {
         "class": ["propagateMetaStyle"],
         "id": ["propagateMetaStyle"]
+      };
+    }
+  }, {
+    key: "metaAttachedActions",
+    get: function get() {
+      return {
+        "attachMetaObject": true,
+        "updateTableDimension": true
       };
     }
   }, {
@@ -50071,6 +50142,13 @@ var MetaStyleController = (function (_MRM$MetaBaseController) {
       return parsedCSS.stylesheet.rules;
     }
   }, {
+    key: 'metaAttachedActions',
+    get: function get() {
+      return {
+        updateMetaStyle: true
+      };
+    }
+  }, {
     key: 'propertiesSettings',
     get: function get() {
       return {};
@@ -50108,7 +50186,10 @@ var MetaStyle = (function (_MRM$MetaBase) {
       this.dispatchEvent(event);
 
       var event = new CustomEvent('meta-attached', {
-        'detail': { 'controller': this.controller },
+        'detail': {
+          'controller': this.controller,
+          'actions': this.controller.metaAttachedActions
+        },
         bubbles: true
       });
       this.dispatchEvent(event);

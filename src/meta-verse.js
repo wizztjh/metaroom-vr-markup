@@ -12,6 +12,14 @@ class MetaVerseController extends MRM.MetaBaseController {
     this.setupComponent();
   }
 
+  get tagName(){
+    return "meta-verse"
+  }
+
+  get metaChildrenNames(){
+    return ["meta-style", "meta-room"]
+  }
+
   setupComponent() {
     var template = owner.querySelector("#meta-verse").content.cloneNode(true);
 
@@ -22,7 +30,8 @@ class MetaVerseController extends MRM.MetaBaseController {
   }
 
   // TODO: rename to update global metaStyle
-  updateMetaStyle(metaStyles) {
+  updateMetaStyle(targetController) {
+    var metaStyles = targetController.metaStyle
     if(metaStyles){
       metaStyles.forEach((metaStyle) => {
         metaStyle.selectors.forEach((selector) => {
@@ -102,6 +111,11 @@ class MetaVerseController extends MRM.MetaBaseController {
 
   }
 
+  attachMetaObject(targetController){
+    targetController.parent = this
+    this.gameObject.add(targetController.metaObject);
+  }
+
 }
 
 class MetaVerse extends MRM.MetaBase {
@@ -116,15 +130,17 @@ class MetaVerse extends MRM.MetaBase {
     this.controller.triggerMetaReady()
   }
 
-  metaAttached(e){
-    var controller = e.detail.controller;
-
-    controller.parent = this;
-    //TODO: need to find a better way to store the objects, it should be tree form
-    if(controller.tagName == 'meta-room') {
-      this.controller.gameObject.add(controller.metaObject);
-    } else if(controller.tagName == 'meta-style') {
-      this.controller.updateMetaStyle(controller.metaStyle);
+  metaAttached(e) {
+    // TODO: move this to a mixin with meta component
+    var targetController = e.detail.controller;
+    if (this.controller.isChildren(targetController.tagName) ){
+      _.forEach(e.detail.actions, (value, action) => {
+        if (typeof this.controller[action] === 'function') {
+          console.log("metaAttached", this.controller.tagName)
+          this.controller[action].call(this.controller, targetController)
+          delete e.detail.actions[action]
+        }
+      })
     }
   }
 
@@ -142,7 +158,7 @@ class MetaVerse extends MRM.MetaBase {
     if (e.detail.actions.propagateMetaStyle) {
       if (targetController.tagName === 'meta-style') {
         this.controller.globalMetaStyle = {}
-        this.controller.updateMetaStyle(targetController.metaStyle);
+        this.controller.updateMetaStyle(targetController);
       }
       this.controller.propagateMetaStyle()
       delete e.detail.actions.propagateMetaStyle

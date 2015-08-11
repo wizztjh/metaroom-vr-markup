@@ -40,6 +40,10 @@
         #back-meta-wall {
           material-color: black;
         }
+
+        .red {
+          material-color: red;
+        }
       </meta-style>
 
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
@@ -135,7 +139,13 @@
           expect(material.color.b).to.equal(1);
         })
       });
-
+      describe("when a new meta component is added", function(){
+        it("should apply the meta style", function(){
+          J.metaWall.innerHTML = "<meta-board id='created-meta-board' class='red'></meta-board>";
+          var metaBoard = J.metaVerse.querySelector("#created-meta-board")
+          expect(metaBoard.controller.metaStyle['material-color']).to.equal("red");
+        });
+      });
     });
   </script>
 </body>

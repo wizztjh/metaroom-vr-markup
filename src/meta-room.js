@@ -9,6 +9,12 @@ class MetaRoomController extends MRM.MetaComponentController{
     this.metaObject = this.createMetaObject();
   }
 
+  get metaAttachedActions(){
+    return {
+      attachMetaObject: true
+    }
+  }
+
   get propertiesSettings() {
     return {
       width: {
@@ -59,6 +65,12 @@ class MetaRoomController extends MRM.MetaComponentController{
   get metaChildrenNames(){
     return ["meta-wall", "meta-floor"]
   }
+
+  assignRoomDimension(targetController){
+    targetController.properties.roomWidth = this.properties.width
+    targetController.properties.roomHeight = this.properties.height
+    targetController.properties.roomLength = this.properties.length
+  }
 }
 
 //TODO: create a unit spec for MetaRoom
@@ -66,19 +78,6 @@ class MetaRoom extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaRoomController(this);
     super.createdCallback()
-  }
-
-  metaAttached(e) {
-    var targetController = e.detail.controller;
-    if (this.controller.isChildren(targetController.tagName) ){
-      e.stopPropagation();
-      targetController.parent = this;
-      this.controller.metaObject.group.add(targetController.metaObject.group);
-
-      targetController.properties.roomWidth = this.controller.properties.width
-      targetController.properties.roomHeight = this.controller.properties.height
-      targetController.properties.roomLength = this.controller.properties.length
-    }
   }
 
   metaDetached(e) {

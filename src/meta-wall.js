@@ -35,6 +35,13 @@ class MetaWallController extends MRM.MetaBaseWallController{
     };
   }
 
+  get metaAttachedActions(){
+    return {
+      attachMetaObject: true,
+      assignRoomDimension: true
+    }
+  }
+
   get eventActionSettings(){
     return {
       "width": ["updateChildrenDisplayInline"],
@@ -119,16 +126,6 @@ class MetaWall extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaWallController(this);
     super.createdCallback();
-  }
-
-  metaAttached(e) {
-    var targetController = e.detail.controller;
-    if (this.controller.isChildren(targetController.tagName) ){
-      e.stopPropagation();
-      targetController.parent = this;
-      this.controller.metaObject.group.add(targetController.metaObject.group);
-      this.controller.updateChildrenDisplayInline()
-    }
   }
 
   metaDetached(e) {

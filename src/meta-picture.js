@@ -18,6 +18,13 @@ class MetaPictureController extends MRM.MetaComponentController {
     }
   }
 
+  get metaAttachedActions(){
+    return {
+      attachMetaObject: true,
+      updateChildrenDisplayInline: true
+    }
+  }
+
   get tagName() {
     return "meta-picture"
   }

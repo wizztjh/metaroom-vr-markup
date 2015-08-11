@@ -7,7 +7,10 @@ export default class MetaComponent extends MetaBase{
     this.dispatchEvent(event);
 
     var event = new CustomEvent('meta-attached', {
-      'detail': {'controller': this.controller},
+      'detail': {
+        'controller': this.controller,
+        'actions': this.controller.metaAttachedActions
+      },
       bubbles: true
     });
     this.dispatchEvent(event);
@@ -20,7 +23,7 @@ export default class MetaComponent extends MetaBase{
     });
 
     if(this.controller.parent) {
-      this.controller.parent.dispatchEvent(event);
+      this.controller.parent.dom.dispatchEvent(event);
     } else {
       console.debug('no parent for', this.controller.tagName)
     }
@@ -58,4 +61,17 @@ export default class MetaComponent extends MetaBase{
 
     this.dispatchEvent(event);
   }
+
+  metaAttached(e) {
+    var targetController = e.detail.controller;
+    if (this.controller.isChildren(targetController.tagName) ){
+      _.forEach(e.detail.actions, (value, action) => {
+        if (typeof this.controller[action] === 'function') {
+          this.controller[action](targetController)
+          delete e.detail.actions[action]
+        }
+      })
+    }
+  }
+
 }

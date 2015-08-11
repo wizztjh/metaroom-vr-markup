@@ -9,6 +9,12 @@ class MetaFloorController extends MRM.MetaBaseWallController{
 
     this.updateMetaObject();
   }
+  get metaAttachedActions(){
+    return {
+      attachMetaObject: true,
+      assignRoomDimension: true
+    }
+  }
 
   get propertiesSettings(){
     return {
@@ -66,17 +72,6 @@ class MetaFloor extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaFloorController(this);
     super.createdCallback();
-  }
-
-  metaAttached(e) {
-    var targetController = e.detail.controller;
-
-    if (this.controller.isChildren(targetController.tagName) ){
-      e.stopPropagation();
-      targetController.parent = this;
-      this.controller.metaObject.group.add(targetController.metaObject.group);
-      this.controller.updateChildrenDisplayInline();
-    }
   }
 
   metaChildAttributeChanged(e){

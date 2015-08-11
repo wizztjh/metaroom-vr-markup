@@ -6,4 +6,12 @@ export default class MetaBaseController{
     var template = document.importNode( owner.querySelector("#" + this.tagName).content, true)
     this.dom.appendChild(template);
   }
+
+  isChildren(tagName){
+    return this.metaChildrenNames.indexOf(tagName) != -1;
+  }
+
+  get metaChildrenNames(){
+    return []
+  }
 }

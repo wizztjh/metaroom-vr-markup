@@ -26,6 +26,12 @@ class MetaStyleController extends MRM.MetaBaseController{
     this.mutationObserver.observe(dom, { subtree: true , childList: true, characterData: true});
   }
 
+  get metaAttachedActions(){
+    return {
+      updateMetaStyle: true
+    }
+  }
+
   createGlobalMetaStyle(){
     var parsedCSS = CSS.parse(this.dom.textContent);
     return parsedCSS.stylesheet.rules;
@@ -52,7 +58,10 @@ class MetaStyle extends MRM.MetaBase {
     this.dispatchEvent(event);
 
     var event = new CustomEvent('meta-attached', {
-      'detail': {'controller': this.controller},
+      'detail': {
+        'controller': this.controller,
+        'actions': this.controller.metaAttachedActions
+      },
       bubbles: true
     });
     this.dispatchEvent(event);

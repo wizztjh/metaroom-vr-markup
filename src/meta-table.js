@@ -18,6 +18,13 @@ class MetaTableController extends MRM.MetaComponentController{
     }
   }
 
+  get metaAttachedActions(){
+    return {
+      "attachMetaObject": true,
+      "updateChildrenDisplayInline": true
+    }
+  }
+
   get eventActionSettings(){
     return {
       "width": ["updateChildrenDisplayInline"],
@@ -69,27 +76,18 @@ class MetaTableController extends MRM.MetaComponentController{
   get metaChildrenNames(){
     return ['meta-tsurface']
   }
+
+  updateTableDimension(targetController){
+    targetController.properties.tableWidth = this.properties.width
+    targetController.properties.tableHeight = this.properties.height
+    targetController.properties.tableLength = this.properties.length
+  }
 }
 
 class MetaTable extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaTableController(this);
     super.createdCallback()
-  }
-
-  //TODO: refactor this
-  metaAttached(e) {
-    var targetController = e.detail.controller;
-
-    if (this.controller.isChildren(targetController.tagName) ){
-      e.stopPropagation();
-      targetController.parent = this;
-      this.controller.metaObject.group.add(targetController.metaObject.group);
-
-      targetController.properties.tableWidth = this.controller.properties.width
-      targetController.properties.tableHeight = this.controller.properties.height
-      targetController.properties.tableLength = this.controller.properties.length
-    }
   }
 
   metaDetached(e) {
