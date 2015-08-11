@@ -27,22 +27,25 @@
         }
 
         #main-tsurface{
-          material-color: magenta;
+          material-color: #8D6E63;
         }
 
         #left-wall{
-          material-color: chocolate;
+          material-color: #d3d3d3;
         }
 
         .chocolate{
-          material-color: chocolate;
+          material-color: #795548;
+        }
+        .red-wall {
+          meterial-color: #FF8A65;
         }
       </meta-style>
 
-      <meta-room width='10' height='10' length='20'>
+      <meta-room width='30' height='15' length='20'>
         <!-- maybe we should make all the left wall and right wall to meta&#45;wall with left , right, top , floor alignement -->
 
-        <meta-wall align='left' id='left-wall'>
+        <meta-wall align='left' class='red-wall'>
           <meta-picture src='img/VRcollab.png' width='6' length='2'></meta-picture>
           <meta-picture src='img/VRcollab.png' width='4' length='2'></meta-picture>
           <meta-board id='vrcollab-poster' width='6' length='3'>
@@ -54,7 +57,7 @@
           <meta-picture id="that-pic" class="pretty-pic" src='img/VRcollab.png' width='5' length='2'></meta-picture>
         </meta-wall>
 
-        <meta-wall align='right'>
+        <meta-wall align='right' class='red-wall'>
           <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
           <meta-html>
             <img src='img/VRcollab.png'/>
@@ -62,18 +65,18 @@
           </meta-html>
         </meta-wall>
 
-        <meta-wall align='front'>
+        <meta-wall align='front' class='red-wall'>
           <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
         </meta-wall>
-        <meta-wall align='back'>
-          <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
-        </meta-wall>
-
-        <meta-wall align='ceiling'>
+        <meta-wall align='back' class='red-wall'>
           <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
         </meta-wall>
 
-        <meta-floor>
+        <meta-wall align='ceiling' class='red-wall'>
+          <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
+        </meta-wall>
+
+        <meta-floor class='red-wall'>
 
           <meta-table width='5' length='4' height='3' meta-style='table-padding: 1'>
 
