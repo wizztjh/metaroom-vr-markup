@@ -3,7 +3,7 @@ var owner = (document._currentScript || document.currentScript).ownerDocument;
 
 import CSS from 'css'
 
-class MetaStyleController extends MRM.MetaComponentController{
+class MetaStyleController extends MRM.MetaBaseController{
   constructor(dom){
     super(dom);
     this.dom = dom;
@@ -45,14 +45,38 @@ class MetaStyleController extends MRM.MetaComponentController{
   }
 }
 
-class MetaStyle extends MRM.MetaComponent {
+class MetaStyle extends MRM.MetaBase {
+  // TODO: refactor attachedCallback and detachedCallback to a Behavior shared by MetaStyle and MetaComponent
+  attachedCallback() {
+    var event = new CustomEvent('meta-ready', {});
+    this.dispatchEvent(event);
+
+    var event = new CustomEvent('meta-attached', {
+      'detail': {'controller': this.controller},
+      bubbles: true
+    });
+    this.dispatchEvent(event);
+  }
+
+  detachedCallback() {
+    var event = new CustomEvent('meta-detached', {
+      'detail': {'controller': this.controller},
+      bubbles: true
+    });
+
+    if(this.controller.parent) {
+      this.controller.parent.dispatchEvent(event);
+    } else {
+      console.debug('no parent for', this.controller.tagName)
+    }
+  }
+
   createdCallback() {
     this.controller = new MetaStyleController(this);
     super.createdCallback()
   }
 
   detachedCallback(){
-    super.detachedCallback()
     // TODO: write test for this
     this.controller.mutationObserver.disconnect();
   }

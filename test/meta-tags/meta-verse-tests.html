@@ -30,6 +30,12 @@
         expect(J.metaVerse.querySelector("canvas#hpml-webgl-canvas")).not.to.be.null;
       });
 
+      describe("#propagateMetaStyle", function () {
+        it("prioritize id over tag selector");
+        it("prioritize class over tag selector");
+        it("prioritize meta-style attribute over tag selector");
+      })
+
       describe("#triggerMetaReady", function(){
         it("triggers meta-ready when all children is ready", function(){
           var addEventListenerStub1 = sinon.stub()

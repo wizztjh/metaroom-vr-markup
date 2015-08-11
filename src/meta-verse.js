@@ -90,8 +90,16 @@ class MetaVerseController extends MRM.MetaBaseController {
           metaComponent.controller.metaStyle[property] = metaStyleProperties[property]
         });
       })
+    });
 
-    })
+    [].forEach.call(metaChildren, function(metaTag){
+      if(metaTag.controller) {
+        if(metaTag.controller.metaStyle.applyMetaStyleAttribute){
+          metaTag.controller.metaStyle.applyMetaStyleAttribute()
+        }
+      }
+    });
+
   }
 
 }

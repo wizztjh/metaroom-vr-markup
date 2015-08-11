@@ -17,7 +17,8 @@
   ],
   "dependencies": {
     "webcomponentsjs": "*",
-    "web-component-tester": "Polymer/web-component-tester#~3.2.0"
+    "web-component-tester": "Polymer/web-component-tester#~3.2.0",
+    "lodash": "~3.10.1"
   },
   "devDependencies": {
     "polymer": "Polymer/polymer#^1.0.0",

@@ -1,3 +1,5 @@
+import CSS from 'css'
+
 export default class MetaStyle {
   constructor (controller){
     this.metaStyle={}
@@ -20,7 +22,22 @@ export default class MetaStyle {
   clear(){
     //TODO: need to set everything back to default
     this.metaStyle = {}
-    this["material-color"] = "white";
+    this["material-color"] = 'white';
+  }
+
+  applyMetaStyleAttribute(){
+    var metaStyleAttribute = this.controller.dom.getAttribute('meta-style');
+    if (!metaStyleAttribute) {
+      return
+    }
+    var cssString = `body {${metaStyleAttribute}}`
+    var parsedCSSRules = CSS.parse(cssString).stylesheet.rules;
+    var declarations = parsedCSSRules[0].declarations
+
+    _.forEach(declarations, (declaration) => {
+      this[declaration.property] = declaration.value
+    })
+
   }
 
 }

@@ -31,23 +31,28 @@
         .pretty-tsurface{
           material-color: red;
         }
-        .blue-right-wall{
+        .blue-wall{
           material-color: magenta;
         }
         .yellow-right-wall{
           material-color: yellow;
         }
+        #back-meta-wall {
+          material-color: black;
+        }
       </meta-style>
 
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
         <meta-floor id='main-meta-floor'>
+          <meta-board id='meta-board-styled-by-attribute' meta-style='material-color: tango'></meta-board>
           <meta-picture id='that-wall' class='pretty-wall' ></meta-picture>
           <meta-table width='3' height='4' length='2' id='main-meta-table'>
             <meta-tsurface id="main-meta-tsurface" class="pretty-tsurface"></meta-tsurface>
           </meta-table>
         </meta-floor>
         <meta-wall align='left' id='main-meta-wall'></meta-wall>
-        <meta-wall class='blue-right-wall' align='right' id='right-meta-wall'></meta-wall>
+        <meta-wall class='blue-wall' align='right' id='right-meta-wall'></meta-wall>
+        <meta-wall class='blue-wall' align='back' meta-style='material-color: red;' id='back-meta-wall'></meta-wall>
       </meta-room>
 
     </meta-verse>
@@ -62,23 +67,38 @@
         jlet('metaTable', function(){ return document.querySelector('#main-meta-table')});
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
         jlet('metaPicture', function(){ return document.querySelector('#that-wall')});
+        jlet('metaBoardStyledByAttribute', function(){ return document.querySelector('#meta-board-styled-by-attribute')});
         jlet('metaTsurface', function(){ return document.querySelector('#main-meta-tsurface')});
         jlet('metaRightWall', function(){ return document.querySelector('#right-meta-wall')});
         jlet('metaStyle', function(){ return document.querySelector('#main-meta-style')});
-
+        jlet('metaBackWall', function(){ return document.querySelector('#back-meta-wall')});
       });
 
-      it("follows css priority", function(){
-        expect((J.metaPicture.controller.metaStyle["material-color"])).to.equal("yellow");
-      });
+      describe('css priority', function(){
+
+        it("prioritize id over class", function(){
+          expect((J.metaPicture.controller.metaStyle["material-color"])).to.equal("yellow");
+        });
+
+        it("prioritize meta-style attribute over class and id", function(){
+          expect((J.metaBackWall.controller.metaStyle["material-color"])).to.equal("red");
+        });
+      })
 
       describe("with id selector", function(){
-        it("it applies the meta-style to the meta component", function(){
+        it("applies the meta-style to the meta component", function(){
           // NOTE: we do metaStyle.metaStyle because that is the object that contain the meta style properties and value
           expect(Object.keys(J.metaWall.controller.metaStyle.metaStyle).length).to.equal(1)
           expect(J.metaWall.controller.metaStyle["material-color"]).to.equal('red');
         });
       });
+
+      describe("meta-style attribute", function() {
+        it("applies meta-style attribute to meta-component", function() {
+          expect(Object.keys(J.metaBoardStyledByAttribute.controller.metaStyle.metaStyle).length).to.equal(1)
+          expect(J.metaBoardStyledByAttribute.controller.metaStyle["material-color"]).to.equal('tango');
+        })
+      })
 
       describe("set the material-color", function(){
         it("changes the tsurface mesh color", function(){
