@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
+</head>
+<body>
+  <div id='fixture'>
+    <meta-tbottom id="meta-tbottom"></meta-tbottom>
+  </div>
+  <script>
+    describe('<meta-tbottom>', function() {
+      beforeEach(function(){
+        jlet("metaTbottom", function(){ return document.querySelector("#meta-tbottom") });
+        jlet("metaTbottomController", function(){ return J.metaTbottom.controller});
+        jlet("metaTbottomMetaObject", function(){ return J.metaTbottomController.metaObject});
+      });
+
+      shouldBehaveLikeA["MetaComponent That Triggers Event When Class Updates"]('metaTbottom')
+      shouldBehaveLikeA["MetaComponent That Triggers Event When ID Updates"]('metaTbottom');
+
+      describe("when initilize", function(){
+        it("added a box to the group", function(){
+          expect(J.metaTbottomMetaObject.group.children[0].uuid).to.equal(J.metaTbottomMetaObject.mesh.uuid)
+          expect(J.metaTbottomMetaObject.mesh.geometry.type).to.equal("BoxGeometry")
+        });
+      });
+
+      describe("when table's width is updated", function(){
+        it("updates the mesh scale", function(){
+          J.metaTbottomController.properties.tableWidth = 4
+          expect(J.metaTbottomMetaObject.mesh.scale.x).to.equal(4);
+        });
+      })
+
+      describe("when table's height is updated", function(){
+        it("updates the position", function(){
+          J.metaTbottomController.properties.tableHeight = 5;
+          // expect(J.metaTbottomMetaObject.group.position.y).to.equal(5);
+          expect(J.metaTbottomMetaObject.mesh.scale.z).to.equal(5);
+        });
+      })
+
+      describe("when table's length is updated", function(){
+        it("updates the mesh scale", function(){
+          J.metaTbottomController.properties.tableLength = 5
+          // expect(J.metaTbottomMetaObject.mesh.scale.z).to.equal(5);
+          expect(J.metaTbottomMetaObject.group.position.y).to.equal(-2.5);
+        });
+      })
+
+      describe("when retriggerMetaAttach is called", function(){
+        it("decrements the retriggerCount", function(){
+          expect(J.metaTbottomController.retriggerCount).to.equal(1);
+          J.metaTbottomController.retriggerMetaAttach();
+          expect(J.metaTbottomController.retriggerCount).to.equal(0);
+        });
+        it("triggers metaAttached event", function(){
+          var metaAttachedSpy = sinon.spy();
+          J.metaTbottom.addEventListener( "meta-attached", metaAttachedSpy, false )
+          J.metaTbottomController.retriggerMetaAttach();
+          expect(metaAttachedSpy).to.have.been.called;
+        });
+      });
+
+    });
+  </script>
+</body>
+</html>

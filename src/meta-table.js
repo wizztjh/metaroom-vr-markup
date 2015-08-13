@@ -74,7 +74,7 @@ class MetaTableController extends MRM.MetaComponentController{
   }
 
   get metaChildrenNames(){
-    return ['meta-tsurface']
+    return ['meta-tsurface', 'meta-tbottom']
   }
 
   updateTableDimension(targetController){
