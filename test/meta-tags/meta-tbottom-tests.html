@@ -56,59 +56,50 @@
       })
 
       describe("align", function(){
+
+        function shouldBehaveLikeATbottomWithAlignment(align, metaObjectProperties) {
+          describe("", function(){
+            beforeEach(function(){
+              J.metaTbottom.setAttribute('align', align);
+            });
+            it("updates the mesh position", function(){
+              expect(J.metaTbottomMetaObject.group.position.y).to.equal(metaObjectProperties.position.y);
+              expect(J.metaTbottomMetaObject.group.position.z).to.equal(metaObjectProperties.position.z);
+              expect(J.metaTbottomMetaObject.group.position.x).to.equal(metaObjectProperties.position.x);
+            });
+
+            it("updates the mesh scale", function(){
+              expect(J.metaTbottomMetaObject.mesh.scale.x).to.equal(metaObjectProperties.scale.x);
+              expect(J.metaTbottomMetaObject.mesh.scale.y).to.equal(metaObjectProperties.scale.y);
+              expect(J.metaTbottomMetaObject.mesh.scale.z).to.equal(metaObjectProperties.scale.z);
+            });
+          })
+        }
+
         describe("when set to left", function(){
           beforeEach(function(){
-            J.metaTbottom.setAttribute('align','left');
             J.metaTbottomController.properties.tableLength = 7
             J.metaTbottomController.properties.tableHeight = 8
             J.metaTbottomController.properties.tableWidth = 9
           });
-          it("updates the mesh position", function(){
-            expect(J.metaTbottomMetaObject.group.position.y).to.equal(0);
-            expect(J.metaTbottomMetaObject.group.position.z).to.equal(4);
-            expect(J.metaTbottomMetaObject.group.position.x).to.equal(-4.5);
-          });
-          it("updates the mesh scale", function(){
-            expect(J.metaTbottomMetaObject.mesh.scale.x).to.equal(7);
-            expect(J.metaTbottomMetaObject.mesh.scale.y).to.equal(0.1);
-            expect(J.metaTbottomMetaObject.mesh.scale.z).to.equal(8);
-          });
+          shouldBehaveLikeATbottomWithAlignment('left', {position: {x: -4.5, y: 0, z: 4}, scale: {x: 7, y: 0.1, z: 8}})
+
         });
         describe("when set to right", function(){
           beforeEach(function(){
-            J.metaTbottom.setAttribute('align','right');
             J.metaTbottomController.properties.tableLength = 4
             J.metaTbottomController.properties.tableHeight = 5
             J.metaTbottomController.properties.tableWidth = 6
           });
-          it("updates the mesh position", function(){
-            expect(J.metaTbottomMetaObject.group.position.y).to.equal(0);
-            expect(J.metaTbottomMetaObject.group.position.z).to.equal(2.5);
-            expect(J.metaTbottomMetaObject.group.position.x).to.equal(3);
-          })
-          it("updates the mesh scale", function(){
-            expect(J.metaTbottomMetaObject.mesh.scale.x).to.equal(4);
-            expect(J.metaTbottomMetaObject.mesh.scale.y).to.equal(0.1);
-            expect(J.metaTbottomMetaObject.mesh.scale.z).to.equal(5);
-          });
+          shouldBehaveLikeATbottomWithAlignment('right', {position: {x: 3, y: 0, z: 2.5}, scale: {x: 4, y: 0.1, z: 5}})
         })
         describe("when set to back", function(){
           beforeEach(function(){
-            J.metaTbottom.setAttribute('align','back');
             J.metaTbottomController.properties.tableLength = 5
             J.metaTbottomController.properties.tableHeight = 6
             J.metaTbottomController.properties.tableWidth = 7
           });
-          it("updates the mesh position", function(){
-            expect(J.metaTbottomMetaObject.group.position.y).to.equal(2.5);
-            expect(J.metaTbottomMetaObject.group.position.z).to.equal(3);
-            expect(J.metaTbottomMetaObject.group.position.x).to.equal(0);
-          });
-          it("updates the mesh scale", function(){
-            expect(J.metaTbottomMetaObject.mesh.scale.x).to.equal(7);
-            expect(J.metaTbottomMetaObject.mesh.scale.y).to.equal(0.1);
-            expect(J.metaTbottomMetaObject.mesh.scale.z).to.equal(6);
-          });
+          shouldBehaveLikeATbottomWithAlignment('back', {position: {x: 0, y: 2.5, z: 3}, scale: {x: 7, y: 0.1, z: 6}})
         });
       });
 
