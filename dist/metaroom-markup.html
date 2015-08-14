@@ -45675,7 +45675,7 @@ var MetaTbottomController = (function (_MRM$MetaComponentController) {
     value: function createMetaObject() {
       var height = 1;
       var width = 1;
-      var depth = 0.25;
+      var depth = 1;
       var texture = THREE.ImageUtils.loadTexture('img/box.png');
       texture.wrapS = THREE.RepeatWrapping;
       texture.wrapT = THREE.RepeatWrapping;
@@ -45719,25 +45719,25 @@ var MetaTbottomController = (function (_MRM$MetaComponentController) {
 
       switch (this.properties.align) {
         case 'front':
-          group.position.set(0, -(this.properties.tableLength / 2), 0);
+          group.position.set(0, -(this.properties.tableLength / 2), this.properties.tableHeight / 2);
           group.rotation.x = 0;
           group.rotation.y = 0;
           group.rotation.z = 0;
           break;
         case 'back':
-          group.position.set(0, this.properties.tableLength / 2, 0);
+          group.position.set(0, this.properties.tableLength / 2, this.properties.tableHeight / 2);
           group.rotation.x = 0;
           group.rotation.y = 180 * (Math.PI / 180);
           group.rotation.z = 0;
           break;
         case 'left':
-          group.position.set(-(this.properties.tableWidth / 2), 0, 0);
+          group.position.set(-(this.properties.tableWidth / 2), 0, this.properties.tableHeight / 2);
           group.rotation.x = 0;
           group.rotation.y = 0;
           group.rotation.z = 270 * (Math.PI / 180);
           break;
         case 'right':
-          group.position.set(this.properties.tableWidth / 2, 0, 0);
+          group.position.set(this.properties.tableWidth / 2, 0, this.properties.tableHeight / 2);
           group.rotation.x = 0;
           group.rotation.y = 0;
           group.rotation.z = 90 * (Math.PI / 180);

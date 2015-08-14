@@ -38,32 +38,77 @@
       })
 
       describe("when table's height is updated", function(){
-        it("updates the position", function(){
+        it("updates the scale", function(){
           J.metaTbottomController.properties.tableHeight = 5;
-          // expect(J.metaTbottomMetaObject.group.position.y).to.equal(5);
           expect(J.metaTbottomMetaObject.mesh.scale.z).to.equal(5);
         });
       })
 
       describe("when table's length is updated", function(){
-        it("updates the mesh scale", function(){
+        it("updates the mesh position", function(){
           J.metaTbottomController.properties.tableLength = 5
-          // expect(J.metaTbottomMetaObject.mesh.scale.z).to.equal(5);
+          J.metaTbottomController.properties.tableHeight = 4
+          J.metaTbottomController.properties.tableWidth = 3
           expect(J.metaTbottomMetaObject.group.position.y).to.equal(-2.5);
+          expect(J.metaTbottomMetaObject.group.position.z).to.equal(2);
+          expect(J.metaTbottomMetaObject.group.position.x).to.equal(0);
         });
       })
 
-      describe("when retriggerMetaAttach is called", function(){
-        it("decrements the retriggerCount", function(){
-          expect(J.metaTbottomController.retriggerCount).to.equal(1);
-          J.metaTbottomController.retriggerMetaAttach();
-          expect(J.metaTbottomController.retriggerCount).to.equal(0);
+      describe("align", function(){
+        describe("when set to left", function(){
+          beforeEach(function(){
+            J.metaTbottom.setAttribute('align','left');
+            J.metaTbottomController.properties.tableLength = 7
+            J.metaTbottomController.properties.tableHeight = 8
+            J.metaTbottomController.properties.tableWidth = 9
+          });
+          it("updates the mesh position", function(){
+            expect(J.metaTbottomMetaObject.group.position.y).to.equal(0);
+            expect(J.metaTbottomMetaObject.group.position.z).to.equal(4);
+            expect(J.metaTbottomMetaObject.group.position.x).to.equal(-4.5);
+          });
+          it("updates the mesh scale", function(){
+            expect(J.metaTbottomMetaObject.mesh.scale.x).to.equal(7);
+            expect(J.metaTbottomMetaObject.mesh.scale.y).to.equal(0.1);
+            expect(J.metaTbottomMetaObject.mesh.scale.z).to.equal(8);
+          });
         });
-        it("triggers metaAttached event", function(){
-          var metaAttachedSpy = sinon.spy();
-          J.metaTbottom.addEventListener( "meta-attached", metaAttachedSpy, false )
-          J.metaTbottomController.retriggerMetaAttach();
-          expect(metaAttachedSpy).to.have.been.called;
+        describe("when set to right", function(){
+          beforeEach(function(){
+            J.metaTbottom.setAttribute('align','right');
+            J.metaTbottomController.properties.tableLength = 4
+            J.metaTbottomController.properties.tableHeight = 5
+            J.metaTbottomController.properties.tableWidth = 6
+          });
+          it("updates the mesh position", function(){
+            expect(J.metaTbottomMetaObject.group.position.y).to.equal(0);
+            expect(J.metaTbottomMetaObject.group.position.z).to.equal(2.5);
+            expect(J.metaTbottomMetaObject.group.position.x).to.equal(3);
+          })
+          it("updates the mesh scale", function(){
+            expect(J.metaTbottomMetaObject.mesh.scale.x).to.equal(4);
+            expect(J.metaTbottomMetaObject.mesh.scale.y).to.equal(0.1);
+            expect(J.metaTbottomMetaObject.mesh.scale.z).to.equal(5);
+          });
+        })
+        describe("when set to back", function(){
+          beforeEach(function(){
+            J.metaTbottom.setAttribute('align','back');
+            J.metaTbottomController.properties.tableLength = 5
+            J.metaTbottomController.properties.tableHeight = 6
+            J.metaTbottomController.properties.tableWidth = 7
+          });
+          it("updates the mesh position", function(){
+            expect(J.metaTbottomMetaObject.group.position.y).to.equal(2.5);
+            expect(J.metaTbottomMetaObject.group.position.z).to.equal(3);
+            expect(J.metaTbottomMetaObject.group.position.x).to.equal(0);
+          });
+          it("updates the mesh scale", function(){
+            expect(J.metaTbottomMetaObject.mesh.scale.x).to.equal(7);
+            expect(J.metaTbottomMetaObject.mesh.scale.y).to.equal(0.1);
+            expect(J.metaTbottomMetaObject.mesh.scale.z).to.equal(6);
+          });
         });
       });
 
