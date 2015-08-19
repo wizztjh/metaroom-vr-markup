@@ -19,6 +19,25 @@ export default class MetaStyle {
     return this.metaStyle["material-color"];
   }
 
+  set ["material-type"](type) {
+    var mesh = this.controller.metaObject.mesh
+    if (mesh) {
+      switch (type) {
+        case 'phong':
+          mesh.material = new THREE.MeshPhongMaterial({color: this.metaStyle["material-color"]});
+          break;
+        default:
+          mesh.material = new THREE.MeshBasicMaterial({color: this.metaStyle["material-color"]});
+      }
+      this.metaStyle["material-type"] = type;
+    }
+    return mesh.material;
+  }
+
+  get ["material-type"]() {
+    return this.metaStyle["material-type"];
+  }
+
   clear(){
     //TODO: need to set everything back to default
     this.metaStyle = {}

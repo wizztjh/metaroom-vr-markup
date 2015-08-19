@@ -11,6 +11,9 @@ export default class GameObject{
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2( 0xffff99, 0.0075 );
 
+    var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+    this.scene.add( light );
+
     this.camera = new THREE.PerspectiveCamera(75, this.getWidth() / this.getHeight(), 0.3, 10000);
     this.camera.position.y = 5;
 
