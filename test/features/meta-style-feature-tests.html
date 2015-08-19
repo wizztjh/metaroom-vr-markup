@@ -16,7 +16,10 @@
         #main-meta-wall {
           material-color: red;
         }
-
+        #phong-meta-tsurface{
+          material-type: phong;
+          material-color: skyblue;
+        }
         meta-picture {
           material-color: blue;
         }
@@ -53,6 +56,9 @@
           <meta-table width='3' height='4' length='2' id='main-meta-table'>
             <meta-tsurface id="main-meta-tsurface" class="pretty-tsurface"></meta-tsurface>
           </meta-table>
+          <meta-table width='3' height='4' length='2' id='phong-meta-table'>
+            <meta-tsurface id="phong-meta-tsurface"></meta-tsurface>
+          </meta-table>
         </meta-floor>
         <meta-wall align='left' id='main-meta-wall'></meta-wall>
         <meta-wall class='blue-wall' align='right' id='right-meta-wall'></meta-wall>
@@ -69,10 +75,12 @@
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
         jlet('metaFloor', function(){ return document.querySelector('#main-meta-floor')});
         jlet('metaTable', function(){ return document.querySelector('#main-meta-table')});
+        jlet('metaPhongTable', function(){ return document.querySelector('#phong-meta-table')});
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
         jlet('metaPicture', function(){ return document.querySelector('#that-wall')});
         jlet('metaBoardStyledByAttribute', function(){ return document.querySelector('#meta-board-styled-by-attribute')});
         jlet('metaTsurface', function(){ return document.querySelector('#main-meta-tsurface')});
+        jlet('metaPhongTsurface', function(){ return document.querySelector('#phong-meta-tsurface')});
         jlet('metaRightWall', function(){ return document.querySelector('#right-meta-wall')});
         jlet('metaStyle', function(){ return document.querySelector('#main-meta-style')});
         jlet('metaBackWall', function(){ return document.querySelector('#back-meta-wall')});
@@ -102,6 +110,9 @@
           expect(Object.keys(J.metaBoardStyledByAttribute.controller.metaStyle.metaStyle).length).to.equal(1)
           expect(J.metaBoardStyledByAttribute.controller.metaStyle["material-color"]).to.equal('tango');
         })
+        it("applies material-type to phong-meta-table meta-table component", function(){
+          expect(J.metaPhongTsurface.controller.metaStyle.metaStyle["material-type"]).to.equal("phong");
+        });
       })
 
       describe("set the material-color", function(){

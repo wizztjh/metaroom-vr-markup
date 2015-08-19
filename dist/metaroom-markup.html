@@ -43561,6 +43561,9 @@ var GameObject = (function () {
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2(0xffff99, 0.0075);
 
+    var light = new THREE.AmbientLight(0x404040); // soft white light
+    this.scene.add(light);
+
     this.camera = new THREE.PerspectiveCamera(75, this.getWidth() / this.getHeight(), 0.3, 10000);
     this.camera.position.y = 5;
 
@@ -44207,6 +44210,25 @@ var MetaStyle = (function () {
     },
     get: function get() {
       return this.metaStyle["material-color"];
+    }
+  }, {
+    key: "material-type",
+    set: function set(type) {
+      var mesh = this.controller.metaObject.mesh;
+      if (mesh) {
+        switch (type) {
+          case 'phong':
+            mesh.material = new THREE.MeshPhongMaterial({ color: this.metaStyle["material-color"] });
+            break;
+          default:
+            mesh.material = new THREE.MeshBasicMaterial({ color: this.metaStyle["material-color"] });
+        }
+        this.metaStyle["material-type"] = type;
+      }
+      return mesh.material;
+    },
+    get: function get() {
+      return this.metaStyle["material-type"];
     }
   }]);
 
