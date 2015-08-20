@@ -76,8 +76,8 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
     texture.repeat.set(10, 10);
 
     var geometry = new THREE.BoxGeometry(width, height, depth);
-    var material = new THREE.MeshBasicMaterial({
-      map: texture,
+    var material = new THREE.MeshPhongMaterial({
+      // map: texture,
       color: 0xffffff,
       side: THREE.DoubleSide
     });

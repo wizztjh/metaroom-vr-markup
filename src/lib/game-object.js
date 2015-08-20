@@ -9,10 +9,41 @@ export default class GameObject{
     this.renderer.domElement.id = 'hpml-webgl-canvas'
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2( 0xffff99, 0.0075 );
+    this.scene.fog = new THREE.FogExp2( 0xffff99, 0.0095 );
 
-    var light = new THREE.AmbientLight( 0x404040 ); // soft white light
-    this.scene.add( light );
+    var hemiLightWhite = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.9 );
+    this.hemiLightWhite = hemiLightWhite;
+    hemiLightWhite.position.set( 0, 500, 0 );
+    this.scene.add( hemiLightWhite );
+
+    var hemiLightToned = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+    this.hemiLightToned = hemiLightToned;
+    hemiLightToned.color.setHSL( 0.6, 0.75, 0.01 );
+    hemiLightToned.groundColor.setHSL( 0.095, 0.5, 0.01 );
+    this.scene.add( hemiLightToned );
+    hemiLightToned.position.set( 0, 500, 0 );
+    this.scene.add( hemiLightToned );
+
+    var dirLight = new THREE.DirectionalLight( 0xffffff, 0.1 );
+    this.dirLight = dirLight;
+    dirLight.position.set( -1, 0.75, 1 );
+    dirLight.position.multiplyScalar( 50);
+
+    this.scene.add( dirLight );
+
+    dirLight.castShadow = true;
+    dirLight.shadowMapWidth = dirLight.shadowMapHeight = 1024*2;
+
+    var d = 300;
+
+    dirLight.shadowCameraLeft = -d;
+    dirLight.shadowCameraRight = d;
+    dirLight.shadowCameraTop = d;
+    dirLight.shadowCameraBottom = -d;
+
+    dirLight.shadowCameraFar = 3500;
+    dirLight.shadowBias = -0.0001;
+    dirLight.shadowDarkness = 0.35;
 
     this.camera = new THREE.PerspectiveCamera(75, this.getWidth() / this.getHeight(), 0.3, 10000);
     this.camera.position.y = 5;

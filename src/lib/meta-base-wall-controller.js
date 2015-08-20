@@ -16,8 +16,8 @@ export default class MetaBaseWallController extends MetaComponentController {
     texture.repeat.set(20, 20);
 
     var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight,1,1);
-    var material = new THREE.MeshBasicMaterial({
-      map: texture,
+    var material = new THREE.MeshPhongMaterial({
+      // map: texture,
       color: 0xffffff,
       side: THREE.DoubleSide
     });
