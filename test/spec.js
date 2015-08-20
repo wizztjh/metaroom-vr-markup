@@ -107,6 +107,14 @@ shouldBehaveLikeA["MetaObject that scales"] = function (metaObjectName, scale){
   });
 }
 
+shouldBehaveLikeA["MetaObject that scales in 3 dimension"] = function (metaObjectName, scale){
+  it("sets the dimension of the object", function(){
+    expect(J[metaObjectName].scale.x, 'width').to.equal(scale.x);
+    expect(J[metaObjectName].scale.y, 'length').to.equal(scale.y);
+    expect(J[metaObjectName].scale.z, 'height').to.equal(scale.z);
+  });
+}
+
 shouldBehaveLikeA["Plane Adding MetaTag"] = function(metaTagName, metaParentName){
   it("adds a plane to "+ metaParentName +" group", function(){
     var metaChildrenUUID = J[metaParentName].controller.metaObject.group.children.map(function(child){

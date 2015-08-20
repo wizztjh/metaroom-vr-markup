@@ -44,7 +44,7 @@ class MetaFloorController extends MRM.MetaBaseWallController{
 
   get metaChildrenNames(){
     // TODO: we need to include meta-image, meta-board and meta-text
-    return ["meta-table", "meta-picture", "meta-text", "meta-board"]
+    return ["meta-table", "meta-picture", "meta-text", "meta-board", "meta-item"]
   }
 
   get eventActionSettings(){

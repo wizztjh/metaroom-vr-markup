@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
+</head>
+<body>
+
+  <div id='fixture'>
+    <meta-verse id="meta-verse">
+      <meta-room width='10' height='10' length='10' id='main-meta-room'>
+        <meta-floor align='left' id='main-meta-floor'>
+          <meta-item width='4' length='5' height='6' material-src='fixtures/male02.mtl' geometry-src='fixtures/male02.obj' src='fixtures/male02.obj, fixtures/male02.mtl'id='meta-item-on-floor'></meta-item>
+        </meta-floor>
+      </meta-room>
+    </meta-verse>
+  </div>
+
+  <script>
+    describe('meta-item', function() {
+      beforeEach(function(){
+        jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
+        jlet('metaFloor', function(){ return document.querySelector('#main-meta-floor')});
+        jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
+        jlet('metaItem', function(){ return document.querySelector('#meta-item-on-floor')});
+        jlet('metaItemMesh', function(){ return J.metaItem.controller.metaObject.mesh; });
+
+        jlet('metaFloorChildrenUUID', function(){
+          return J.metaFloor.controller.metaObject.group.children.map(function(child){
+            return child.uuid;
+          });
+        });
+      });
+
+      describe("when initilize", function(){
+        shouldBehaveLikeA['MetaObject that scales in 3 dimension']('metaItemMesh', {x: 4, y: 5, z: 6});
+//        shouldBehaveLikeA['Plane Adding MetaTag']('metaItem', 'metaBoard');
+
+        it("creates a metaobject with a group", function(){
+          expect(J.metaFloorChildrenUUID).to.include(J.metaItem.controller.metaObject.group.uuid);
+        });
+
+        describe("when the meta-item is on the wall", function(){
+          beforeEach(function(){
+            jlet('metaItem', function(){ return document.querySelector('#meta-item-on-wall')});
+          });
+//          shouldBehaveLikeA['Plane Adding MetaTag']('metaItem', 'metaWall');
+        });
+      });
+
+//      shouldBehaveLikeA["Removeable MetaObject"]('metaItem', 'metaBoard');
+    });
+  </script>
+</body>
+</html>
