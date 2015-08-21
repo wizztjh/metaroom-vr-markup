@@ -16,6 +16,7 @@
         <meta-floor id='main-meta-floor'>
           <meta-table width='3' height='4' length='2' id='main-meta-table'>
             <meta-tsurface align='front' id='main-meta-tsurface'>
+              <meta-board id="main-meta-board"></meta-board>
             </meta-tsurface>
           </meta-table>
         </meta-floor>
@@ -32,6 +33,7 @@
         jlet('metaFloor', function(){ return document.querySelector('#main-meta-floor')});
         jlet('metaTable', function(){ return document.querySelector('#main-meta-table')});
         jlet('metaTsurface', function(){ return document.querySelector('#main-meta-tsurface')});
+        jlet('metaBoard', function(){ return document.querySelector('#main-meta-board')});
 
         jlet('metaTsurfaceGroup', function(){ return J.metaTsurface.controller.metaObject.group } );
         jlet('metaTsurfaceMesh', function(){ return J.metaTsurface.controller.metaObject.mesh } );
@@ -58,6 +60,7 @@
         });
       });
 
+      shouldBehaveLikeA['Plane Adding MetaTag']('metaBoard', 'metaTsurface');
     });
   </script>
 </body>

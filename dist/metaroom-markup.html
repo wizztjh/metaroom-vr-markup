@@ -46804,6 +46804,11 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
       };
     }
   }, {
+    key: "metaChildrenNames",
+    get: function get() {
+      return ["meta-board", "meta-text", "meta-picture", "meta-table", "meta-item"];
+    }
+  }, {
     key: "propertiesSettings",
     get: function get() {
       return {
@@ -46858,6 +46863,7 @@ var MetaTsurface = (function (_MRM$MetaComponent) {
     key: "createdCallback",
     value: function createdCallback() {
       this.controller = new MetaTsurfaceController(this);
+      _get(Object.getPrototypeOf(MetaTsurface.prototype), "createdCallback", this).call(this);
     }
   }]);
 

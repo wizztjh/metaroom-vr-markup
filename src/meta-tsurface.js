@@ -24,6 +24,10 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
     }
   }
 
+  get metaChildrenNames(){
+    return ["meta-board", "meta-text", "meta-picture", "meta-table", "meta-item"]
+  }
+
   get propertiesSettings() {
     return {
       tableWidth: {
@@ -104,6 +108,7 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
 class MetaTsurface extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaTsurfaceController(this);
+    super.createdCallback();
   }
 }
 

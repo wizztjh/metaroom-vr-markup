@@ -115,6 +115,7 @@ shouldBehaveLikeA["MetaObject that scales in 3 dimension"] = function (metaObjec
   });
 }
 
+//TODO: maybe need to change the name to meta component adding
 shouldBehaveLikeA["Plane Adding MetaTag"] = function(metaTagName, metaParentName){
   it("adds a plane to "+ metaParentName +" group", function(){
     var metaChildrenUUID = J[metaParentName].controller.metaObject.group.children.map(function(child){
