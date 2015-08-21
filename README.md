@@ -26,7 +26,7 @@ For example we can style the table with table-padding-top and table-padding-bott
 - **Display Inline**: Brings display inline to 3D VR
 - **Extend**: With Web component, new meta component can be created, such as meta-elevator
 
-[Demo](http://wizztjh.github.io/metaroom-markup/)
+[Demo](http://wizztjh.github.io/metaroom-markup/demo/metaroom-markup-standard-spec.html)
 
 ![alt tag](demo/img/room.png)
 
