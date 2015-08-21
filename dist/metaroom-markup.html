@@ -46363,7 +46363,10 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         return;
       }
       loader.load(this.properties.geometrySrc, this.properties.materialSrc, function (object) {
-        _this.metaObject.group.add(object); //this will keep adding object to group, we need to clear the group
+        _.forEach(_this.metaObject.group.children, function (child) {
+          _this.metaObject.group.remove(child);
+        });
+        _this.metaObject.group.add(object);
         _this.metaObject.mesh = object;
         _this.metaObject.mesh.scale.set(_this.properties.width, _this.properties.length, _this.properties.height);
       });

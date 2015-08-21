@@ -56,7 +56,10 @@ class MetaItemController extends MRM.MetaComponentController {
       return;
     }
     loader.load( this.properties.geometrySrc , this.properties.materialSrc, ( object ) => {
-      this.metaObject.group.add( object ); //this will keep adding object to group, we need to clear the group
+      _.forEach(this.metaObject.group.children, (child) => {
+        this.metaObject.group.remove(child);
+      });
+      this.metaObject.group.add( object );
       this.metaObject.mesh = object
       this.metaObject.mesh.scale.set(this.properties.width, this.properties.length, this.properties.height)
     });
