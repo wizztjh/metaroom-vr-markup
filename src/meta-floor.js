@@ -74,6 +74,15 @@ class MetaFloor extends MRM.MetaComponent {
     super.createdCallback();
   }
 
+  metaDetached(e) {
+    var targetController = e.detail.controller;
+
+    if (this.controller.isChildren(targetController.tagName) ){
+      e.stopPropagation();
+      this.controller.metaObject.group.remove(targetController.metaObject.group);
+    }
+  }
+
   metaChildAttributeChanged(e){
     var targetController = e.detail.controller;
     var attrName = e.detail.attrName

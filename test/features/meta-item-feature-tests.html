@@ -38,21 +38,20 @@
 
       describe("when initilize", function(){
         shouldBehaveLikeA['MetaObject that scales in 3 dimension']('metaItemMesh', {x: 4, y: 5, z: 6});
-//        shouldBehaveLikeA['Plane Adding MetaTag']('metaItem', 'metaBoard');
+
+        shouldBehaveLikeA['Plane Adding MetaTag']('metaItem', 'metaFloor');
 
         it("creates a metaobject with a group", function(){
           expect(J.metaFloorChildrenUUID).to.include(J.metaItem.controller.metaObject.group.uuid);
         });
 
-        describe("when the meta-item is on the wall", function(){
-          beforeEach(function(){
-            jlet('metaItem', function(){ return document.querySelector('#meta-item-on-wall')});
-          });
-//          shouldBehaveLikeA['Plane Adding MetaTag']('metaItem', 'metaWall');
-        });
+        // TODO: write unit spec for this
+        // describe("when the meta-item is on the wall", function(){
+        //   shouldBehaveLikeA['Plane Adding MetaTag']('metaItem', 'metaFloor');
+        // });
       });
 
-//      shouldBehaveLikeA["Removeable MetaObject"]('metaItem', 'metaBoard');
+      shouldBehaveLikeA["Removeable MetaObject"]('metaItem', 'metaFloor');
     });
   </script>
 </body>

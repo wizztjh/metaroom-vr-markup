@@ -45831,7 +45831,7 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
   }, {
     key: "metaChildrenNames",
     get: function get() {
-      return ["meta-board", "meta-picture", "meta-text", "meta-table"];
+      return ["meta-board", "meta-picture", "meta-text", "meta-table", "meta-item"];
     }
   }]);
 
@@ -46000,6 +46000,16 @@ var MetaFloor = (function (_MRM$MetaComponent) {
     value: function createdCallback() {
       this.controller = new MetaFloorController(this);
       _get(Object.getPrototypeOf(MetaFloor.prototype), "createdCallback", this).call(this);
+    }
+  }, {
+    key: "metaDetached",
+    value: function metaDetached(e) {
+      var targetController = e.detail.controller;
+
+      if (this.controller.isChildren(targetController.tagName)) {
+        e.stopPropagation();
+        this.controller.metaObject.group.remove(targetController.metaObject.group);
+      }
     }
   }, {
     key: "metaChildAttributeChanged",
