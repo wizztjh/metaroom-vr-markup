@@ -45,7 +45,11 @@
           expect(J.metaFloorChildrenUUID).to.include(J.metaItem.controller.metaObject.group.uuid);
         });
 
-        // TODO: write unit spec for this
+        it("rotates to face upward", function(){
+          expect(J.metaItemMesh.rotation.x).to.equal( 90 * (Math.PI/180))
+        })
+
+        // TODO: write unit spec for this, and make sure the rotation updates accordingly
         // describe("when the meta-item is on the wall", function(){
         //   shouldBehaveLikeA['Plane Adding MetaTag']('metaItem', 'metaFloor');
         // });

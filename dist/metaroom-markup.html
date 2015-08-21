@@ -44613,13 +44613,13 @@ var GameObject = (function () {
 
     var hemiLightToned = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
     this.hemiLightToned = hemiLightToned;
-    hemiLightToned.color.setHSL(0.6, 0.75, 0.01);
-    hemiLightToned.groundColor.setHSL(0.095, 0.5, 0.01);
+    hemiLightToned.color.setHSL(0.6, 0.75, 0.07);
+    hemiLightToned.groundColor.setHSL(0.095, 0.5, 0.07);
     this.scene.add(hemiLightToned);
     hemiLightToned.position.set(0, 500, 0);
     this.scene.add(hemiLightToned);
 
-    var dirLight = new THREE.DirectionalLight(0xffffff, 0.1);
+    var dirLight = new THREE.DirectionalLight(0xffffff, 0.05);
     this.dirLight = dirLight;
     dirLight.position.set(-1, 0.75, 1);
     dirLight.position.multiplyScalar(50);
@@ -45970,7 +45970,6 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
   }, {
     key: "metaChildrenNames",
     get: function get() {
-      // TODO: we need to include meta-image, meta-board and meta-text
       return ["meta-table", "meta-picture", "meta-text", "meta-board", "meta-item"];
     }
   }, {
@@ -46362,12 +46361,15 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
       if (!this.properties.geometrySrc) {
         return;
       }
+      //TODO: why keep loading this? Don't need to keep loading if geometrySrc and materialSrc did not change
       loader.load(this.properties.geometrySrc, this.properties.materialSrc, function (object) {
         _.forEach(_this.metaObject.group.children, function (child) {
           _this.metaObject.group.remove(child);
         });
         _this.metaObject.group.add(object);
         _this.metaObject.mesh = object;
+        _this.metaObject.mesh.rotation.x = 90 * (Math.PI / 180);
+        _this.metaObject.group.position.z = _this.properties.height / 2;
         _this.metaObject.mesh.scale.set(_this.properties.width, _this.properties.length, _this.properties.height);
       });
     }
@@ -46399,6 +46401,9 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
     key: 'eventActionSettings',
     get: function get() {
       return {
+        'width': ['updateChildrenDisplayInline'],
+        'height': ['updateChildrenDisplayInline'],
+        'length': ['updateChildrenDisplayInline'],
         'class': ['propagateMetaStyle'],
         'id': ['propagateMetaStyle']
       };

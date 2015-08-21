@@ -18,13 +18,13 @@ export default class GameObject{
 
     var hemiLightToned = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
     this.hemiLightToned = hemiLightToned;
-    hemiLightToned.color.setHSL( 0.6, 0.75, 0.01 );
-    hemiLightToned.groundColor.setHSL( 0.095, 0.5, 0.01 );
+    hemiLightToned.color.setHSL( 0.6, 0.75, 0.07 );
+    hemiLightToned.groundColor.setHSL( 0.095, 0.5, 0.07 );
     this.scene.add( hemiLightToned );
     hemiLightToned.position.set( 0, 500, 0 );
     this.scene.add( hemiLightToned );
 
-    var dirLight = new THREE.DirectionalLight( 0xffffff, 0.1 );
+    var dirLight = new THREE.DirectionalLight( 0xffffff, 0.05 );
     this.dirLight = dirLight;
     dirLight.position.set( -1, 0.75, 1 );
     dirLight.position.multiplyScalar( 50);

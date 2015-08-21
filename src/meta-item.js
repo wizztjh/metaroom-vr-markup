@@ -32,6 +32,9 @@ class MetaItemController extends MRM.MetaComponentController {
 
   get eventActionSettings(){
     return {
+      "width": ["updateChildrenDisplayInline"],
+      "height": ["updateChildrenDisplayInline"],
+      "length": ["updateChildrenDisplayInline"],
       "class": ["propagateMetaStyle"],
       "id": ["propagateMetaStyle"]
     }
@@ -55,12 +58,15 @@ class MetaItemController extends MRM.MetaComponentController {
     if(!this.properties.geometrySrc){
       return;
     }
+    //TODO: why keep loading this? Don't need to keep loading if geometrySrc and materialSrc did not change
     loader.load( this.properties.geometrySrc , this.properties.materialSrc, ( object ) => {
       _.forEach(this.metaObject.group.children, (child) => {
         this.metaObject.group.remove(child);
       });
       this.metaObject.group.add( object );
       this.metaObject.mesh = object
+      this.metaObject.mesh.rotation.x = 90 * (Math.PI/180);
+      this.metaObject.group.position.z = this.properties.height / 2;
       this.metaObject.mesh.scale.set(this.properties.width, this.properties.length, this.properties.height)
     });
   }
