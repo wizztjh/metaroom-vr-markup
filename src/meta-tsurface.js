@@ -30,6 +30,11 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
 
   get propertiesSettings() {
     return {
+      thickness: {
+        type: Number,
+        default: 0.03,
+        onChange: "updateMetaObject"
+      },
       tableWidth: {
         type: Number,
         default: 1,

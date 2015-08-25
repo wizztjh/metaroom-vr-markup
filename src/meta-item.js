@@ -53,7 +53,6 @@ class MetaItemController extends MRM.MetaComponentController {
   updateMetaObject(){
     THREE.Loader.Handlers.add( /\.dds$/i, new THREE.DDSLoader() );
     var loader = new THREE.OBJMTLLoader();
-
     // TODO: Refactor this
     if(!this.properties.geometrySrc){
       return;

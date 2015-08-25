@@ -46532,7 +46532,6 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
 
       THREE.Loader.Handlers.add(/\.dds$/i, new THREE.DDSLoader());
       var loader = new THREE.OBJMTLLoader();
-
       // TODO: Refactor this
       if (!this.properties.geometrySrc) {
         return;
@@ -46837,21 +46836,53 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
   }, {
     key: "propertiesSettings",
     get: function get() {
+      var _this = this;
+
       return {
         width: {
           type: Number,
           "default": 1,
-          attrName: 'width'
+          attrName: 'width',
+          onChange: function onChange(value) {
+            _this.forEachMetaChildren(function (child) {
+              child.controller.properties.tableWidth = value;
+            });
+          }
         },
         height: {
           type: Number,
           "default": 1,
-          attrName: 'height'
+          attrName: 'height',
+          onChange: function onChange(value) {
+            _this.forEachMetaChildren(function (child) {
+              child.controller.properties.tableHeight = value;
+            });
+          }
         },
         length: {
           type: Number,
           "default": 1,
-          attrName: 'length'
+          attrName: 'length',
+          onChange: function onChange(value) {
+            _this.forEachMetaChildren(function (child) {
+              child.controller.properties.tableLength = value;
+            });
+          }
+        },
+        tsurfaceThickness: {
+          type: Number,
+          "default": 1,
+          onChange: "updateDimension"
+        },
+        tbottomThickness: {
+          type: Number,
+          "default": 1,
+          onChange: "updateDimension"
+        },
+        tbottomPadding: {
+          type: Number,
+          "default": 1,
+          onChange: "updateDimension"
         }
       };
     }
@@ -47001,6 +47032,11 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
     key: "propertiesSettings",
     get: function get() {
       return {
+        thickness: {
+          type: Number,
+          "default": 0.03,
+          onChange: "updateMetaObject"
+        },
         tableWidth: {
           type: Number,
           "default": 1,
@@ -47093,12 +47129,6 @@ var MetaTbottomController = (function (_MRM$MetaComponentController) {
   }
 
   _createClass(MetaTbottomController, [{
-    key: "updateDimension",
-    value: function updateDimension() {
-      this.properties.width = this.properties.tableWidth;
-      this.properties.length = this.properties.tableHeight;
-    }
-  }, {
     key: "createMetaObject",
     value: function createMetaObject() {
       // var height = 1;
@@ -47186,37 +47216,21 @@ var MetaTbottomController = (function (_MRM$MetaComponentController) {
     key: "metaAttachedActions",
     get: function get() {
       return {
-        "attachMetaObject": true,
-        "updateTableDimension": true
+        "attachMetaObject": true
       };
     }
   }, {
     key: "propertiesSettings",
     get: function get() {
       return {
-        tableWidth: {
+        "table-padding-top": {
           type: Number,
-          "default": 1,
-          onChange: "updateDimension"
-        },
-        tableHeight: {
-          type: Number,
-          "default": 1,
-          onChange: "updateDimension"
-        },
-        tableLength: {
-          type: Number,
-          "default": 1,
+          "default": 0.01,
           onChange: "updateMetaObject"
         },
-        width: {
+        "thickness": {
           type: Number,
-          "default": 1,
-          onChange: "updateMetaObject"
-        },
-        length: {
-          type: Number,
-          "default": 1,
+          "default": 0.03,
           onChange: "updateMetaObject"
         },
         align: { type: String, "default": "front", attrName: "align" }

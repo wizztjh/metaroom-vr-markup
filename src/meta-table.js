@@ -62,17 +62,47 @@ class MetaTableController extends MRM.MetaComponentController{
       width: {
         type: Number,
         default: 1,
-        attrName: 'width'
+        attrName: 'width',
+        onChange: (value)=>{
+          this.forEachMetaChildren((child)=>{
+            child.controller.properties.tableWidth = value
+          })
+        }
       },
       height: {
         type: Number,
         default: 1,
-        attrName: 'height'
+        attrName: 'height',
+        onChange: (value)=>{
+          this.forEachMetaChildren((child)=>{
+            child.controller.properties.tableHeight = value
+          })
+        }
       },
       length: {
         type: Number,
         default: 1,
-        attrName: 'length'
+        attrName: 'length',
+        onChange: (value)=>{
+          this.forEachMetaChildren((child)=>{
+            child.controller.properties.tableLength = value
+          })
+        }
+      },
+      tsurfaceThickness: {
+        type: Number,
+        default: 1,
+        onChange: "updateDimension"
+      },
+      tbottomThickness: {
+        type: Number,
+        default: 1,
+        onChange: "updateDimension"
+      },
+      tbottomPadding: {
+        type: Number,
+        default: 1,
+        onChange: "updateDimension"
       }
     }
   }

@@ -19,36 +19,20 @@ class MetaTbottomController extends MRM.MetaComponentController {
 
   get metaAttachedActions(){
     return {
-      "attachMetaObject": true,
-      "updateTableDimension": true
+      "attachMetaObject": true
     }
   }
 
   get propertiesSettings() {
     return {
-      tableWidth: {
+      "table-padding-top": {
         type: Number,
-        default: 1,
-        onChange: "updateDimension"
-      },
-      tableHeight: {
-        type: Number,
-        default: 1,
-        onChange: "updateDimension"
-      },
-      tableLength: {
-        type: Number,
-        default: 1,
+        default: 0.01,
         onChange: "updateMetaObject"
       },
-      width: {
+      "thickness": {
         type: Number,
-        default: 1,
-        onChange: "updateMetaObject"
-      },
-      length: {
-        type: Number,
-        default: 1,
+        default: 0.03,
         onChange: "updateMetaObject"
       },
       align: { type: String, default: "front", attrName: "align" }
@@ -57,11 +41,6 @@ class MetaTbottomController extends MRM.MetaComponentController {
 
   get tagName() {
     return "meta-tbottom"
-  }
-
-  updateDimension() {
-    this.properties.width = this.properties.tableWidth
-    this.properties.length = this.properties.tableHeight
   }
 
   createMetaObject(){
