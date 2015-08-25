@@ -7,6 +7,8 @@ export default class GameObject{
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
     this.renderer.domElement.id = 'hpml-webgl-canvas'
+    this.renderer.shadowMapEnabled = true;
+    this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
 
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2( 0xffff99, 0.0095 );
@@ -43,7 +45,7 @@ export default class GameObject{
 
     dirLight.shadowCameraFar = 3500;
     dirLight.shadowBias = -0.0001;
-    dirLight.shadowDarkness = 0.35;
+    dirLight.shadowDarkness = 0.05;
 
     this.camera = new THREE.PerspectiveCamera(75, this.getWidth() / this.getHeight(), 0.3, 10000);
     this.camera.position.y = 5;

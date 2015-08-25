@@ -23,7 +23,6 @@ export default class MetaComponentController extends MetaBaseController{
           var oldValue = value;
           var onChangeFunction = settings.onChange;
           value = settings.type(inputValue)
-
           if(typeof settings.onChange === "string") {
             onChangeFunction = this[settings.onChange]
           }

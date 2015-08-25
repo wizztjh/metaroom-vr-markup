@@ -47,7 +47,6 @@ export default class MetaComponent extends MetaBase{
     }
 
     // TODO: maybe we can add a new propertiesSettings `bubbleUp` to enable the event bubbling when attribute changes
-
     var event = new CustomEvent('meta-attribute-change', {
       'detail': {
         'attrName': attrName,
