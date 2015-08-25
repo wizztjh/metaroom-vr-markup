@@ -45300,8 +45300,8 @@ var MetaStyle = (function () {
             mesh.material = new THREE.MeshBasicMaterial({ color: this.metaStyle["material-color"] });
         }
         this.metaStyle["material-type"] = type;
+        return mesh.material;
       }
-      return mesh.material;
     },
     get: function get() {
       return this.metaStyle["material-type"];
@@ -46600,6 +46600,7 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
     key: "createMetaObject",
     value: function createMetaObject() {
       var group = new THREE.Group();
+      // need to have table geometry, set all visible none
 
       return {
         group: group
@@ -46755,38 +46756,35 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
   }, {
     key: "createMetaObject",
     value: function createMetaObject() {
-      var height = 1;
-      var width = 1;
-      var depth = 0.25;
-      var texture = THREE.ImageUtils.loadTexture("img/box.png");
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(10, 10);
-
-      var geometry = new THREE.BoxGeometry(width, height, depth);
-      var material = new THREE.MeshPhongMaterial({
-        // map: texture,
-        color: 0xffffff,
-        side: THREE.DoubleSide
-      });
-
-      var mesh = new THREE.Mesh(geometry, material);
+      // var height = 1;
+      // var width = 1;
+      // var depth = 0.25;
+      // var texture = THREE.ImageUtils.loadTexture(
+      //   'img/box.png'
+      // );
+      // texture.wrapS = THREE.RepeatWrapping;
+      // texture.wrapT = THREE.RepeatWrapping;
+      // texture.repeat.set(10, 10);
+      //
+      // var geometry = new THREE.BoxGeometry(width, height, depth);
+      // var material = new THREE.MeshPhongMaterial({
+      //   // map: texture,
+      //   color: 0xffffff,
+      //   side: THREE.DoubleSide
+      // });
+      //
+      // var mesh = new THREE.Mesh(geometry, material);
       var group = new THREE.Group();
-      group.add(mesh);
-
+      // group.add( mesh );
+      //
       return {
-        mesh: mesh,
+        //   mesh: mesh,
         group: group
       };
     }
   }, {
     key: "updateMetaObject",
-    value: function updateMetaObject() {
-      this.metaObject.mesh.scale.x = this.properties.width;
-      this.metaObject.mesh.scale.y = this.properties.length;
-
-      this.metaObject.group.position.z = this.properties.tableHeight;
-    }
+    value: function updateMetaObject() {}
   }, {
     key: "eventActionSettings",
     get: function get() {
@@ -46872,6 +46870,11 @@ var MetaTsurface = (function (_MRM$MetaComponent) {
 
 document.registerElement("meta-tsurface", MetaTsurface);
 
+// this.metaObject.mesh.scale.x = this.properties.width;
+// this.metaObject.mesh.scale.y = this.properties.length;
+//
+// this.metaObject.group.position.z = this.properties.tableHeight;
+
 },{}]},{},[1])</script>
 <template id="meta-tbottom">
 </template>
@@ -46912,77 +46915,35 @@ var MetaTbottomController = (function (_MRM$MetaComponentController) {
   }, {
     key: "createMetaObject",
     value: function createMetaObject() {
-      var height = 1;
-      var width = 1;
-      var depth = 1;
-      var texture = THREE.ImageUtils.loadTexture("img/box.png");
-      texture.wrapS = THREE.RepeatWrapping;
-      texture.wrapT = THREE.RepeatWrapping;
-      texture.repeat.set(10, 10);
-
-      var geometry = new THREE.BoxGeometry(width, height, depth);
-      var material = new THREE.MeshPhongMaterial({
-        // map: texture,
-        color: 0xffffff,
-        side: THREE.DoubleSide
-      });
-
-      var mesh = new THREE.Mesh(geometry, material);
+      // var height = 1;
+      // var width = 1;
+      // var depth = 1;
+      // var texture = THREE.ImageUtils.loadTexture(
+      //   'img/box.png'
+      // );
+      // texture.wrapS = THREE.RepeatWrapping;
+      // texture.wrapT = THREE.RepeatWrapping;
+      // texture.repeat.set(10, 10);
+      //
+      // var geometry = new THREE.BoxGeometry(width, height, depth);
+      // var material = new THREE.MeshPhongMaterial({
+      //   // map: texture,
+      //   color: 0xffffff,
+      //   side: THREE.DoubleSide
+      // });
+      //
+      // var mesh = new THREE.Mesh(geometry, material);
       var group = new THREE.Group();
-      group.add(mesh);
-
+      // group.add( mesh );
+      //
       return {
-        mesh: mesh,
+        // mesh: mesh,
         group: group
       };
     }
   }, {
     key: "updateMetaObject",
-    value: function updateMetaObject() {
-      var mesh = this.metaObject.mesh;
-      var group = this.metaObject.group;
-      switch (this.properties.align) {
-        case "front":
-        case "back":
-          mesh.scale.set(this.properties.tableWidth, 0.1, this.properties.tableHeight);
-          this.properties.width = this.properties.tableWidth;
-          this.properties.length = this.properties.tableHeight;
-          break;
-        case "right":
-        case "left":
-          mesh.scale.set(this.properties.tableLength, 0.1, this.properties.tableHeight);
-          this.properties.width = this.properties.tableLength;
-          this.properties.length = this.properties.tableHeight;
-          break;
-      }
-
-      switch (this.properties.align) {
-        case "front":
-          group.position.set(0, -(this.properties.tableLength / 2), this.properties.tableHeight / 2);
-          group.rotation.x = 0;
-          group.rotation.y = 0;
-          group.rotation.z = 0;
-          break;
-        case "back":
-          group.position.set(0, this.properties.tableLength / 2, this.properties.tableHeight / 2);
-          group.rotation.x = 0;
-          group.rotation.y = 180 * (Math.PI / 180);
-          group.rotation.z = 0;
-          break;
-        case "left":
-          group.position.set(-(this.properties.tableWidth / 2), 0, this.properties.tableHeight / 2);
-          group.rotation.x = 0;
-          group.rotation.y = 0;
-          group.rotation.z = 270 * (Math.PI / 180);
-          break;
-        case "right":
-          group.position.set(this.properties.tableWidth / 2, 0, this.properties.tableHeight / 2);
-          group.rotation.x = 0;
-          group.rotation.y = 0;
-          group.rotation.z = 90 * (Math.PI / 180);
-          break;
-      }
-    }
+    value: function updateMetaObject() {}
   }, {
     key: "eventActionSettings",
     get: function get() {
@@ -47055,12 +47016,58 @@ var MetaTbottom = (function (_MRM$MetaComponent) {
     value: function createdCallback() {
       this.controller = new MetaTbottomController(this);
     }
+    // attach callback: when attach set meta-table table geometry tbottom side to be visible
+
   }]);
 
   return MetaTbottom;
 })(MRM.MetaComponent);
 
 document.registerElement("meta-tbottom", MetaTbottom);
+
+//   var mesh = this.metaObject.mesh;
+//   var group = this.metaObject.group;
+//   switch (this.properties.align) {
+//     case 'front':
+//     case 'back':
+//       mesh.scale.set(this.properties.tableWidth, 0.1, this.properties.tableHeight);
+//       this.properties.width = this.properties.tableWidth
+//       this.properties.length = this.properties.tableHeight
+//       break;
+//     case 'right':
+//     case 'left':
+//       mesh.scale.set(this.properties.tableLength, 0.1, this.properties.tableHeight);
+//       this.properties.width = this.properties.tableLength
+//       this.properties.length = this.properties.tableHeight
+//       break;
+//   }
+//
+//   switch (this.properties.align) {
+//     case 'front':
+//       group.position.set(0, -(this.properties.tableLength/2), this.properties.tableHeight/2);
+//       group.rotation.x = 0
+//       group.rotation.y = 0
+//       group.rotation.z = 0
+//       break;
+//     case 'back':
+//       group.position.set(0, (this.properties.tableLength/2), this.properties.tableHeight/2);
+//       group.rotation.x = 0
+//       group.rotation.y = 180 * (Math.PI/180)
+//       group.rotation.z = 0
+//       break;
+//     case 'left':
+//       group.position.set( -(this.properties.tableWidth/2), 0, this.properties.tableHeight/2);
+//       group.rotation.x = 0
+//       group.rotation.y = 0
+//       group.rotation.z = 270 * (Math.PI/180);
+//     break;
+//     case 'right':
+//       group.position.set( (this.properties.tableWidth/2), 0, this.properties.tableHeight/2);
+//       group.rotation.x = 0
+//       group.rotation.y = 0
+//       group.rotation.z = 90 * (Math.PI/180);
+//     break;
+//   }
 
 },{}]},{},[1])</script>
 <template id="meta-style">

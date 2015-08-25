@@ -30,8 +30,8 @@ export default class MetaStyle {
           mesh.material = new THREE.MeshBasicMaterial({color: this.metaStyle["material-color"]});
       }
       this.metaStyle["material-type"] = type;
+      return mesh.material;
     }
-    return mesh.material;
   }
 
   get ["material-type"]() {

@@ -12,6 +12,7 @@ class MetaTableController extends MRM.MetaComponentController{
 
   createMetaObject(){
     var group = new THREE.Group();
+    // need to have table geometry, set all visible none
 
     return {
       group: group
