@@ -1,4 +1,4 @@
-## MetaRoom markup
+## MetaRoom markup (Alpha stage, V0)
 
 [What is MetaRoom Markup](http://vrcollab.com/2015/08/10/what-is-metaroom-markup.html)
 
