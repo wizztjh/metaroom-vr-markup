@@ -74,38 +74,16 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
   }
 
   createMetaObject(){
-    // var height = 1;
-    // var width = 1;
-    // var depth = 0.25;
-    // var texture = THREE.ImageUtils.loadTexture(
-    //   'img/box.png'
-    // );
-    // texture.wrapS = THREE.RepeatWrapping;
-    // texture.wrapT = THREE.RepeatWrapping;
-    // texture.repeat.set(10, 10);
-    //
-    // var geometry = new THREE.BoxGeometry(width, height, depth);
-    // var material = new THREE.MeshPhongMaterial({
-    //   // map: texture,
-    //   color: 0xffffff,
-    //   side: THREE.DoubleSide
-    // });
-    //
-    // var mesh = new THREE.Mesh(geometry, material);
+
     var group = new THREE.Group();
-    // group.add( mesh );
-    //
     return {
-    //   mesh: mesh,
       group: group
     };
   }
 
   updateMetaObject(){
-    // this.metaObject.mesh.scale.x = this.properties.width;
-    // this.metaObject.mesh.scale.y = this.properties.length;
-    //
-    // this.metaObject.group.position.z = this.properties.tableHeight;
+    this.metaObject.group.position.z = this.properties.tableHeight / 2;
+    this.updateChildrenDisplayInline();
   }
 
 }
