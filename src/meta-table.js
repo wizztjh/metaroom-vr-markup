@@ -20,12 +20,16 @@ class MetaTableController extends MRM.MetaComponentController{
     var width = 1;
     var depth = 1;
     var geometry = new THREE.TableGeometry(width, height, depth, 0.03, 0.01, 0.01);
-    var material = new THREE.MeshPhongMaterial({
-      color: 0xdddddd,
-      side: THREE.DoubleSide
-    });
+
     var invisibleMaterial = new THREE.MeshPhongMaterial( { visible: false } );
-    var materials = [ invisibleMaterial, material];
+    var materials = [ invisibleMaterial,
+      invisibleMaterial,
+      invisibleMaterial,
+      invisibleMaterial,
+      invisibleMaterial,
+      invisibleMaterial,
+      invisibleMaterial,
+      invisibleMaterial];
 
     var mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial( materials ));
 
@@ -109,31 +113,31 @@ class MetaTableController extends MRM.MetaComponentController{
       "left": {
         type: Boolean,
         default: false,
-        facesStartIndexes: [0, 72, 84],
+        facesStartIndexes: [2, 3, 4],
         onChange: "updateFaceVisibility"
       },
       "right": {
         type: Boolean,
         default: false,
-        facesStartIndexes: [24, 36, 48],
+        facesStartIndexes: [0, 6, 7],
         onChange: "updateFaceVisibility"
       },
       "front": {
         type: Boolean,
         default: false,
-        facesStartIndexes: [0, 12, 24],
+        facesStartIndexes: [0, 1, 2],
         onChange: "updateFaceVisibility"
       },
       "back": {
         type: Boolean,
         default: false,
-        facesStartIndexes: [48, 60, 72],
+        facesStartIndexes: [4, 5, 6],
         onChange: "updateFaceVisibility"
       },
       "surface": {
         type: Boolean,
         default: false,
-        facesStartIndexes: [97],
+        facesStartIndexes: [8],
         onChange: "updateFaceVisibility"
       }
     }
@@ -158,7 +162,10 @@ class MetaTableController extends MRM.MetaComponentController{
     targetController.properties.tableLength = this.properties.length
   }
 
-  updateTbottomVisibility(targetController){
+  updateTbottomVisibility(targetController, oldValue, newValue){
+    if(oldValue){
+      this.properties[oldValue] = false;
+    }
     this.properties[targetController.properties.align] = true;
   }
 
@@ -167,19 +174,22 @@ class MetaTableController extends MRM.MetaComponentController{
   }
 
   updateFaceVisibility(value, oldValue, key){
-    var materialIndex = 0;
+    var newMaterial;
     if(value){
-      materialIndex = 1;
+      newMaterial = new THREE.MeshPhongMaterial({
+        side: THREE.DoubleSide
+      });
     }else{
-      materialIndex = 0;
+      newMaterial = new THREE.MeshPhongMaterial({
+        side: THREE.DoubleSide,
+        visible: false
+      });
     }
     _.forEach(this.propertiesSettings[key].facesStartIndexes, (faceStartIndex) => {
-      for(var i = 0; i < 12; i++){
-        this.metaObject.mesh.geometry.faces[ faceStartIndex + i ].materialIndex = materialIndex;
-      }
+      this.metaObject.mesh.material.materials[faceStartIndex] = newMaterial;
+      this.metaObject.mesh.material.materials[faceStartIndex].needsUpdate = true
     });
-    this.metaObject.mesh.material.materials[materialIndex].needsUpdate = true
-    // this.metaObject.mesh.material.materials[1].needsUpdate = true
+    this.metaObject.mesh.geometry.dynamic = true;
   }
 }
 

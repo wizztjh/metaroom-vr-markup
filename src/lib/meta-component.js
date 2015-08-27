@@ -78,7 +78,7 @@ export default class MetaComponent extends MetaBase{
     if (this.controller.isChildren(targetController.tagName) ){
       _.forEach(e.detail.actions, (value, action) => {
         if (typeof this.controller[action] === 'function') {
-          this.controller[action](targetController)
+          this.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
           delete e.detail.actions[action]
         }
       })

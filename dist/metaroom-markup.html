@@ -45231,7 +45231,7 @@ var MetaComponent = (function (_MetaBase) {
       if (this.controller.isChildren(targetController.tagName)) {
         _.forEach(e.detail.actions, function (value, action) {
           if (typeof _this2.controller[action] === 'function') {
-            _this2.controller[action](targetController);
+            _this2.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
             delete e.detail.actions[action];
           }
         });
@@ -45366,7 +45366,8 @@ THREE.TableGeometry = function (width, height, depth, tsurfaceThickness, tbottom
   this.tbottomThickness = tbottomThickness || 0.1;
   this.tbottomPadding = tbottomPadding || 0.0;
 
-  var scope = this;
+  var scope = this,
+      materialIndex = 0;
 
   var width_half = width / 2;
   var height_half = height / 2;
@@ -45378,23 +45379,25 @@ THREE.TableGeometry = function (width, height, depth, tsurfaceThickness, tbottom
   var tsurfaceDimensionAndPosition = scope.getTsurfaceDimensionAndPosition(width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding);
 
   tbottomDimensionAndPositions.forEach(function (dimensionAndPosition) {
-    buildCube(dimensionAndPosition.dimension, dimensionAndPosition.position);
+    buildCube(dimensionAndPosition.dimension, dimensionAndPosition.position, materialIndex);
+    materialIndex++;
   });
   this.mergeVertices();
 
   //tsurface
-  buildCube(tsurfaceDimensionAndPosition.dimension, tsurfaceDimensionAndPosition.position);
+  buildCube(tsurfaceDimensionAndPosition.dimension, tsurfaceDimensionAndPosition.position, materialIndex);
 
   this.computeFaceNormals();
   this.computeVertexNormals();
 
-  function buildCube(dimension, pos) {
+  function buildCube(dimension, pos, materialIndex) {
     scope.getCubeVertices(dimension, pos).forEach(function (planeVertices) {
+      planeVertices.push(materialIndex);
       buildPlane.apply(scope, planeVertices);
     });
   }
 
-  function buildPlane(verticeA, verticeB, verticeC, verticeD) {
+  function buildPlane(verticeA, verticeB, verticeC, verticeD, materialIndex) {
     var offset = scope.vertices.length;
     scope.vertices.push(verticeA);
     scope.vertices.push(verticeB);
@@ -45402,8 +45405,8 @@ THREE.TableGeometry = function (width, height, depth, tsurfaceThickness, tbottom
     scope.vertices.push(verticeD);
     var face1 = new THREE.Face3(offset + 2, offset + 1, offset);
     var face2 = new THREE.Face3(offset, offset + 3, offset + 2);
-    face1.materialIndex = 0;
-    face2.materialIndex = 0;
+    face1.materialIndex = materialIndex;
+    face2.materialIndex = materialIndex;
 
     scope.faces.push(face1);
     scope.faces.push(face2);
@@ -46903,12 +46906,9 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
       var width = 1;
       var depth = 1;
       var geometry = new THREE.TableGeometry(width, height, depth, 0.03, 0.01, 0.01);
-      var material = new THREE.MeshPhongMaterial({
-        color: 0xdddddd,
-        side: THREE.DoubleSide
-      });
+
       var invisibleMaterial = new THREE.MeshPhongMaterial({ visible: false });
-      var materials = [invisibleMaterial, material];
+      var materials = [invisibleMaterial, invisibleMaterial, invisibleMaterial, invisibleMaterial, invisibleMaterial, invisibleMaterial, invisibleMaterial, invisibleMaterial];
 
       var mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial(materials));
 
@@ -46939,7 +46939,10 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
     }
   }, {
     key: "updateTbottomVisibility",
-    value: function updateTbottomVisibility(targetController) {
+    value: function updateTbottomVisibility(targetController, oldValue, newValue) {
+      if (oldValue) {
+        this.properties[oldValue] = false;
+      }
       this.properties[targetController.properties.align] = true;
     }
   }, {
@@ -46952,19 +46955,22 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
     value: function updateFaceVisibility(value, oldValue, key) {
       var _this = this;
 
-      var materialIndex = 0;
+      var newMaterial;
       if (value) {
-        materialIndex = 1;
+        newMaterial = new THREE.MeshPhongMaterial({
+          side: THREE.DoubleSide
+        });
       } else {
-        materialIndex = 0;
+        newMaterial = new THREE.MeshPhongMaterial({
+          side: THREE.DoubleSide,
+          visible: false
+        });
       }
       _.forEach(this.propertiesSettings[key].facesStartIndexes, function (faceStartIndex) {
-        for (var i = 0; i < 12; i++) {
-          _this.metaObject.mesh.geometry.faces[faceStartIndex + i].materialIndex = materialIndex;
-        }
+        _this.metaObject.mesh.material.materials[faceStartIndex] = newMaterial;
+        _this.metaObject.mesh.material.materials[faceStartIndex].needsUpdate = true;
       });
-      this.metaObject.mesh.material.materials[materialIndex].needsUpdate = true;
-      // this.metaObject.mesh.material.materials[1].needsUpdate = true
+      this.metaObject.mesh.geometry.dynamic = true;
     }
   }, {
     key: "metaAttachedActions",
@@ -47038,31 +47044,31 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
         "left": {
           type: Boolean,
           "default": false,
-          facesStartIndexes: [0, 72, 84],
+          facesStartIndexes: [2, 3, 4],
           onChange: "updateFaceVisibility"
         },
         "right": {
           type: Boolean,
           "default": false,
-          facesStartIndexes: [24, 36, 48],
+          facesStartIndexes: [0, 6, 7],
           onChange: "updateFaceVisibility"
         },
         "front": {
           type: Boolean,
           "default": false,
-          facesStartIndexes: [0, 12, 24],
+          facesStartIndexes: [0, 1, 2],
           onChange: "updateFaceVisibility"
         },
         "back": {
           type: Boolean,
           "default": false,
-          facesStartIndexes: [48, 60, 72],
+          facesStartIndexes: [4, 5, 6],
           onChange: "updateFaceVisibility"
         },
         "surface": {
           type: Boolean,
           "default": false,
-          facesStartIndexes: [97],
+          facesStartIndexes: [8],
           onChange: "updateFaceVisibility"
         }
       };
