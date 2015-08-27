@@ -20,7 +20,8 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
   get metaAttachedActions(){
     return {
       "attachMetaObject": true,
-      "updateTableDimension": true
+      "updateTableDimension": true,
+      "updateTSurfaceVisibility": true
     }
   }
 

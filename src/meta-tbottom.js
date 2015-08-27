@@ -13,13 +13,15 @@ class MetaTbottomController extends MRM.MetaComponentController {
   get eventActionSettings(){
     return {
       "class": ["propagateMetaStyle"],
-      "id": ["propagateMetaStyle"]
+      "id": ["propagateMetaStyle"],
+      "align": ["updateTbottomVisibility"]
     }
   }
 
   get metaAttachedActions(){
     return {
-      "attachMetaObject": true
+      "attachMetaObject": true,
+      "updateTbottomVisibility": true
     }
   }
 
@@ -35,7 +37,14 @@ class MetaTbottomController extends MRM.MetaComponentController {
         default: 0.03,
         onChange: "updateMetaObject"
       },
-      align: { type: String, default: "front", attrName: "align" }
+      align: {
+        type: String,
+        default: "front",
+        attrName: "align",
+        // onChange: (value) => {
+        //
+        // }
+      }
     }
   }
 
@@ -44,27 +53,8 @@ class MetaTbottomController extends MRM.MetaComponentController {
   }
 
   createMetaObject(){
-    // var height = 1;
-    // var width = 1;
-    // var depth = 1;
-    // var texture = THREE.ImageUtils.loadTexture(
-    //   'img/box.png'
-    // );
-    // texture.wrapS = THREE.RepeatWrapping;
-    // texture.wrapT = THREE.RepeatWrapping;
-    // texture.repeat.set(10, 10);
-    //
-    // var geometry = new THREE.BoxGeometry(width, height, depth);
-    // var material = new THREE.MeshPhongMaterial({
-    //   // map: texture,
-    //   color: 0xffffff,
-    //   side: THREE.DoubleSide
-    // });
-    //
-    // var mesh = new THREE.Mesh(geometry, material);
     var group = new THREE.Group();
-    // group.add( mesh );
-    //
+
     return {
       // mesh: mesh,
       group: group
@@ -72,49 +62,7 @@ class MetaTbottomController extends MRM.MetaComponentController {
   }
 
   updateMetaObject(){
-  //   var mesh = this.metaObject.mesh;
-  //   var group = this.metaObject.group;
-  //   switch (this.properties.align) {
-  //     case 'front':
-  //     case 'back':
-  //       mesh.scale.set(this.properties.tableWidth, 0.1, this.properties.tableHeight);
-  //       this.properties.width = this.properties.tableWidth
-  //       this.properties.length = this.properties.tableHeight
-  //       break;
-  //     case 'right':
-  //     case 'left':
-  //       mesh.scale.set(this.properties.tableLength, 0.1, this.properties.tableHeight);
-  //       this.properties.width = this.properties.tableLength
-  //       this.properties.length = this.properties.tableHeight
-  //       break;
-  //   }
-  //
-  //   switch (this.properties.align) {
-  //     case 'front':
-  //       group.position.set(0, -(this.properties.tableLength/2), this.properties.tableHeight/2);
-  //       group.rotation.x = 0
-  //       group.rotation.y = 0
-  //       group.rotation.z = 0
-  //       break;
-  //     case 'back':
-  //       group.position.set(0, (this.properties.tableLength/2), this.properties.tableHeight/2);
-  //       group.rotation.x = 0
-  //       group.rotation.y = 180 * (Math.PI/180)
-  //       group.rotation.z = 0
-  //       break;
-  //     case 'left':
-  //       group.position.set( -(this.properties.tableWidth/2), 0, this.properties.tableHeight/2);
-  //       group.rotation.x = 0
-  //       group.rotation.y = 0
-  //       group.rotation.z = 270 * (Math.PI/180);
-  //     break;
-  //     case 'right':
-  //       group.position.set( (this.properties.tableWidth/2), 0, this.properties.tableHeight/2);
-  //       group.rotation.x = 0
-  //       group.rotation.y = 0
-  //       group.rotation.z = 90 * (Math.PI/180);
-  //     break;
-  //   }
+
   }
 
 }

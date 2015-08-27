@@ -73,4 +73,16 @@ export default class MetaComponent extends MetaBase{
     }
   }
 
+  metaChildAttributeChanged(e) {
+    var targetController = e.detail.controller;
+    if (this.controller.isChildren(targetController.tagName) ){
+      _.forEach(e.detail.actions, (value, action) => {
+        if (typeof this.controller[action] === 'function') {
+          this.controller[action](targetController)
+          delete e.detail.actions[action]
+        }
+      })
+    }
+  }
+
 }
