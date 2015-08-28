@@ -2,9 +2,9 @@
 
 [What is MetaRoom Markup](http://vrcollab.com/2015/08/10/what-is-metaroom-markup.html)
 
-MetaRoom Markup applies HTML/CSS way of position and styling to 3D object.
+MetaRoom Markup applies the HTML/CSS way of positioning and styling to a 3D object.
 
-For example we can style the table with table-padding-top and table-padding-bottom to control the table 3D object.
+For example, we can style a 3D table with table-padding-top and table-padding-bottom.
 
 ``` html
 <meta-table class='nice-table'>
@@ -90,11 +90,11 @@ it is a prototype.
 
 ### Roadmap
 
-- add css to change the shader. We should support glsify
-- add functional modelling for table and use css to change the arguments
-- tab to change the position and look at of the user just like tabindex
-- How do we do website scrolling in VR or 3D? There should be a path in the meta-room follows all the tabindex, meta-link and meta-item
-- meta-section to define a section and meta-label to guide user to the location along meta-path region
+- add CSS to change the shader. We should support glsify
+- add functional modeling for table and use CSS to change the arguments
+- tab to change positions like tabindex
+- How do we scroll in VR or 3D? There should be a path in the meta-room that follows all the tabindex, meta-link and meta-item
+- meta-section to define a section and meta-label to guide user to the location along the meta-path region
 
 ### Introduction to metaroom-markup video:
 
