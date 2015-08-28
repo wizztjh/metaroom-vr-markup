@@ -12,6 +12,11 @@
 
   <div id='fixture'>
     <meta-verse id="meta-verse">
+      <meta-style>
+        meta-table{
+          material-color: red;
+        }
+      </meta-style>
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
         <meta-floor id='main-meta-floor'>
           <meta-table width='3' height='4' length='2' id='main-meta-table'>
@@ -34,10 +39,74 @@
         jlet('metaTableMesh', function(){ return J.metaTable.controller.metaObject.mesh } );
       });
 
-      it("adds a group to the surface", function(){
-        var floorGroupChildrenUUIDs = J.metaFloor.controller.metaObject.group.children.map(function(child){ return child.uuid })
-        expect(floorGroupChildrenUUIDs).to.include(J.metaTable.controller.metaObject.group.uuid);
+      describe("when initialize", function(){
+
+        it("adds a group to the surface", function(){
+          var floorGroupChildrenUUIDs = J.metaFloor.controller.metaObject.group.children.map(function(child){ return child.uuid })
+          expect(floorGroupChildrenUUIDs).to.include(J.metaTable.controller.metaObject.group.uuid);
+        });
+
+        it("adds a table geometry", function(){
+          expect(J.metaTableMesh.geometry.type).to.equal('TableGeometry');
+        })
+
+        it("sets all tbottom and tsurface as transparent", function(){
+          expect(J.metaTableMesh.material.materials[0].visible).to.equal(false);
+          expect(J.metaTableMesh.material.materials[1].visible).to.equal(false);
+          expect(J.metaTableMesh.material.materials[2].visible).to.equal(false);
+          expect(J.metaTableMesh.material.materials[3].visible).to.equal(false);
+          expect(J.metaTableMesh.material.materials[4].visible).to.equal(false);
+          expect(J.metaTableMesh.material.materials[5].visible).to.equal(false);
+          expect(J.metaTableMesh.material.materials[6].visible).to.equal(false);
+          expect(J.metaTableMesh.material.materials[6].visible).to.equal(false);
+          expect(J.metaTableMesh.material.materials[8].visible).to.equal(false);
+        })
+
+        describe("when tbottom is added", function(){
+          beforeEach(function(){
+            J.metaTable.innerHTML = "<meta-tbottom></meta-tbottom>";
+          })
+
+          it("sets the faces of align=front tbottom to visible", function(){
+            expect(J.metaTableMesh.material.materials[0].visible).to.equal(true);
+            expect(J.metaTableMesh.material.materials[1].visible).to.equal(true);
+            expect(J.metaTableMesh.material.materials[2].visible).to.equal(true);
+          })
+
+          it("sets the material-color of align=front tbottom to red", function(){
+            expect(J.metaTableMesh.material.materials[0].color.r).to.equal(1);
+            expect(J.metaTableMesh.material.materials[0].color.g).to.equal(0);
+            expect(J.metaTableMesh.material.materials[0].color.b).to.equal(0);
+            expect(J.metaTableMesh.material.materials[1].color.r).to.equal(1);
+            expect(J.metaTableMesh.material.materials[1].color.g).to.equal(0);
+            expect(J.metaTableMesh.material.materials[1].color.b).to.equal(0);
+            expect(J.metaTableMesh.material.materials[2].color.r).to.equal(1);
+            expect(J.metaTableMesh.material.materials[2].color.g).to.equal(0);
+            expect(J.metaTableMesh.material.materials[2].color.b).to.equal(0);
+          })
+
+          describe("when meta-tbottom align changes", function(){
+            beforeEach(function(){
+              J.metaTable.innerHTML = "<meta-tbottom align='right'></meta-tbottom>";
+            })
+
+            it("sets the old align to invisible", function(){
+              expect(J.metaTableMesh.material.materials[0].visible).to.equal(false);
+              expect(J.metaTableMesh.material.materials[1].visible).to.equal(false);
+              expect(J.metaTableMesh.material.materials[2].visible).to.equal(false);
+            });
+
+            it("sets the new align to visible", function(){
+              expect(J.metaTableMesh.material.materials[0].visible).to.equal(true);
+              expect(J.metaTableMesh.material.materials[6].visible).to.equal(true);
+              expect(J.metaTableMesh.material.materials[7].visible).to.equal(true);
+            });
+
+          })
+        })
+
       });
+
 
     });
   </script>

@@ -21,15 +21,17 @@ class MetaTableController extends MRM.MetaComponentController{
     var depth = 1;
     var geometry = new THREE.TableGeometry(width, height, depth, 0.03, 0.01, 0.01);
 
-    var invisibleMaterial = new THREE.MeshPhongMaterial( { visible: false } );
-    var materials = [ invisibleMaterial,
-      invisibleMaterial,
-      invisibleMaterial,
-      invisibleMaterial,
-      invisibleMaterial,
-      invisibleMaterial,
-      invisibleMaterial,
-      invisibleMaterial];
+    // var invisibleMaterial = new THREE.MeshPhongMaterial( { visible: false } );
+    var materials = [new THREE.MeshPhongMaterial( { visible: false } ),
+      new THREE.MeshPhongMaterial( { visible: false } ),
+      new THREE.MeshPhongMaterial( { visible: false } ),
+      new THREE.MeshPhongMaterial( { visible: false } ),
+      new THREE.MeshPhongMaterial( { visible: false } ),
+      new THREE.MeshPhongMaterial( { visible: false } ),
+      new THREE.MeshPhongMaterial( { visible: false } ),
+      new THREE.MeshPhongMaterial( { visible: false } ),
+      new THREE.MeshPhongMaterial( { visible: false } ),
+      ];
 
     var mesh = new THREE.Mesh(geometry, new THREE.MeshFaceMaterial( materials ));
 
@@ -114,31 +116,36 @@ class MetaTableController extends MRM.MetaComponentController{
         type: Boolean,
         default: false,
         facesStartIndexes: [2, 3, 4],
-        onChange: "updateFaceVisibility"
+        onChange: "updateFaceVisibility",
+        querySelector: "meta-tbottom[align= left]"
       },
       "right": {
         type: Boolean,
         default: false,
         facesStartIndexes: [0, 6, 7],
-        onChange: "updateFaceVisibility"
+        onChange: "updateFaceVisibility",
+        querySelector: "meta-tbottom[align= right]"
       },
       "front": {
         type: Boolean,
         default: false,
         facesStartIndexes: [0, 1, 2],
-        onChange: "updateFaceVisibility"
+        onChange: "updateFaceVisibility",
+        querySelector: "meta-tbottom[align= front]"
       },
       "back": {
         type: Boolean,
         default: false,
         facesStartIndexes: [4, 5, 6],
-        onChange: "updateFaceVisibility"
+        onChange: "updateFaceVisibility",
+        querySelector: "meta-tbottom[align= back]"
       },
       "surface": {
         type: Boolean,
         default: false,
         facesStartIndexes: [8],
-        onChange: "updateFaceVisibility"
+        onChange: "updateFaceVisibility",
+        querySelector: "meta-tsurface"
       }
     }
   }
@@ -175,9 +182,15 @@ class MetaTableController extends MRM.MetaComponentController{
 
   updateFaceVisibility(value, oldValue, key){
     var newMaterial;
+    var selectedDOM = this.dom.querySelector(":scope > " + this.propertiesSettings[key].querySelector);
+    if(selectedDOM === null && key === 'front'){
+      selectedDOM = this.dom.querySelector(":scope > meta-tbottom");
+    }
     if(value){
+      console.log(this.metaStyle['material-color'], selectedDOM.controller);
       newMaterial = new THREE.MeshPhongMaterial({
-        side: THREE.DoubleSide
+        side: THREE.DoubleSide,
+        color: selectedDOM.controller.metaStyle['material-color'] ? selectedDOM.controller.metaStyle['material-color'] : this.metaStyle['material-color']
       });
     }else{
       newMaterial = new THREE.MeshPhongMaterial({
@@ -204,6 +217,11 @@ class MetaTable extends MRM.MetaComponent {
 
     if (this.controller.isChildren(targetController.tagName) ){
       e.stopPropagation();
+      if(targetController.tagName === 'meta-tsurface'){
+        this.controller.properties['surface'] = false;
+      }else{
+        this.controller.properties[targetController.properties.align] = false;
+      }
       this.controller.metaObject.group.remove(targetController.metaObject.group);
     }
   }

@@ -2,7 +2,7 @@ import MetaBase from './meta-base.js'
 
 export default class MetaComponent extends MetaBase{
   attachedCallback() {
-    this.controller.metaStyle.applyMetaStyleAttribute();
+    // this.controller.metaStyle.applyMetaStyleAttribute();
     var event = new CustomEvent('meta-ready', {});
     this.dispatchEvent(event);
 
