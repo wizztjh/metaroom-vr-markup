@@ -170,9 +170,8 @@ class MetaTableController extends MRM.MetaComponentController{
   }
 
   updateTbottomVisibility(targetController, oldValue, newValue){
-    if(oldValue){
-      this.properties[oldValue] = false;
-    }
+    oldValue = oldValue || "front"
+    this.properties[oldValue] = false;
     this.properties[targetController.properties.align] = true;
   }
 
@@ -181,28 +180,43 @@ class MetaTableController extends MRM.MetaComponentController{
   }
 
   updateFaceVisibility(value, oldValue, key){
-    var newMaterial;
-    var selectedDOM = this.dom.querySelector(":scope > " + this.propertiesSettings[key].querySelector);
-    if(selectedDOM === null && key === 'front'){
-      selectedDOM = this.dom.querySelector(":scope > meta-tbottom");
-    }
-    if(value){
-      console.log(this.metaStyle['material-color'], selectedDOM.controller);
-      newMaterial = new THREE.MeshPhongMaterial({
-        side: THREE.DoubleSide,
-        color: selectedDOM.controller.metaStyle['material-color'] ? selectedDOM.controller.metaStyle['material-color'] : this.metaStyle['material-color']
-      });
-    }else{
-      newMaterial = new THREE.MeshPhongMaterial({
-        side: THREE.DoubleSide,
-        visible: false
-      });
-    }
-    _.forEach(this.propertiesSettings[key].facesStartIndexes, (faceStartIndex) => {
-      this.metaObject.mesh.material.materials[faceStartIndex] = newMaterial;
-      this.metaObject.mesh.material.materials[faceStartIndex].needsUpdate = true
+    this.metaObject.mesh.material.materials.forEach(function(material){
+      material.visible = false
     });
-    this.metaObject.mesh.geometry.dynamic = true;
+
+    _.forEach(this.dom.querySelectorAll(":scope > meta-tbottom, :scope > meta-tsurface"), (element) => {
+      var controller = element.controller
+      if(!controller) {
+        return;
+      }
+      if (controller.tagName === 'meta-tbottom') {
+        switch(controller.properties.align) {
+          case 'left':
+            // TODO: use propertiesSettings face name
+            this.metaObject.mesh.material.materials[2].visible = true;
+            this.metaObject.mesh.material.materials[3].visible = true;
+            this.metaObject.mesh.material.materials[4].visible = true;
+          break;
+          case 'right':
+            this.metaObject.mesh.material.materials[0].visible = true;
+            this.metaObject.mesh.material.materials[6].visible = true;
+            this.metaObject.mesh.material.materials[7].visible = true;
+          break;
+          case 'front':
+            this.metaObject.mesh.material.materials[0].visible = true;
+            this.metaObject.mesh.material.materials[1].visible = true;
+            this.metaObject.mesh.material.materials[2].visible = true;
+          break;
+          case 'back':
+            this.metaObject.mesh.material.materials[2].visible = true;
+            this.metaObject.mesh.material.materials[3].visible = true;
+            this.metaObject.mesh.material.materials[4].visible = true;
+          break;
+        }
+      } else if (controller.tagName === 'meta-tsurface'){
+        this.metaObject.mesh.material.materials[8].visible = true;
+      }
+    });
   }
 }
 
@@ -214,7 +228,6 @@ class MetaTable extends MRM.MetaComponent {
 
   metaDetached(e) {
     var targetController = e.detail.controller;
-
     if (this.controller.isChildren(targetController.tagName) ){
       e.stopPropagation();
       if(targetController.tagName === 'meta-tsurface'){

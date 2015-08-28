@@ -87,23 +87,35 @@
 
           describe("when meta-tbottom align changes", function(){
             beforeEach(function(){
-              J.metaTable.innerHTML = "<meta-tbottom align='right'></meta-tbottom>";
+              J.metaTable.querySelector("meta-tbottom").setAttribute("align", "left")
             })
 
             it("sets the old align to invisible", function(){
               expect(J.metaTableMesh.material.materials[0].visible).to.equal(false);
               expect(J.metaTableMesh.material.materials[1].visible).to.equal(false);
-              expect(J.metaTableMesh.material.materials[2].visible).to.equal(false);
             });
 
             it("sets the new align to visible", function(){
-              expect(J.metaTableMesh.material.materials[0].visible).to.equal(true);
-              expect(J.metaTableMesh.material.materials[6].visible).to.equal(true);
-              expect(J.metaTableMesh.material.materials[7].visible).to.equal(true);
+              expect(J.metaTableMesh.material.materials[2].visible).to.equal(true);
+              expect(J.metaTableMesh.material.materials[3].visible).to.equal(true);
+              expect(J.metaTableMesh.material.materials[4].visible).to.equal(true);
             });
 
           })
+           describe("when cornered tbottom is added", function(){
+            beforeEach(function(){
+              J.metaTable.innerHTML = "<meta-tbottom align='front'></meta-tbottom><meta-tbottom align='right'></meta-tbottom>";
+            })
+            it("sets the corner cube to visible", function(){
+              expect(J.metaTableMesh.material.materials[0].visible).to.equal(true);
+              expect(J.metaTableMesh.material.materials[1].visible).to.equal(true);
+              expect(J.metaTableMesh.material.materials[2].visible).to.equal(true);
+              expect(J.metaTableMesh.material.materials[6].visible).to.equal(true);
+              expect(J.metaTableMesh.material.materials[7].visible).to.equal(true);
+            });
+          })
         })
+
 
       });
 
