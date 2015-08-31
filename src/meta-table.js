@@ -16,12 +16,11 @@ class MetaTableController extends MRM.MetaComponentController{
     var group = new THREE.Group();
     // need to have table geometry, set all visible none
 
-    var height = 1;
-    var width = 1;
-    var depth = 1;
+    var height = this.properties.height || 1;
+    var width = this.properties.width || 1;
+    var depth = this.properties.length || 1;
     var geometry = new THREE.TableGeometry(width, height, depth, 0.03, 0.01, 0.01);
 
-    // var invisibleMaterial = new THREE.MeshPhongMaterial( { visible: false } );
     var materials = [new THREE.MeshPhongMaterial( { visible: false } ),
       new THREE.MeshPhongMaterial( { visible: false } ),
       new THREE.MeshPhongMaterial( { visible: false } ),
@@ -160,7 +159,12 @@ class MetaTableController extends MRM.MetaComponentController{
 
   updateMetaObject (){
     this.metaObject.group.position.z = this.properties.height / 2;
-    this.metaObject.mesh.scale.set(this.properties.width, this.properties.height, this.properties.length);
+    var geometry = this.metaObject.mesh.geometry,
+        tbottomPadding = this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding, 
+        tsurfaceThickness = geometry.parameters.tsurfaceThickness,
+        tbottomThickness = geometry.parameters.tbottomThickness;
+
+    geometry.update(this.properties.width, this.properties.height, this.properties.length, tsurfaceThickness, tbottomThickness, tbottomPadding);
   }
 
   updateTableDimension(targetController){
