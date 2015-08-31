@@ -8,20 +8,19 @@ THREE.TableGeometry = function ( width, height, depth, tsurfaceThickness, tbotto
     width: width,
     height: height,
     depth: depth,
-    widthSegments: 1,
-    heightSegments: 1,
-    depthSegments: 1,
+    tbottomThickness: tbottomThickness,
+    tsurfaceThickness: tsurfaceThickness,
     tbottomPadding: tbottomPadding
   };
 
-  this.widthSegments = 1;
-  this.heightSegments =  1;
-  this.depthSegments = 1;
+  this.width = width
+  this.height = height
+  this.depth = depth
   this.tsurfaceThickness = tsurfaceThickness || 0.1;
   this.tbottomThickness = tbottomThickness || 0.1;
   this.tbottomPadding = tbottomPadding || 0.0;
 
-  var scope = this, materialIndex = 0;
+  var scope = this;
 
   var width_half = width / 2;
   var height_half = height / 2;
@@ -33,37 +32,30 @@ THREE.TableGeometry = function ( width, height, depth, tsurfaceThickness, tbotto
   var tsurfaceDimensionAndPosition = scope.getTsurfaceDimensionAndPosition( width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding );
 
   tbottomDimensionAndPositions.forEach(function(dimensionAndPosition){
-    buildCube(dimensionAndPosition.dimension, dimensionAndPosition.position, materialIndex);
-    materialIndex++;
+    buildCube(dimensionAndPosition.dimension, dimensionAndPosition.position)
   });
   this.mergeVertices();
 
   //tsurface
-  buildCube(tsurfaceDimensionAndPosition.dimension, tsurfaceDimensionAndPosition.position, materialIndex)
+  buildCube(tsurfaceDimensionAndPosition.dimension, tsurfaceDimensionAndPosition.position)
 
   this.computeFaceNormals();
   this.computeVertexNormals();
 
-  function buildCube(dimension, pos, materialIndex) {
+  function buildCube(dimension, pos) {
     scope.getCubeVertices(dimension, pos).forEach(function(planeVertices){
-      planeVertices.push(materialIndex);
-      buildPlane.apply(scope, planeVertices);
+      buildPlane.apply(scope, planeVertices)
     })
   }
 
-  function buildPlane(verticeA, verticeB, verticeC, verticeD, materialIndex){
+  function buildPlane(verticeA, verticeB, verticeC, verticeD){
     var offset = scope.vertices.length;
     scope.vertices.push( verticeA );
     scope.vertices.push( verticeB );
     scope.vertices.push( verticeC );
     scope.vertices.push( verticeD );
-    var face1 = new THREE.Face3( offset +2 , offset +1, offset );
-    var face2 = new THREE.Face3( offset, offset +3, offset + 2 );
-    face1.materialIndex = materialIndex;
-    face2.materialIndex = materialIndex;
-
-    scope.faces.push( face1 );
-    scope.faces.push( face2 );
+    scope.faces.push( new THREE.Face3( offset +2 , offset +1, offset) )
+    scope.faces.push( new THREE.Face3( offset, offset +3, offset + 2 ) )
   }
 };
 
@@ -71,6 +63,13 @@ THREE.TableGeometry.prototype = Object.create( THREE.Geometry.prototype );
 THREE.TableGeometry.prototype.constructor = THREE.TableGeometry;
 
 THREE.TableGeometry.prototype.update = function( width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding ){
+  this.width = width
+  this.height = height
+  this.depth = depth
+  this.tsurfaceThickness = tsurfaceThickness || 0.1;
+  this.tbottomThickness = tbottomThickness || 0.1;
+  this.tbottomPadding = tbottomPadding || 0.0;
+
   var scope = this;
   var tbottomDimensionAndPositions = this.getTbottomDimensionAndPositions( width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding );
   var tsurfaceDimensionAndPosition = this.getTsurfaceDimensionAndPosition( width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding );
@@ -186,7 +185,7 @@ THREE.TableGeometry.prototype.getTsurfaceDimensionAndPosition = function( width,
     },
     position: {
       x: 0,
-      y: height/2 + tsurfaceThickness/2,
+      y: height/2 - tsurfaceThickness/2,
       z: 0
     }
   }
@@ -203,7 +202,7 @@ THREE.TableGeometry.prototype.getTbottomDimensionAndPositions = function( width,
       },
       position: {
         x: width/2 - tbottomThickness/2 - tbottomPadding,
-        y: tsurfaceThickness/2,
+        y: -tsurfaceThickness/2,
         z: depth/2 - tbottomThickness/2 - tbottomPadding
       }
     },
@@ -216,7 +215,7 @@ THREE.TableGeometry.prototype.getTbottomDimensionAndPositions = function( width,
       },
       position: {
         x: 0,
-        y: tsurfaceThickness/2,
+        y: -tsurfaceThickness/2,
         z: depth/2 - tbottomThickness/2 - tbottomPadding
       }
     },
@@ -229,7 +228,7 @@ THREE.TableGeometry.prototype.getTbottomDimensionAndPositions = function( width,
       },
       position: {
         x: - (width/2 - tbottomThickness/2 - tbottomPadding),
-        y: tsurfaceThickness/2,
+        y: - tsurfaceThickness/2,
         z: depth/2 - tbottomThickness/2 - tbottomPadding
       }
     },
@@ -242,7 +241,7 @@ THREE.TableGeometry.prototype.getTbottomDimensionAndPositions = function( width,
       },
       position: {
         x: - (width/2 - tbottomThickness/2 - tbottomPadding),
-        y: tsurfaceThickness/2,
+        y: - tsurfaceThickness/2,
         z: 0
       }
     },
@@ -255,7 +254,7 @@ THREE.TableGeometry.prototype.getTbottomDimensionAndPositions = function( width,
       },
       position: {
         x: - (width/2 - tbottomThickness/2 - tbottomPadding),
-        y: tsurfaceThickness/2,
+        y: - tsurfaceThickness/2,
         z: - (depth/2 - tbottomThickness/2 - tbottomPadding)
       }
     },
@@ -268,7 +267,7 @@ THREE.TableGeometry.prototype.getTbottomDimensionAndPositions = function( width,
       },
       position: {
         x: 0,
-        y: tsurfaceThickness/2,
+        y: - tsurfaceThickness/2,
         z: - (depth/2 - tbottomThickness/2 - tbottomPadding)
       }
     },
@@ -281,7 +280,7 @@ THREE.TableGeometry.prototype.getTbottomDimensionAndPositions = function( width,
       },
       position: {
         x: width/2 - tbottomThickness/2 - tbottomPadding,
-        y: tsurfaceThickness/2,
+        y: - tsurfaceThickness/2,
         z: - ( depth/2 - tbottomThickness/2 - tbottomPadding )
       }
     },
@@ -294,7 +293,7 @@ THREE.TableGeometry.prototype.getTbottomDimensionAndPositions = function( width,
       },
       position: {
         x: (width/2 - tbottomThickness/2 - tbottomPadding),
-        y: tsurfaceThickness/2,
+        y: - tsurfaceThickness/2,
         z: 0
       }
     }

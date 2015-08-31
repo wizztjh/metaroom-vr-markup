@@ -25,6 +25,21 @@ export default class MetaStyle {
     return this.metaStyle["material-color"];
   }
 
+  set ["tbottom-padding"](tbottomPadding) {
+    var mesh = this.controller.metaObject.mesh
+    if (mesh) {
+      var parameters = mesh.geometry.parameters
+
+      mesh.geometry.update(parameters.width, parameters.height, parameters.depth, parameters.tbottomThickness, parameters.tsurfaceThickness, Number(tbottomPadding))
+      this.metaStyle["tbottom-padding"] = Number(tbottomPadding);
+    }
+    return Number(tbottomPadding);
+  }
+
+  get ["tbottom-padding"]() {
+    return this.metaStyle["tbottom-padding"];
+  }
+
   set ["material-type"](type) {
     var mesh = this.controller.metaObject.mesh
     if (mesh) {
