@@ -16,6 +16,7 @@
         meta-table{
           material-color: red;
           tbottom-padding: 3;
+          thickness: 2;
         }
       </meta-style>
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
@@ -135,6 +136,13 @@
         describe("tbottom padding", function(){
           it("sets the geometry tbottom padding", function(){
             expect(J.metaTableMesh.geometry.tbottomPadding).to.equal(3)
+          })
+        });
+
+        describe("meta table thickness", function(){
+          it("sets the tsurface and tbottom thickness", function(){
+            expect(J.metaTableMesh.geometry.tsurfaceThickness).to.equal(2)
+            expect(J.metaTableMesh.geometry.tbottomThickness).to.equal(2)
           })
         });
       });

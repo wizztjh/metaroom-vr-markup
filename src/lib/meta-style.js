@@ -28,9 +28,9 @@ export default class MetaStyle {
   set ["tbottom-padding"](tbottomPadding) {
     var mesh = this.controller.metaObject.mesh
     if (mesh) {
-      var parameters = mesh.geometry.parameters
+      var geometry = mesh.geometry
 
-      mesh.geometry.update(parameters.width, parameters.height, parameters.depth, parameters.tbottomThickness, parameters.tsurfaceThickness, Number(tbottomPadding))
+      mesh.geometry.update(geometry.width, geometry.height, geometry.depth, geometry.tbottomThickness, geometry.tsurfaceThickness, Number(tbottomPadding))
       this.metaStyle["tbottom-padding"] = Number(tbottomPadding);
     }
     return Number(tbottomPadding);
@@ -38,6 +38,22 @@ export default class MetaStyle {
 
   get ["tbottom-padding"]() {
     return this.metaStyle["tbottom-padding"];
+  }
+
+  set ["thickness"](thickness) {
+    var mesh = this.controller.metaObject.mesh
+    if (mesh) {
+      var geometry = mesh.geometry
+
+      console.log("update geo", geometry.width, geometry.height, geometry.depth, Number(thickness), Number(thickness), geometry.tbottomPadding)
+      mesh.geometry.update(geometry.width, geometry.height, geometry.depth, Number(thickness), Number(thickness), geometry.tbottomPadding)
+      this.metaStyle["thickness"] = Number(thickness);
+    }
+    return Number(thickness);
+  }
+
+  get ["thickness"]() {
+    return this.metaStyle["thickness"];
   }
 
   set ["material-type"](type) {
