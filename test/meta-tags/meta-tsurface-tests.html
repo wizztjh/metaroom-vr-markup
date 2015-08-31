@@ -24,32 +24,14 @@
       shouldBehaveLikeA["MetaComponent That Triggers Event When ID Updates"]('metaTsurface');
 
       describe("when initilize", function(){
-        it("added a box to the group", function(){
-          expect(J.metaTsurfaceMetaObject.group.children[0].uuid).to.equal(J.metaTsurfaceMetaObject.mesh.uuid)
-          expect(J.metaTsurfaceMetaObject.mesh.geometry.type).to.equal("BoxGeometry")
-        });
+        it("triggers meta attach")
       });
 
-      describe("when table's width is updated", function(){
-        it("updates the mesh scale", function(){
-          J.metaTsurfaceController.properties.tableWidth = 4
-          expect(J.metaTsurfaceMetaObject.mesh.scale.x).to.equal(4);
-        });
-      })
+      describe("when detach", function(){
+      });
 
-      describe("when table's height is updated", function(){
-        it("updates the position", function(){
-          J.metaTsurfaceController.properties.tableHeight = 5;
-          expect(J.metaTsurfaceMetaObject.group.position.z).to.equal(5);
-        });
-      })
-
-      describe("when table's length is updated", function(){
-        it("updates the mesh scale", function(){
-          J.metaTsurfaceController.properties.tableLength = 5
-          expect(J.metaTsurfaceMetaObject.mesh.scale.y).to.equal(5);
-        });
-      })
+      describe("when attribute changed", function(){
+      });
 
     });
   </script>
