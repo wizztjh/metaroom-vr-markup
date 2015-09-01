@@ -30,6 +30,7 @@
     "threejs-objmtlloader": "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/js/loaders/OBJMTLLoader.js",
     "threejs-mtlloader": "https://raw.githubusercontent.com/mrdoob/three.js/master/examples/js/loaders/MTLLoader.js",
     "webvr-polyfill": "https://raw.githubusercontent.com/borismus/webvr-polyfill/master/build/webvr-polyfill.js",
-    "webvr-boilerplate": "borismus/webvr-boilerplate"
+    "webvr-boilerplate": "borismus/webvr-boilerplate",
+    "meta-table-geometry": "git@github.com:wizztjh/meta-table-geometry.git"
   }
 }

@@ -8,8 +8,6 @@ import MetaComponent from './meta-component.js'
 import MetaBaseWallController from './meta-base-wall-controller.js'
 import MetaStyle from './meta-style.js'
 
-import './table-geometry'
-
 var MRM = {}
 MRM.GameObject = GameObject;
 MRM.MetaBaseController = MetaBaseController;

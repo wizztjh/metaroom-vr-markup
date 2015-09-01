@@ -40098,6 +40098,309 @@ THREE.DDSLoader.parse = function ( buffer, loadMipmaps ) {
 };
 
 </script>
+<script>THREE.TableGeometry = function ( width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding) {
+
+  THREE.Geometry.call( this );
+
+  this.type = 'TableGeometry';
+
+  this.parameters = {
+    width: width,
+    height: height,
+    depth: depth,
+    tbottomThickness: tbottomThickness,
+    tsurfaceThickness: tsurfaceThickness,
+    tbottomPadding: tbottomPadding
+  };
+
+  this.width = width
+  this.height = height
+  this.depth = depth
+  this.tsurfaceThickness = tsurfaceThickness || 0.1;
+  this.tbottomThickness = tbottomThickness || 0.1;
+  this.tbottomPadding = tbottomPadding || 0.0;
+
+  var scope = this;
+
+  var width_half = width / 2;
+  var height_half = height / 2;
+  var depth_half = depth / 2;
+
+  var tsurface_thickness_half = tsurfaceThickness / 2;
+
+  var tbottomDimensionAndPositions = scope.getTbottomDimensionAndPositions( width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding );
+  var tsurfaceDimensionAndPosition = scope.getTsurfaceDimensionAndPosition( width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding );
+
+  tbottomDimensionAndPositions.forEach(function(dimensionAndPosition){
+    buildCube(dimensionAndPosition.dimension, dimensionAndPosition.position)
+  });
+  this.mergeVertices();
+
+  //tsurface
+  buildCube(tsurfaceDimensionAndPosition.dimension, tsurfaceDimensionAndPosition.position)
+
+  this.computeFaceNormals();
+  this.computeVertexNormals();
+
+  function buildCube(dimension, pos) {
+    scope.getCubeVertices(dimension, pos).forEach(function(planeVertices){
+      buildPlane.apply(scope, planeVertices)
+    })
+  }
+
+  function buildPlane(verticeA, verticeB, verticeC, verticeD){
+    var offset = scope.vertices.length;
+    scope.vertices.push( verticeA );
+    scope.vertices.push( verticeB );
+    scope.vertices.push( verticeC );
+    scope.vertices.push( verticeD );
+    scope.faces.push( new THREE.Face3( offset +2 , offset +1, offset) )
+    scope.faces.push( new THREE.Face3( offset, offset +3, offset + 2 ) )
+  }
+};
+
+THREE.TableGeometry.prototype = Object.create( THREE.Geometry.prototype );
+THREE.TableGeometry.prototype.constructor = THREE.TableGeometry;
+
+THREE.TableGeometry.prototype.update = function( width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding ){
+  this.width = width
+  this.height = height
+  this.depth = depth
+  this.tsurfaceThickness = tsurfaceThickness || 0.1;
+  this.tbottomThickness = tbottomThickness || 0.1;
+  this.tbottomPadding = tbottomPadding || 0.0;
+
+  var scope = this;
+  var tbottomDimensionAndPositions = this.getTbottomDimensionAndPositions( width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding );
+  var tsurfaceDimensionAndPosition = this.getTsurfaceDimensionAndPosition( width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding );
+
+  var newVertices = tbottomDimensionAndPositions.reduce(function(previous, dimensionAndPosition){
+    return previous.concat.apply(previous, scope.getCubeVertices(dimensionAndPosition.dimension, dimensionAndPosition.position));
+  }, []);
+
+  var mergedVertices = this.mergeAndReturnVertices(newVertices);
+
+  mergedVertices = mergedVertices.concat.apply(mergedVertices, this.getCubeVertices(tsurfaceDimensionAndPosition.dimension, tsurfaceDimensionAndPosition.position));
+
+  this.vertices.forEach(function(vertex, i){
+    vertex.x = mergedVertices[i].x;
+    vertex.y = mergedVertices[i].y;
+    vertex.z = mergedVertices[i].z;
+  });
+
+  this.verticesNeedUpdate = true
+}
+
+THREE.TableGeometry.prototype.mergeAndReturnVertices = function(vertices){
+  var verticesMap = {}; // Hashmap for looking up vertice by position coordinates (and making sure they are unique)
+  var unique = [], changes = [];
+
+  var v, key;
+  var precisionPoints = 4; // number of decimal points, eg. 4 for epsilon of 0.0001
+  var precision = Math.pow( 10, precisionPoints );
+  var i, il, face;
+  var indices, j, jl;
+
+  for ( i = 0, il = vertices.length; i < il; i ++ ) {
+
+    v = vertices[ i ];
+    key = Math.round( v.x * precision ) + '_' + Math.round( v.y * precision ) + '_' + Math.round( v.z * precision );
+
+    if ( verticesMap[ key ] === undefined ) {
+
+      verticesMap[ key ] = i;
+      unique.push( vertices[ i ] );
+      changes[ i ] = unique.length - 1;
+
+    } else {
+      //console.log('Duplicate vertex found. ', i, ' could be using ', verticesMap[key]);
+      changes[ i ] = changes[ verticesMap[ key ] ];
+
+    }
+
+  };
+
+  var diff = vertices.length - unique.length;
+  return unique;
+
+}
+
+THREE.TableGeometry.prototype.getCubeVertices = function(dimension, pos){
+  var widthHalf = dimension.width/2;
+  var heightHalf = dimension.height/2;
+  var depthHalf = dimension.depth/2;
+
+  return [
+    //top plane
+    [
+      new THREE.Vector3(-widthHalf + pos.x,  heightHalf + pos.y, - depthHalf + pos.z)
+    , new THREE.Vector3( widthHalf + pos.x,  heightHalf + pos.y, - depthHalf + pos.z)
+    , new THREE.Vector3( widthHalf + pos.x,  heightHalf + pos.y,   depthHalf + pos.z)
+    , new THREE.Vector3(-widthHalf + pos.x,  heightHalf + pos.y,   depthHalf + pos.z)
+    ],
+    //bottom plane
+    [
+      new THREE.Vector3(-widthHalf + pos.x, -heightHalf + pos.y,   depthHalf + pos.z)
+    , new THREE.Vector3( widthHalf + pos.x, -heightHalf + pos.y,   depthHalf + pos.z)
+    , new THREE.Vector3( widthHalf + pos.x, -heightHalf + pos.y, - depthHalf + pos.z)
+    , new THREE.Vector3(-widthHalf + pos.x, -heightHalf + pos.y, - depthHalf + pos.z)
+    ],
+    //left plane
+    [
+      new THREE.Vector3(-widthHalf + pos.x,  heightHalf + pos.y, -depthHalf + pos.z)
+    , new THREE.Vector3(-widthHalf + pos.x,  heightHalf + pos.y,  depthHalf + pos.z)
+    , new THREE.Vector3(-widthHalf + pos.x, -heightHalf + pos.y,  depthHalf + pos.z)
+    , new THREE.Vector3(-widthHalf + pos.x, -heightHalf + pos.y, -depthHalf + pos.z)
+    ],
+    // right plane
+    [
+        new THREE.Vector3(widthHalf + pos.x, -heightHalf + pos.y, -depthHalf + pos.z)
+      , new THREE.Vector3(widthHalf + pos.x, -heightHalf + pos.y,  depthHalf + pos.z)
+      , new THREE.Vector3(widthHalf + pos.x,  heightHalf + pos.y,  depthHalf + pos.z)
+      , new THREE.Vector3(widthHalf + pos.x,  heightHalf + pos.y, -depthHalf + pos.z)
+    ],
+    // front plane
+    [
+        new THREE.Vector3(-widthHalf + pos.x,  heightHalf + pos.y,  depthHalf + pos.z)
+      , new THREE.Vector3( widthHalf + pos.x,  heightHalf + pos.y,  depthHalf + pos.z)
+      , new THREE.Vector3( widthHalf + pos.x, -heightHalf + pos.y,  depthHalf + pos.z)
+      , new THREE.Vector3(-widthHalf + pos.x, -heightHalf + pos.y,  depthHalf + pos.z)
+    ],
+    // back plane
+    [
+        new THREE.Vector3(-widthHalf + pos.x, -heightHalf + pos.y, -depthHalf + pos.z)
+      , new THREE.Vector3( widthHalf + pos.x, -heightHalf + pos.y, -depthHalf + pos.z)
+      , new THREE.Vector3( widthHalf + pos.x,  heightHalf + pos.y, -depthHalf + pos.z)
+      , new THREE.Vector3(-widthHalf + pos.x,  heightHalf + pos.y, -depthHalf + pos.z)
+    ]
+  ]
+}
+
+THREE.TableGeometry.prototype.getTsurfaceDimensionAndPosition = function( width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding ){
+  return {
+    dimension: {
+      width: width,
+      height: tsurfaceThickness,
+      depth: depth
+    },
+    position: {
+      x: 0,
+      y: height/2 - tsurfaceThickness/2,
+      z: 0
+    }
+  }
+}
+
+THREE.TableGeometry.prototype.getTbottomDimensionAndPositions = function( width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding ){
+  return [
+    //cube front left
+    {
+      dimension: {
+        width: tbottomThickness,
+        height: height - tsurfaceThickness,
+        depth: tbottomThickness
+      },
+      position: {
+        x: width/2 - tbottomThickness/2 - tbottomPadding,
+        y: -tsurfaceThickness/2,
+        z: depth/2 - tbottomThickness/2 - tbottomPadding
+      }
+    },
+    // cube front middle
+    {
+      dimension: {
+        width: width - tbottomThickness*2 - tbottomPadding * 2,
+        height: height - tsurfaceThickness,
+        depth: tbottomThickness
+      },
+      position: {
+        x: 0,
+        y: -tsurfaceThickness/2,
+        z: depth/2 - tbottomThickness/2 - tbottomPadding
+      }
+    },
+    // front right
+    {
+      dimension: {
+        width: tbottomThickness,
+        height: height - tsurfaceThickness,
+        depth: tbottomThickness
+      },
+      position: {
+        x: - (width/2 - tbottomThickness/2 - tbottomPadding),
+        y: - tsurfaceThickness/2,
+        z: depth/2 - tbottomThickness/2 - tbottomPadding
+      }
+    },
+    // right middle
+    {
+      dimension: {
+        width: tbottomThickness,
+        height: height - tsurfaceThickness,
+        depth: depth - 2 * tbottomThickness - 2 * tbottomPadding
+      },
+      position: {
+        x: - (width/2 - tbottomThickness/2 - tbottomPadding),
+        y: - tsurfaceThickness/2,
+        z: 0
+      }
+    },
+    // back right
+    {
+      dimension: {
+        width: tbottomThickness,
+        height: height - tsurfaceThickness,
+        depth: tbottomThickness
+      },
+      position: {
+        x: - (width/2 - tbottomThickness/2 - tbottomPadding),
+        y: - tsurfaceThickness/2,
+        z: - (depth/2 - tbottomThickness/2 - tbottomPadding)
+      }
+    },
+    // back middle
+    {
+      dimension: {
+        width: width - tbottomThickness*2 - tbottomPadding * 2,
+        height: height - tsurfaceThickness,
+        depth: tbottomThickness
+      },
+      position: {
+        x: 0,
+        y: - tsurfaceThickness/2,
+        z: - (depth/2 - tbottomThickness/2 - tbottomPadding)
+      }
+    },
+    // back left
+    {
+      dimension: {
+        width: tbottomThickness,
+        height: height - tsurfaceThickness,
+        depth: tbottomThickness
+      },
+      position: {
+        x: width/2 - tbottomThickness/2 - tbottomPadding,
+        y: - tsurfaceThickness/2,
+        z: - ( depth/2 - tbottomThickness/2 - tbottomPadding )
+      }
+    },
+    // left middle
+    {
+      dimension: {
+        width: tbottomThickness,
+        height: height - tsurfaceThickness,
+        depth: depth - 2 * tbottomThickness - 2 * tbottomPadding
+      },
+      position: {
+        x: (width/2 - tbottomThickness/2 - tbottomPadding),
+        y: - tsurfaceThickness/2,
+        z: 0
+      }
+    }
+  ]
+}
+
+</script>
 
 <script>(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 
@@ -44742,8 +45045,6 @@ var _metaStyleJs = require('./meta-style.js');
 
 var _metaStyleJs2 = _interopRequireDefault(_metaStyleJs);
 
-require('./table-geometry');
-
 var MRM = {};
 MRM.GameObject = _gameObjectJs2['default'];
 MRM.MetaBaseController = _metaBaseControllerJs2['default'];
@@ -44758,7 +45059,7 @@ MRM.MetaStyle = _metaStyleJs2['default'];
 
 window.MRM = MRM;
 
-},{"./game-object.js":27,"./meta-base-controller.js":29,"./meta-base-wall-controller.js":30,"./meta-base.js":31,"./meta-component-controller.js":32,"./meta-component.js":33,"./meta-style.js":34,"./table-geometry":35}],29:[function(require,module,exports){
+},{"./game-object.js":27,"./meta-base-controller.js":29,"./meta-base-wall-controller.js":30,"./meta-base.js":31,"./meta-component-controller.js":32,"./meta-component.js":33,"./meta-style.js":34}],29:[function(require,module,exports){
 // Shim & native-safe ownerDocument lookup
 "use strict";
 
@@ -45370,277 +45671,7 @@ var MetaStyle = (function () {
 exports["default"] = MetaStyle;
 module.exports = exports["default"];
 
-},{"css":4}],35:[function(require,module,exports){
-'use strict';
-
-THREE.TableGeometry = function (width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding) {
-
-  THREE.Geometry.call(this);
-
-  this.type = 'TableGeometry';
-
-  this.parameters = {
-    width: width,
-    height: height,
-    depth: depth,
-    tbottomThickness: tbottomThickness,
-    tsurfaceThickness: tsurfaceThickness,
-    tbottomPadding: tbottomPadding
-  };
-
-  this.width = width;
-  this.height = height;
-  this.depth = depth;
-  this.tsurfaceThickness = tsurfaceThickness || 0.1;
-  this.tbottomThickness = tbottomThickness || 0.1;
-  this.tbottomPadding = tbottomPadding || 0.0;
-
-  var scope = this;
-
-  var width_half = width / 2;
-  var height_half = height / 2;
-  var depth_half = depth / 2;
-
-  var tsurface_thickness_half = tsurfaceThickness / 2;
-
-  var tbottomDimensionAndPositions = scope.getTbottomDimensionAndPositions(width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding);
-  var tsurfaceDimensionAndPosition = scope.getTsurfaceDimensionAndPosition(width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding);
-
-  tbottomDimensionAndPositions.forEach(function (dimensionAndPosition) {
-    buildCube(dimensionAndPosition.dimension, dimensionAndPosition.position);
-  });
-  this.mergeVertices();
-
-  //tsurface
-  buildCube(tsurfaceDimensionAndPosition.dimension, tsurfaceDimensionAndPosition.position);
-
-  this.computeFaceNormals();
-  this.computeVertexNormals();
-
-  function buildCube(dimension, pos) {
-    scope.getCubeVertices(dimension, pos).forEach(function (planeVertices) {
-      buildPlane.apply(scope, planeVertices);
-    });
-  }
-
-  function buildPlane(verticeA, verticeB, verticeC, verticeD) {
-    var offset = scope.vertices.length;
-    scope.vertices.push(verticeA);
-    scope.vertices.push(verticeB);
-    scope.vertices.push(verticeC);
-    scope.vertices.push(verticeD);
-    scope.faces.push(new THREE.Face3(offset + 2, offset + 1, offset));
-    scope.faces.push(new THREE.Face3(offset, offset + 3, offset + 2));
-  }
-};
-
-THREE.TableGeometry.prototype = Object.create(THREE.Geometry.prototype);
-THREE.TableGeometry.prototype.constructor = THREE.TableGeometry;
-
-THREE.TableGeometry.prototype.update = function (width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding) {
-  this.width = width;
-  this.height = height;
-  this.depth = depth;
-  this.tsurfaceThickness = tsurfaceThickness || 0.1;
-  this.tbottomThickness = tbottomThickness || 0.1;
-  this.tbottomPadding = tbottomPadding || 0.0;
-
-  var scope = this;
-  var tbottomDimensionAndPositions = this.getTbottomDimensionAndPositions(width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding);
-  var tsurfaceDimensionAndPosition = this.getTsurfaceDimensionAndPosition(width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding);
-
-  var newVertices = tbottomDimensionAndPositions.reduce(function (previous, dimensionAndPosition) {
-    return previous.concat.apply(previous, scope.getCubeVertices(dimensionAndPosition.dimension, dimensionAndPosition.position));
-  }, []);
-
-  var mergedVertices = this.mergeAndReturnVertices(newVertices);
-
-  mergedVertices = mergedVertices.concat.apply(mergedVertices, this.getCubeVertices(tsurfaceDimensionAndPosition.dimension, tsurfaceDimensionAndPosition.position));
-
-  this.vertices.forEach(function (vertex, i) {
-    vertex.x = mergedVertices[i].x;
-    vertex.y = mergedVertices[i].y;
-    vertex.z = mergedVertices[i].z;
-  });
-
-  this.verticesNeedUpdate = true;
-};
-
-THREE.TableGeometry.prototype.mergeAndReturnVertices = function (vertices) {
-  var verticesMap = {}; // Hashmap for looking up vertice by position coordinates (and making sure they are unique)
-  var unique = [],
-      changes = [];
-
-  var v, key;
-  var precisionPoints = 4; // number of decimal points, eg. 4 for epsilon of 0.0001
-  var precision = Math.pow(10, precisionPoints);
-  var i, il, face;
-  var indices, j, jl;
-
-  for (i = 0, il = vertices.length; i < il; i++) {
-
-    v = vertices[i];
-    key = Math.round(v.x * precision) + '_' + Math.round(v.y * precision) + '_' + Math.round(v.z * precision);
-
-    if (verticesMap[key] === undefined) {
-
-      verticesMap[key] = i;
-      unique.push(vertices[i]);
-      changes[i] = unique.length - 1;
-    } else {
-      //console.log('Duplicate vertex found. ', i, ' could be using ', verticesMap[key]);
-      changes[i] = changes[verticesMap[key]];
-    }
-  };
-
-  var diff = vertices.length - unique.length;
-  return unique;
-};
-
-THREE.TableGeometry.prototype.getCubeVertices = function (dimension, pos) {
-  var widthHalf = dimension.width / 2;
-  var heightHalf = dimension.height / 2;
-  var depthHalf = dimension.depth / 2;
-
-  return [
-  //top plane
-  [new THREE.Vector3(-widthHalf + pos.x, heightHalf + pos.y, -depthHalf + pos.z), new THREE.Vector3(widthHalf + pos.x, heightHalf + pos.y, -depthHalf + pos.z), new THREE.Vector3(widthHalf + pos.x, heightHalf + pos.y, depthHalf + pos.z), new THREE.Vector3(-widthHalf + pos.x, heightHalf + pos.y, depthHalf + pos.z)],
-  //bottom plane
-  [new THREE.Vector3(-widthHalf + pos.x, -heightHalf + pos.y, depthHalf + pos.z), new THREE.Vector3(widthHalf + pos.x, -heightHalf + pos.y, depthHalf + pos.z), new THREE.Vector3(widthHalf + pos.x, -heightHalf + pos.y, -depthHalf + pos.z), new THREE.Vector3(-widthHalf + pos.x, -heightHalf + pos.y, -depthHalf + pos.z)],
-  //left plane
-  [new THREE.Vector3(-widthHalf + pos.x, heightHalf + pos.y, -depthHalf + pos.z), new THREE.Vector3(-widthHalf + pos.x, heightHalf + pos.y, depthHalf + pos.z), new THREE.Vector3(-widthHalf + pos.x, -heightHalf + pos.y, depthHalf + pos.z), new THREE.Vector3(-widthHalf + pos.x, -heightHalf + pos.y, -depthHalf + pos.z)],
-  // right plane
-  [new THREE.Vector3(widthHalf + pos.x, -heightHalf + pos.y, -depthHalf + pos.z), new THREE.Vector3(widthHalf + pos.x, -heightHalf + pos.y, depthHalf + pos.z), new THREE.Vector3(widthHalf + pos.x, heightHalf + pos.y, depthHalf + pos.z), new THREE.Vector3(widthHalf + pos.x, heightHalf + pos.y, -depthHalf + pos.z)],
-  // front plane
-  [new THREE.Vector3(-widthHalf + pos.x, heightHalf + pos.y, depthHalf + pos.z), new THREE.Vector3(widthHalf + pos.x, heightHalf + pos.y, depthHalf + pos.z), new THREE.Vector3(widthHalf + pos.x, -heightHalf + pos.y, depthHalf + pos.z), new THREE.Vector3(-widthHalf + pos.x, -heightHalf + pos.y, depthHalf + pos.z)],
-  // back plane
-  [new THREE.Vector3(-widthHalf + pos.x, -heightHalf + pos.y, -depthHalf + pos.z), new THREE.Vector3(widthHalf + pos.x, -heightHalf + pos.y, -depthHalf + pos.z), new THREE.Vector3(widthHalf + pos.x, heightHalf + pos.y, -depthHalf + pos.z), new THREE.Vector3(-widthHalf + pos.x, heightHalf + pos.y, -depthHalf + pos.z)]];
-};
-
-THREE.TableGeometry.prototype.getTsurfaceDimensionAndPosition = function (width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding) {
-  return {
-    dimension: {
-      width: width,
-      height: tsurfaceThickness,
-      depth: depth
-    },
-    position: {
-      x: 0,
-      y: height / 2 - tsurfaceThickness / 2,
-      z: 0
-    }
-  };
-};
-
-THREE.TableGeometry.prototype.getTbottomDimensionAndPositions = function (width, height, depth, tsurfaceThickness, tbottomThickness, tbottomPadding) {
-  return [
-  //cube front left
-  {
-    dimension: {
-      width: tbottomThickness,
-      height: height - tsurfaceThickness,
-      depth: tbottomThickness
-    },
-    position: {
-      x: width / 2 - tbottomThickness / 2 - tbottomPadding,
-      y: -tsurfaceThickness / 2,
-      z: depth / 2 - tbottomThickness / 2 - tbottomPadding
-    }
-  },
-  // cube front middle
-  {
-    dimension: {
-      width: width - tbottomThickness * 2 - tbottomPadding * 2,
-      height: height - tsurfaceThickness,
-      depth: tbottomThickness
-    },
-    position: {
-      x: 0,
-      y: -tsurfaceThickness / 2,
-      z: depth / 2 - tbottomThickness / 2 - tbottomPadding
-    }
-  },
-  // front right
-  {
-    dimension: {
-      width: tbottomThickness,
-      height: height - tsurfaceThickness,
-      depth: tbottomThickness
-    },
-    position: {
-      x: -(width / 2 - tbottomThickness / 2 - tbottomPadding),
-      y: -tsurfaceThickness / 2,
-      z: depth / 2 - tbottomThickness / 2 - tbottomPadding
-    }
-  },
-  // right middle
-  {
-    dimension: {
-      width: tbottomThickness,
-      height: height - tsurfaceThickness,
-      depth: depth - 2 * tbottomThickness - 2 * tbottomPadding
-    },
-    position: {
-      x: -(width / 2 - tbottomThickness / 2 - tbottomPadding),
-      y: -tsurfaceThickness / 2,
-      z: 0
-    }
-  },
-  // back right
-  {
-    dimension: {
-      width: tbottomThickness,
-      height: height - tsurfaceThickness,
-      depth: tbottomThickness
-    },
-    position: {
-      x: -(width / 2 - tbottomThickness / 2 - tbottomPadding),
-      y: -tsurfaceThickness / 2,
-      z: -(depth / 2 - tbottomThickness / 2 - tbottomPadding)
-    }
-  },
-  // back middle
-  {
-    dimension: {
-      width: width - tbottomThickness * 2 - tbottomPadding * 2,
-      height: height - tsurfaceThickness,
-      depth: tbottomThickness
-    },
-    position: {
-      x: 0,
-      y: -tsurfaceThickness / 2,
-      z: -(depth / 2 - tbottomThickness / 2 - tbottomPadding)
-    }
-  },
-  // back left
-  {
-    dimension: {
-      width: tbottomThickness,
-      height: height - tsurfaceThickness,
-      depth: tbottomThickness
-    },
-    position: {
-      x: width / 2 - tbottomThickness / 2 - tbottomPadding,
-      y: -tsurfaceThickness / 2,
-      z: -(depth / 2 - tbottomThickness / 2 - tbottomPadding)
-    }
-  },
-  // left middle
-  {
-    dimension: {
-      width: tbottomThickness,
-      height: height - tsurfaceThickness,
-      depth: depth - 2 * tbottomThickness - 2 * tbottomPadding
-    },
-    position: {
-      x: width / 2 - tbottomThickness / 2 - tbottomPadding,
-      y: -tsurfaceThickness / 2,
-      z: 0
-    }
-  }];
-};
-
-},{}]},{},[28]);
+},{"css":4}]},{},[28]);
 </script>
 
 <template id="meta-verse">
