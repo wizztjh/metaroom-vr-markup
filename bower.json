@@ -15,6 +15,7 @@
     "test",
     "tests"
   ],
+  "main": ["dist/metaroom-markup.html"],
   "dependencies": {
     "webcomponentsjs": "*",
     "web-component-tester": "Polymer/web-component-tester#~3.2.0",
