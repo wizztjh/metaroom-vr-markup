@@ -40120,7 +40120,7 @@ THREE.DDSLoader.parse = function ( buffer, loadMipmaps ) {
   this.tbottomThickness = tbottomThickness || 0.1;
   this.tbottomPadding = tbottomPadding || 0.0;
 
-  var scope = this;
+  var scope = this, materialIndex = 0;;
 
   var width_half = width / 2;
   var height_half = height / 2;
@@ -40133,29 +40133,36 @@ THREE.DDSLoader.parse = function ( buffer, loadMipmaps ) {
 
   tbottomDimensionAndPositions.forEach(function(dimensionAndPosition){
     buildCube(dimensionAndPosition.dimension, dimensionAndPosition.position)
+    materialIndex++;
   });
   this.mergeVertices();
 
   //tsurface
-  buildCube(tsurfaceDimensionAndPosition.dimension, tsurfaceDimensionAndPosition.position)
+  buildCube(tsurfaceDimensionAndPosition.dimension, tsurfaceDimensionAndPosition.position, materialIndex)
 
   this.computeFaceNormals();
   this.computeVertexNormals();
 
-  function buildCube(dimension, pos) {
+  function buildCube(dimension, pos, materialIndex) {
     scope.getCubeVertices(dimension, pos).forEach(function(planeVertices){
-      buildPlane.apply(scope, planeVertices)
+      planeVertices.push(materialIndex);
+      buildPlane.apply(scope, planeVertices);
     })
   }
 
-  function buildPlane(verticeA, verticeB, verticeC, verticeD){
+  function buildPlane(verticeA, verticeB, verticeC, verticeD, materialIndex){
     var offset = scope.vertices.length;
     scope.vertices.push( verticeA );
     scope.vertices.push( verticeB );
     scope.vertices.push( verticeC );
     scope.vertices.push( verticeD );
-    scope.faces.push( new THREE.Face3( offset +2 , offset +1, offset) )
-    scope.faces.push( new THREE.Face3( offset, offset +3, offset + 2 ) )
+    var face1 = new THREE.Face3( offset +2 , offset +1, offset );
+    var face2 = new THREE.Face3( offset, offset +3, offset + 2 );
+    face1.materialIndex = materialIndex;
+    face2.materialIndex = materialIndex;
+
+    scope.faces.push( face1 );
+    scope.faces.push( face2 );
   }
 };
 
@@ -40399,7 +40406,6 @@ THREE.TableGeometry.prototype.getTbottomDimensionAndPositions = function( width,
     }
   ]
 }
-
 </script>
 
 <script>(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
