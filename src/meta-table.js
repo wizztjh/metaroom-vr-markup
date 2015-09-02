@@ -160,7 +160,7 @@ class MetaTableController extends MRM.MetaComponentController{
   updateMetaObject (){
     this.metaObject.group.position.z = this.properties.height / 2;
     var geometry = this.metaObject.mesh.geometry,
-        tbottomPadding = this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding, 
+        tbottomPadding = this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding,
         tsurfaceThickness = geometry.parameters.tsurfaceThickness,
         tbottomThickness = geometry.parameters.tbottomThickness;
 
@@ -212,9 +212,9 @@ class MetaTableController extends MRM.MetaComponentController{
             this.metaObject.mesh.material.materials[2].visible = true;
           break;
           case 'back':
-            this.metaObject.mesh.material.materials[2].visible = true;
-            this.metaObject.mesh.material.materials[3].visible = true;
             this.metaObject.mesh.material.materials[4].visible = true;
+            this.metaObject.mesh.material.materials[5].visible = true;
+            this.metaObject.mesh.material.materials[6].visible = true;
           break;
         }
       } else if (controller.tagName === 'meta-tsurface'){
