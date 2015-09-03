@@ -30,7 +30,7 @@ export default class MetaStyle {
     if (mesh) {
       var geometry = mesh.geometry
 
-      mesh.geometry.update(geometry.width, geometry.height, geometry.depth, geometry.tbottomThickness, geometry.tsurfaceThickness, Number(tbottomPadding))
+      mesh.geometry.update(geometry.width, geometry.height, geometry.depth, geometry.tbottomThickness, geometry.tsurfaceThickness, Number(tbottomPadding), Number(tbottomPadding))
       this.metaStyle["tbottom-padding"] = Number(tbottomPadding);
     }
     return Number(tbottomPadding);
@@ -45,8 +45,7 @@ export default class MetaStyle {
     if (mesh) {
       var geometry = mesh.geometry
 
-      console.log("update geo", geometry.width, geometry.height, geometry.depth, Number(thickness), Number(thickness), geometry.tbottomPadding)
-      mesh.geometry.update(geometry.width, geometry.height, geometry.depth, Number(thickness), Number(thickness), geometry.tbottomPadding)
+      mesh.geometry.update(geometry.width, geometry.height, geometry.depth, Number(thickness), Number(thickness), geometry.tbottomPaddingTop, geometry.tbottomPaddingTop)
       this.metaStyle["thickness"] = Number(thickness);
     }
     return Number(thickness);

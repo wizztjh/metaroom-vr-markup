@@ -19,7 +19,7 @@ class MetaTableController extends MRM.MetaComponentController{
     var height = this.properties.height || 1;
     var width = this.properties.width || 1;
     var depth = this.properties.length || 1;
-    var geometry = new THREE.TableGeometry(width, height, depth, 0.03, 0.01, 0.01);
+    var geometry = new THREE.TableGeometry(width, height, depth, 0.03, 0.01, 0.01, 0.01);
 
     var materials = [new THREE.MeshPhongMaterial( { visible: false } ),
       new THREE.MeshPhongMaterial( { visible: false } ),
@@ -160,11 +160,12 @@ class MetaTableController extends MRM.MetaComponentController{
   updateMetaObject (){
     this.metaObject.group.position.z = this.properties.height / 2;
     var geometry = this.metaObject.mesh.geometry,
-        tbottomPadding = this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding,
+        tbottomPadding = this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
         tsurfaceThickness = geometry.parameters.tsurfaceThickness,
         tbottomThickness = geometry.parameters.tbottomThickness;
 
-    geometry.update(this.properties.width, this.properties.height, this.properties.length, tsurfaceThickness, tbottomThickness, tbottomPadding);
+    console.log(this.properties.width, this.properties.height, this.properties.length, tsurfaceThickness, tbottomThickness, tbottomPadding, tbottomPadding)
+    geometry.update(this.properties.width, this.properties.height, this.properties.length, tsurfaceThickness, tbottomThickness, tbottomPadding, tbottomPadding);
   }
 
   updateTableDimension(targetController){
