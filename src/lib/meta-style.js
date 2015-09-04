@@ -25,19 +25,36 @@ export default class MetaStyle {
     return this.metaStyle["material-color"];
   }
 
-  set ["tbottom-padding"](tbottomPadding) {
+  set ["tbottom-padding-top"](tbottomPaddingTop) {
     var mesh = this.controller.metaObject.mesh
     if (mesh) {
       var geometry = mesh.geometry
-
-      mesh.geometry.update(geometry.width, geometry.height, geometry.depth, geometry.tbottomThickness, geometry.tsurfaceThickness, Number(tbottomPadding), Number(tbottomPadding))
-      this.metaStyle["tbottom-padding"] = Number(tbottomPadding);
+      if(mesh.geometry.update){
+        mesh.geometry.update(geometry.width, geometry.height, geometry.depth, geometry.tbottomThickness, geometry.tsurfaceThickness, Number(tbottomPaddingTop), geometry.tbottomPaddingBottom);
+      }
+      this.metaStyle["tbottom-padding-top"] = Number(tbottomPaddingTop);
     }
-    return Number(tbottomPadding);
+    return Number(tbottomPaddingTop);
   }
 
-  get ["tbottom-padding"]() {
-    return this.metaStyle["tbottom-padding"];
+  get ["tbottom-padding-top"]() {
+    return this.metaStyle["tbottom-padding-top"];
+  }
+
+  set ["tbottom-padding-bottom"](tbottomPaddingBottom) {
+    var mesh = this.controller.metaObject.mesh
+    if (mesh) {
+      var geometry = mesh.geometry
+      if(mesh.geometry.update){
+        mesh.geometry.update(geometry.width, geometry.height, geometry.depth, geometry.tbottomThickness, geometry.tsurfaceThickness, geometry.tbottomPaddingTop, Number(tbottomPaddingBottom))
+      }
+      this.metaStyle["tbottom-padding-bottom"] = Number(tbottomPaddingBottom);
+    }
+    return Number(tbottomPaddingBottom);
+  }
+
+  get ["tbottom-padding-bottom"]() {
+    return this.metaStyle["tbottom-padding-bottom"];
   }
 
   set ["thickness"](thickness) {
