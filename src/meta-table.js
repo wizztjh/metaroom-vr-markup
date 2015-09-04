@@ -164,7 +164,6 @@ class MetaTableController extends MRM.MetaComponentController{
         tsurfaceThickness = geometry.parameters.tsurfaceThickness,
         tbottomThickness = geometry.parameters.tbottomThickness;
 
-    console.log(this.properties.width, this.properties.height, this.properties.length, tsurfaceThickness, tbottomThickness, tbottomPadding, tbottomPadding)
     geometry.update(this.properties.width, this.properties.height, this.properties.length, tsurfaceThickness, tbottomThickness, tbottomPadding, tbottomPadding);
   }
 
