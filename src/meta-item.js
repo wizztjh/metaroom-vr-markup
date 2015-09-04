@@ -35,6 +35,7 @@ class MetaItemController extends MRM.MetaComponentController {
       "width": ["updateChildrenDisplayInline"],
       "height": ["updateChildrenDisplayInline"],
       "length": ["updateChildrenDisplayInline"],
+      "meta-style": ['propagateMetaStyle'],
       "class": ["propagateMetaStyle"],
       "id": ["propagateMetaStyle"]
     }

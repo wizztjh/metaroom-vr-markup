@@ -46,6 +46,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
     return {
       "width": ["updateChildrenDisplayInline"],
       "length": ["updateChildrenDisplayInline"],
+      "meta-style": ['propagateMetaStyle'],
       "class": ["propagateMetaStyle"],
       "id": ["propagateMetaStyle"]
     }
