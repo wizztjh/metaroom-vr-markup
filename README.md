@@ -1,8 +1,8 @@
-## MetaRoom markup (Alpha stage, V0)
+## MetaRoomMarkup (Alpha stage, V0)
 
 [What is MetaRoom Markup](http://vrcollab.com/2015/08/10/what-is-metaroom-markup.html)
 
-MetaRoom Markup applies the HTML/CSS way of positioning and styling to a 3D object.
+MetaRoomMarkup applies the HTML/CSS way of positioning and styling to a 3D object.
 
 For example, we can style a 3D table with table-padding-top and table-padding-bottom.
 
@@ -103,17 +103,14 @@ it is a prototype.
 
 ### Dev setup
 
-    git clone https://github.com/wizztjh/metaroom-markup.git
-    cd metaroom-markup
+    git clone git@github.com:MetaRoomMarkup/MetaRoomMarkup.git
+    cd MetaRoomMarkup
     npm install
     npm install gulp -g
     bower install
 
 Hot update during development
     gulp
-
-Demo
-    # go to localhost:3000/demo/metaroom-markup-standard-spec.html
 
 Run the test
     # go to localhost:3000/test/index.html after gulp
