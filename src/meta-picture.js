@@ -33,6 +33,7 @@ class MetaPictureController extends MRM.MetaComponentController {
     return {
       "width": ["updateChildrenDisplayInline"],
       "length": ["updateChildrenDisplayInline"],
+      "meta-style": ['propagateMetaStyle'],
       "class": ["propagateMetaStyle"],
       "id": ["propagateMetaStyle"]
     }

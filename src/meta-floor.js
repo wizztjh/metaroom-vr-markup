@@ -48,6 +48,7 @@ class MetaFloorController extends MRM.MetaBaseWallController{
 
   get eventActionSettings(){
     return {
+      "meta-style": ['propagateMetaStyle'],
       "class": ["propagateMetaStyle"],
       "id": ["propagateMetaStyle"]
     }
