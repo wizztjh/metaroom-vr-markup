@@ -70,7 +70,6 @@ class MetaItemController extends MRM.MetaComponentController {
         this.properties.height / bbox.box.size().y, this.properties.length / bbox.box.size().z);
       this.metaObject.mesh.rotation.x = 90 * (Math.PI/180);
       bbox.update();
-      scene.add(bbox);
       this.metaObject.group.add( object.children[1] );
       this.metaObject.group.position.z = this.properties.height / 2;
     });

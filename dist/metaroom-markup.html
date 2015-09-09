@@ -45009,7 +45009,6 @@ var GameObject = (function () {
     var hemiLightWhite = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.9);
     this.hemiLightWhite = hemiLightWhite;
     hemiLightWhite.position.set(0, 500, 0);
-    window.scene = this.scene;
     this.scene.add(hemiLightWhite);
 
     var hemiLightToned = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
@@ -46841,23 +46840,6 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         return;
       }
       //TODO: why keep loading this? Don't need to keep loading if geometrySrc and materialSrc did not change
-      // loader.load( this.properties.geometrySrc , this.properties.materialSrc, ( object ) => {
-      //   _.forEach(this.metaObject.group.children, (child) => {
-      //     this.metaObject.group.remove(child);
-      //   });
-      //   this.metaObject.group.add( object );
-      //   this.metaObject.mesh = object.children[1]
-      //   console.log(this.metaObject.mesh);
-      //   this.metaObject.mesh.rotation.x = 90 * (Math.PI/180);
-      //   this.metaObject.mesh.scale.set(this.properties.width, this.properties.length, this.properties.height)
-      //   var bbox = new THREE.BoundingBoxHelper( this.metaObject.mesh, 0xff0000 );
-      //   bbox.update();
-      //   scene.add(bbox);
-      //   // debugger;
-      //   this.metaObject.group.position.z = bbox.scale.z / 2;
-      // });
-
-      //Latest scaling code
       loader.load(this.properties.geometrySrc, this.properties.materialSrc, function (object) {
         _.forEach(_this.metaObject.group.children, function (child) {
           _this.metaObject.group.remove(child);
@@ -46868,14 +46850,8 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         _this.metaObject.mesh.scale.set(_this.properties.width / bbox.box.size().x, _this.properties.height / bbox.box.size().y, _this.properties.length / bbox.box.size().z);
         _this.metaObject.mesh.rotation.x = 90 * (Math.PI / 180);
         bbox.update();
-        scene.add(bbox);
         _this.metaObject.group.add(object.children[1]);
         _this.metaObject.group.position.z = _this.properties.height / 2;
-        var bbox2 = new THREE.BoundingBoxHelper(_this.metaObject.mesh, 0xff0000);
-        bbox2.position.x = _this.metaObject.group.position.x;
-        bbox2.position.y = _this.metaObject.group.position.y;
-        bbox2.position.z = _this.metaObject.group.position.z;
-        scene.add(bbox2);
       });
     }
   }, {
