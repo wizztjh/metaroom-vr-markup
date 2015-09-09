@@ -107,11 +107,11 @@ export default class MetaComponentController extends MetaBaseController{
       if (!child.controller){ return; }
 
       if(currentLineWidth + Number(child.controller.properties.width) <= parent.properties.width){
-        currentLineWidth += Number(child.controller.properties.width);
       }else{
         currentLine += 1;
         currentLineWidth = 0;
       }
+      currentLineWidth += Number(child.controller.properties.width);
       lines[currentLine] = lines[currentLine] || []
       lines[currentLine].push(child);
     });

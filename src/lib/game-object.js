@@ -16,6 +16,7 @@ export default class GameObject{
     var hemiLightWhite = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.9 );
     this.hemiLightWhite = hemiLightWhite;
     hemiLightWhite.position.set( 0, 500, 0 );
+    window.scene = this.scene;
     this.scene.add( hemiLightWhite );
 
     var hemiLightToned = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
