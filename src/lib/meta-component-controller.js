@@ -9,6 +9,7 @@ export default class MetaComponentController extends MetaBaseController{
     this.dom = dom;
     this.metaStyle = new MRM.MetaStyle(this)
     this.properties = {}
+    this.childrenPositionIndexMap = [];
     // TODO: create a class for property, to use the set and get of class
     this.propertiesKey.forEach((key) => {
       var settings = this.propertiesSettings[key]
@@ -92,7 +93,7 @@ export default class MetaComponentController extends MetaBaseController{
     return this.dom.querySelectorAll(this.metaChildrenQuerySelectorString);
   }
 
-  updateChildrenDisplayInline() {
+  newUpdateChildrenDisplayInline() {
 
     // TODO: change the board to parent to make it generic
     var parent = this;
@@ -102,16 +103,24 @@ export default class MetaComponentController extends MetaBaseController{
     var lines = [];
     var currentLine = 0;
     var currentLineWidth = 0;
+    var newBiggestLengthForEachLine = [0];
 
     [].forEach.call(children, function (child, index) {
       if (!child.controller){ return; }
 
       if(currentLineWidth + Number(child.controller.properties.width) <= parent.properties.width){
       }else{
-        currentLine += 1;
-        currentLineWidth = 0;
+        if(newBiggestLengthForEachLine.reduce((previousValue, currentValue) => {
+          return previousValue + currentValue;
+        }) < parent.properties.length){
+          currentLine += 1;
+          currentLineWidth = 0;
+          newBiggestLengthForEachLine[currentLine] = 0;
+        }
       }
       currentLineWidth += Number(child.controller.properties.width);
+      if(newBiggestLengthForEachLine[currentLine] < child.controller.properties.length)
+        newBiggestLengthForEachLine[currentLine] = child.controller.properties.length;
       lines[currentLine] = lines[currentLine] || []
       lines[currentLine].push(child);
     });
@@ -144,10 +153,87 @@ export default class MetaComponentController extends MetaBaseController{
         var group = child.controller.metaObject.group;
         group.position.y = baseLineY + child.controller.properties.length/2;
       });
-
     });
-
   }
 
+  updateChildrenDisplayInline(){
+    var metaComponent = this,
+        children = this.getMetaChildren(),
+        lineIndex = 0,
+        currentLineWidth = 0,
+        currentLineLength = 0,
+        childrenInLine = [],
+        totalLength = 0;
 
+    function pushChildForChildrenDisplayInline(index, child){
+      if(metaComponent.childrenPositionIndexMap[index]){
+        return;
+      }
+      if(checkResizeComponent(index, child)){
+        resizeComponent(child.controller.properties.width, child.controller.properties.length)
+        metaComponent.updateChildrenDisplayInline();
+      }
+      calculateChildPosition(child);
+      metaComponent.childrenPositionIndexMap[index] = true;
+    }
+    function resizeComponent(deltaX, deltaY){
+      if(deltaX + currentLineWidth > metaComponent.properties.width){
+        metaComponent.properties.width = deltaX + currentLineWidth;
+        return;
+      }
+      if(deltaY + totalLength > metaComponent.properties.length){
+        metaComponent.properties.length = deltaY + totalLength;
+      }
+    }
+    function checkResizeComponent(index, child){
+      if(currentLineWidth + child.controller.properties.width > metaComponent.properties.width &&
+        (metaComponent.properties.length - (totalLength + currentLineLength)) < child.controller.properties.length){
+        return 1;
+      }else if(totalLength + child.controller.properties.length > metaComponent.properties.length){
+        return 1;
+      }else{
+        return 0;
+      }
+    }
+    function calculateChildPosition(child){
+      var x = 0,
+          y = 0;
+      if((currentLineWidth + child.controller.properties.width) > metaComponent.properties.width){
+        totalLength += currentLineLength;
+        currentLineWidth = 0;
+        currentLineLength = 0;
+        lineIndex++;
+      }
+      x = currentLineWidth + (child.controller.properties.width / 2) - (metaComponent.properties.width / 2)
+      var group = child.controller.metaObject.group;
+      group.position.x = x;
+      currentLineWidth += child.controller.properties.width;
+      y = ((metaComponent.properties.length / 2) - totalLength) - (child.controller.properties.length / 2) -
+        (currentLineLength - child.controller.properties.length);
+      if(currentLineLength < child.controller.properties.length){
+        currentLineLength = child.controller.properties.length;
+        y = (metaComponent.properties.length / 2) - (totalLength + (currentLineLength / 2));
+        _.forEach(childrenInLine[lineIndex], (child) =>{
+          var group = child.controller.metaObject.group;
+          group.position.y = ((metaComponent.properties.length / 2) - totalLength) - (child.controller.properties.length / 2) -
+            (currentLineLength - child.controller.properties.length);
+        });
+      }
+      group.position.y = y;
+      childrenInLine[lineIndex] = childrenInLine[lineIndex] || [];
+      childrenInLine[lineIndex].push(child);
+    }
+
+    _.forEach(children, (child, index) => {
+      if(!child.controller){
+        return;
+      }
+      metaComponent.childrenPositionIndexMap[index] = false;
+    })
+
+    _.forEach(children, (child, index) =>{
+      if (!child.controller){ return; }
+      pushChildForChildrenDisplayInline(index, child);
+    });
+  }
 }
