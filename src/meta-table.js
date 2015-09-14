@@ -73,7 +73,9 @@ class MetaTableController extends MRM.MetaComponentController{
         attrName: 'width',
         onChange: (value)=>{
           this.forEachMetaChildren((child)=>{
-            child.controller.properties.tableWidth = value
+            if(child.controller){
+              child.controller.properties.tableWidth = value
+            }
           })
         }
       },
@@ -83,7 +85,9 @@ class MetaTableController extends MRM.MetaComponentController{
         attrName: 'height',
         onChange: (value)=>{
           this.forEachMetaChildren((child)=>{
-            child.controller.properties.tableHeight = value
+            if(child.controller){
+              child.controller.properties.tableHeight = value
+            }
           })
         }
       },
@@ -93,8 +97,10 @@ class MetaTableController extends MRM.MetaComponentController{
         attrName: 'length',
         onChange: (value)=>{
           this.forEachMetaChildren((child)=>{
-            child.controller.properties.tableLength = value
-          })
+            if(child.controller){
+              child.controller.properties.tableLength = value
+            }
+          });
         }
       },
       tsurfaceThickness: {

@@ -71,6 +71,9 @@ class MetaRoomController extends MRM.MetaComponentController{
     targetController.properties.roomHeight = this.properties.height
     targetController.properties.roomLength = this.properties.length
   }
+
+  updateMetaObject(){
+  }
 }
 
 //TODO: create a unit spec for MetaRoom

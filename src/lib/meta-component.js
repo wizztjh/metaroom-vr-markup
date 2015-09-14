@@ -66,7 +66,11 @@ export default class MetaComponent extends MetaBase{
     if (this.controller.isChildren(targetController.tagName) ){
       _.forEach(e.detail.actions, (value, action) => {
         if (typeof this.controller[action] === 'function') {
-          this.controller[action](targetController)
+          event = this.controller[action](targetController);
+          if(event){
+            console.log(event, 'event and details');
+            this.dispatchEvent(event);
+          }
           delete e.detail.actions[action]
         }
       })
@@ -78,11 +82,31 @@ export default class MetaComponent extends MetaBase{
     if (this.controller.isChildren(targetController.tagName) ){
       _.forEach(e.detail.actions, (value, action) => {
         if (typeof this.controller[action] === 'function') {
-          this.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
+          var event = this.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
+          if(event){
+            console.log(event, 'event and details');
+            this.dispatchEvent(event);
+          }
           delete e.detail.actions[action]
         }
-      })
+      });
     }
   }
 
+  metaSizeAttributeChanged(e){
+    var targetController = e.detail.controller;
+    if(this.controller.isChildren(targetController.tagName)){
+      console.log('updateChildrenDisplayInline', targetController.tagName, this.controller.tagName);
+      this.controller.properties.width = targetController.properties.width;
+      this.controller.properties.length = targetController.properties.length;
+      this.controller.updateMetaObject();
+      var event = new CustomEvent('size-attributes-change', {
+        'detail': {
+          'controller': this.controller,
+        },
+        bubbles: true
+      });
+      this.dispatchEvent(event);
+    }
+  }
 }
