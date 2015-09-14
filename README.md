@@ -17,56 +17,6 @@ MetaRoomMarkup applies the HTML/CSS way of positioning and styling to a 3D objec
 }
 ```
 
-## Markup Language Reference
-
-### Meta Tags
-MetaRoom markup tags
-
-## meta-room
-creates a structure of the room
-
-##### Attributes
-- `width` type: number, default: 1
-- `height` type: number. default 1
-- `depth` type: number. default 1
-
-## meta-wall
-creates a wall in the meta-room
-
-##### Attributes
-- `align` change the alignment of wall. Default is front. Can be left, right, ceiling, front and back.
-
-##### meta-style
-- `material-color` css color code
-
-## meta-floor
-creates a floor in the meta-room
-
-##### meta-style
-- `material-color` css color code
-
-## meta-table
-creates a table structure
-
-##### meta-style
-- `material-color` css color code
-- `tbottom-padding`
-
-## meta-tsurface
-creates a table surface
-
-##### meta-style
-- `material-color` css color code
-
-## meta-tbottom
-creates a table side
-
-##### Attributes
-- `align` change the alignment of wall. Default is front. Can be left, right, ceiling, front and back.
-
-##### meta-style
-- `material-color` css color code
-
 ## Features
 - **Smaller size**: Defines common 3D object with style instead of vertexes.
 - **Display Inline**: Brings display inline to 3D VR
@@ -130,6 +80,56 @@ creates a table side
   </meta-room>
 </meta-verse>
 ```
+## Markup Language Reference
+
+### Meta Tags
+MetaRoom markup tags
+
+## meta-room
+creates a structure of the room
+
+##### Attributes
+- `width` type: number, default: 1
+- `height` type: number. default 1
+- `depth` type: number. default 1
+
+## meta-wall
+creates a wall in the meta-room
+
+##### Attributes
+- `align` change the alignment of wall. Default is front. Can be left, right, ceiling, front and back.
+
+##### meta-style
+- `material-color` css color code
+
+## meta-floor
+creates a floor in the meta-room
+
+##### meta-style
+- `material-color` css color code
+
+## meta-table
+creates a table structure
+
+##### meta-style
+- `material-color` css color code
+- `tbottom-padding`
+
+## meta-tsurface
+creates a table surface
+
+##### meta-style
+- `material-color` css color code
+
+## meta-tbottom
+creates a table side
+
+##### Attributes
+- `align` change the alignment of wall. Default is front. Can be left, right, ceiling, front and back.
+
+##### meta-style
+- `material-color` css color code
+
 
 ### disclaimer
 it is a prototype.
