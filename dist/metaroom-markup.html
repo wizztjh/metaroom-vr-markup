@@ -45647,7 +45647,6 @@ var MetaComponent = (function (_MetaBase) {
           if (typeof _this.controller[action] === 'function') {
             event = _this.controller[action](targetController);
             if (event) {
-              console.log(event, 'event and details');
               _this.dispatchEvent(event);
             }
             delete e.detail.actions[action];
@@ -45666,7 +45665,6 @@ var MetaComponent = (function (_MetaBase) {
           if (typeof _this2.controller[action] === 'function') {
             var event = _this2.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
             if (event) {
-              console.log(event, 'event and details');
               _this2.dispatchEvent(event);
             }
             delete e.detail.actions[action];
@@ -45679,7 +45677,6 @@ var MetaComponent = (function (_MetaBase) {
     value: function metaSizeAttributeChanged(e) {
       var targetController = e.detail.controller;
       if (this.controller.isChildren(targetController.tagName)) {
-        console.log('updateChildrenDisplayInline', targetController.tagName, this.controller.tagName);
         this.controller.properties.width = targetController.properties.width;
         this.controller.properties.length = targetController.properties.length;
         this.controller.updateMetaObject();
