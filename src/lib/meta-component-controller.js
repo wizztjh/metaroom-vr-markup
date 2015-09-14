@@ -9,6 +9,7 @@ export default class MetaComponentController extends MetaBaseController{
     this.dom = dom;
     this.metaStyle = new MRM.MetaStyle(this)
     this.properties = {}
+    this.childrenPositionIndexMap = [];
     // TODO: create a class for property, to use the set and get of class
     this.propertiesKey.forEach((key) => {
       var settings = this.propertiesSettings[key]
@@ -92,62 +93,95 @@ export default class MetaComponentController extends MetaBaseController{
     return this.dom.querySelectorAll(this.metaChildrenQuerySelectorString);
   }
 
-  updateChildrenDisplayInline() {
+  updateChildrenDisplayInline(){
+    var metaComponent = this,
+        children = this.getMetaChildren(),
+        lineIndex = 0,
+        currentLineWidth = 0,
+        currentLineLength = 0,
+        childrenInLine = [],
+        totalLength = 0,
+        eventToTriggerOnResize;
 
-    // TODO: change the board to parent to make it generic
-    var parent = this;
-    // TODO: only select the direct child
-    // TODO: refactore this mess
-    var children = this.getMetaChildren()
-    var lines = [];
-    var currentLine = 0;
-    var currentLineWidth = 0;
-
-    [].forEach.call(children, function (child, index) {
-      if (!child.controller){ return; }
-
-      if(currentLineWidth + Number(child.controller.properties.width) <= parent.properties.width){
-        currentLineWidth += Number(child.controller.properties.width);
-      }else{
-        currentLine += 1;
-        currentLineWidth = 0;
+    function pushChildForChildrenDisplayInline(index, child){
+      if(metaComponent.childrenPositionIndexMap[index]){
+        return;
       }
-      lines[currentLine] = lines[currentLine] || []
-      lines[currentLine].push(child);
+      if(checkResizeComponent(index, child)){
+        // TODO: maybe we can add a new propertiesSettings `bubbleUp` to enable the event bubbling when attribute changes
+        var eventToTriggerOnResize = new CustomEvent('size-attributes-change', {
+          'detail': {
+            'controller': metaComponent,
+          },
+          bubbles: true
+        });
+        resizeComponent(child.controller.properties.width, child.controller.properties.length)
+        metaComponent.updateChildrenDisplayInline();
+        return eventToTriggerOnResize;
+      }
+      calculateChildPosition(child);
+      metaComponent.childrenPositionIndexMap[index] = true;
+    }
+    function resizeComponent(deltaX, deltaY){
+      if(deltaX + currentLineWidth > metaComponent.properties.width){
+        metaComponent.properties.width = deltaX + currentLineWidth;
+        return;
+      }
+      if(deltaY + totalLength > metaComponent.properties.length){
+        metaComponent.properties.length = deltaY + totalLength;
+      }
+    }
+    function checkResizeComponent(index, child){
+      if(currentLineWidth + child.controller.properties.width > metaComponent.properties.width &&
+        (metaComponent.properties.length - (totalLength + currentLineLength)) < child.controller.properties.length){
+        return 1;
+      }else if(totalLength + child.controller.properties.length > metaComponent.properties.length){
+        return 1;
+      }else{
+        return 0;
+      }
+    }
+    function calculateChildPosition(child){
+      var x = 0,
+          y = 0;
+      if((currentLineWidth + child.controller.properties.width) > metaComponent.properties.width){
+        totalLength += currentLineLength;
+        currentLineWidth = 0;
+        currentLineLength = 0;
+        lineIndex++;
+      }
+      x = currentLineWidth + (child.controller.properties.width / 2) - (metaComponent.properties.width / 2)
+      var group = child.controller.metaObject.group;
+      group.position.x = x;
+      currentLineWidth += child.controller.properties.width;
+      y = ((metaComponent.properties.length / 2) - totalLength) - (child.controller.properties.length / 2) -
+        (currentLineLength - child.controller.properties.length);
+      if(currentLineLength < child.controller.properties.length){
+        currentLineLength = child.controller.properties.length;
+        y = (metaComponent.properties.length / 2) - (totalLength + (currentLineLength / 2));
+        _.forEach(childrenInLine[lineIndex], (child) =>{
+          var group = child.controller.metaObject.group;
+          group.position.y = ((metaComponent.properties.length / 2) - totalLength) - (child.controller.properties.length / 2) -
+            (currentLineLength - child.controller.properties.length);
+        });
+      }
+      group.position.y = y;
+      childrenInLine[lineIndex] = childrenInLine[lineIndex] || [];
+      childrenInLine[lineIndex].push(child);
+    }
+
+    _.forEach(children, (child, index) => {
+      if(!child.controller){
+        return;
+      }
+      metaComponent.childrenPositionIndexMap[index] = false;
+    })
+
+    _.forEach(children, (child, index) =>{
+      if (!child.controller){ return; }
+      eventToTriggerOnResize = pushChildForChildrenDisplayInline(index, child);
     });
 
-    var biggestLengthForEachLine = []
-    lines.forEach(function(line, lineIndex){
-      var biggestLength = 0
-      ,   baseLineY
-      ,   nextComponentX = -(Number(parent.properties.width)/2);
-      line.forEach(function(child, childIndex){
-
-        nextComponentX += Number(child.controller.properties.width)/2;
-
-        var group = child.controller.metaObject.group;
-        group.position.x = nextComponentX;
-        nextComponentX += child.controller.properties.width/2;
-
-        if(child.controller.properties.length > biggestLength) {
-          biggestLength = Number(child.controller.properties.length)
-        }
-      });
-
-      biggestLengthForEachLine.push(biggestLength)
-
-      baseLineY = Number(parent.properties.length)/2 - biggestLengthForEachLine.reduce((previousValue, currentValue) => {
-        return previousValue += currentValue
-      });
-
-      line.forEach(function(child, childIndex){
-        var group = child.controller.metaObject.group;
-        group.position.y = baseLineY + child.controller.properties.length/2;
-      });
-
-    });
-
+    return eventToTriggerOnResize;
   }
-
-
 }

@@ -35259,7 +35259,13 @@ module.exports = CardboardHMDVRDevice;
  */
 var PositionSensorVRDevice = require('./base.js').PositionSensorVRDevice;
 var THREE = require('./three-math.js');
-var PosePredictor = require('./pose-predictor.js');
+
+// How much to interpolate between the current orientation estimate and the
+// previous estimate position. This is helpful for devices with low
+// deviceorientation firing frequency (eg. on iOS, it is 20 Hz).
+// The larger this value (in [0, 1]), the smoother but more delayed the
+// head tracking is.
+var SMOOTHING_FACTOR = 0.4;
 
 /**
  * The positional sensor, implemented using web DeviceOrientation APIs.
@@ -35270,10 +35276,12 @@ function GyroPositionSensorVRDevice() {
 
   // Subscribe to deviceorientation events.
   window.addEventListener('deviceorientation', this.onDeviceOrientationChange.bind(this));
-  window.addEventListener('devicemotion', this.onDeviceMotionChange.bind(this));
   window.addEventListener('orientationchange', this.onScreenOrientationChange.bind(this));
   this.deviceOrientation = null;
   this.screenOrientation = window.orientation;
+
+  // The last orientation (for smooth interpolation).
+  this.lastOrientation = new THREE.Quaternion();
 
   // Helper objects for calculating orientation.
   this.finalQuaternion = new THREE.Quaternion();
@@ -35282,8 +35290,6 @@ function GyroPositionSensorVRDevice() {
   this.screenTransform = new THREE.Quaternion();
   // -PI/2 around the x-axis.
   this.worldTransform = new THREE.Quaternion(-Math.sqrt(0.5), 0, 0, Math.sqrt(0.5));
-
-  this.posePredictor = new PosePredictor();
 }
 GyroPositionSensorVRDevice.prototype = new PositionSensorVRDevice();
 
@@ -35303,11 +35309,6 @@ GyroPositionSensorVRDevice.prototype.getState = function() {
 GyroPositionSensorVRDevice.prototype.onDeviceOrientationChange =
     function(deviceOrientation) {
   this.deviceOrientation = deviceOrientation;
-};
-
-GyroPositionSensorVRDevice.prototype.onDeviceMotionChange =
-    function(deviceMotion) {
-  this.deviceMotion = deviceMotion;
 };
 
 GyroPositionSensorVRDevice.prototype.onScreenOrientationChange =
@@ -35337,43 +35338,22 @@ GyroPositionSensorVRDevice.prototype.getOrientation = function() {
   this.finalQuaternion.multiply(this.screenTransform);
   this.finalQuaternion.multiply(this.worldTransform);
 
-  // DEBUG ONLY: Log rotation rate if it's large enough.
-  /*
-  if (this.deviceMotion) {
-    var rotRate = this.deviceMotion.rotationRate;
-    if (Math.abs(rotRate.alpha) > 5) {
-      console.log('Rotation around Z: %f deg', rotRate.alpha);
-    }
-    if (Math.abs(rotRate.beta) > 5) {
-      console.log('Rotation around X: %f deg', rotRate.beta);
-    }
-    if (Math.abs(rotRate.gamma) > 5) {
-      console.log('Rotation around Y: %f deg', rotRate.gamma);
-    }
-  }
-  */
-  this.posePredictor.setScreenOrientation(this.screenOrientation);
+  // Get the last orientation ready for use.
+  this.tmpQuaternion.copy(this.lastOrientation);
 
-  //var bestTime = this.rafTime || window.performance.now();
-  //var bestTime = window.performance.now();
-  var bestTime = this.deviceOrientation.timeStamp;
-  var rotRate = this.deviceMotion && this.deviceMotion.rotationRate;
-  return this.posePredictor.getPrediction(
-      this.finalQuaternion, rotRate, bestTime);
-};
+  // Save this result as the last orientation.
+  this.lastOrientation.copy(this.finalQuaternion);
 
-GyroPositionSensorVRDevice.prototype.resetSensor = function() {
-  console.error('Not implemented yet.');
-};
+  // Interpolate between the new estimate and the last quaternion.
+  this.finalQuaternion.slerp(this.tmpQuaternion, SMOOTHING_FACTOR);
 
-GyroPositionSensorVRDevice.prototype.setAnimationFrameTime = function(rafTime) {
-  this.rafTime = rafTime;
+  return this.finalQuaternion;
 };
 
 
 module.exports = GyroPositionSensorVRDevice;
 
-},{"./base.js":1,"./pose-predictor.js":6,"./three-math.js":7}],4:[function(require,module,exports){
+},{"./base.js":1,"./three-math.js":6}],4:[function(require,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35392,7 +35372,7 @@ var WebVRPolyfill = require('./webvr-polyfill.js');
 
 new WebVRPolyfill();
 
-},{"./webvr-polyfill.js":8}],5:[function(require,module,exports){
+},{"./webvr-polyfill.js":7}],5:[function(require,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -35559,281 +35539,9 @@ MouseKeyboardPositionSensorVRDevice.prototype.isPointerLocked_ = function() {
   return el !== undefined;
 };
 
-MouseKeyboardPositionSensorVRDevice.prototype.resetSensor = function() {
-  console.error('Not implemented yet.');
-};
-
 module.exports = MouseKeyboardPositionSensorVRDevice;
 
-},{"./base.js":1,"./three-math.js":7}],6:[function(require,module,exports){
-/*
- * Copyright 2015 Google Inc. All Rights Reserved.
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-var THREE = require('./three-math.js');
-
-var PredictionMode = {
-  NONE: 'none',
-  INTERPOLATE: 'interpolate',
-  PREDICT: 'predict'
-}
-
-// How much to interpolate between the current orientation estimate and the
-// previous estimate position. This is helpful for devices with low
-// deviceorientation firing frequency (eg. on iOS8 and below, it is 20 Hz).  The
-// larger this value (in [0, 1]), the smoother but more delayed the head
-// tracking is.
-var INTERPOLATION_SMOOTHING_FACTOR = 0.01;
-
-// Angular threshold, if the angular speed (in deg/s) is less than this, do no
-// prediction. Without it, the screen flickers quite a bit.
-var PREDICTION_THRESHOLD_DEG_PER_S = 0.01;
-//var PREDICTION_THRESHOLD_DEG_PER_S = 0;
-
-// How far into the future to predict.
-WEBVR_PREDICTION_TIME_MS = 80;
-
-// Whether to predict or what.
-WEBVR_PREDICTION_MODE = PredictionMode.PREDICT;
-
-function PosePredictor() {
-  this.lastQ = new THREE.Quaternion();
-  this.lastTimestamp = null;
-
-  this.outQ = new THREE.Quaternion();
-  this.deltaQ = new THREE.Quaternion();
-}
-
-PosePredictor.prototype.getPrediction = function(currentQ, rotationRate, timestamp) {
-  // If there's no previous quaternion, output the current one and save for
-  // later.
-  if (!this.lastTimestamp) {
-    this.lastQ.copy(currentQ);
-    this.lastTimestamp = timestamp;
-    return currentQ;
-  }
-
-  // DEBUG ONLY: Try with a fixed 60 Hz update speed.
-  //var elapsedMs = 1000/60;
-  var elapsedMs = timestamp - this.lastTimestamp;
-
-  switch (WEBVR_PREDICTION_MODE) {
-    case PredictionMode.INTERPOLATE:
-      this.outQ.copy(currentQ);
-      this.outQ.slerp(this.lastQ, INTERPOLATION_SMOOTHING_FACTOR);
-
-      // Save the current quaternion for later.
-      this.lastQ.copy(currentQ);
-      break;
-    case PredictionMode.PREDICT:
-      var axisAngle;
-      if (rotationRate) {
-        axisAngle = this.getAxisAngularSpeedFromRotationRate_(rotationRate);
-      } else {
-        axisAngle = this.getAxisAngularSpeedFromGyroDelta_(currentQ, elapsedMs);
-      }
-
-      // If there is no predicted axis/angle, don't do prediction.
-      if (!axisAngle) {
-        this.outQ.copy(currentQ);
-        this.lastQ.copy(currentQ);
-        break;
-      }
-      var angularSpeedDegS = axisAngle.speed;
-      var axis = axisAngle.axis;
-      var predictAngleDeg = (WEBVR_PREDICTION_TIME_MS / 1000) * angularSpeedDegS;
-
-      // If we're rotating slowly, don't do prediction.
-      if (angularSpeedDegS < PREDICTION_THRESHOLD_DEG_PER_S) {
-        this.outQ.copy(currentQ);
-        this.lastQ.copy(currentQ);
-        break;
-      }
-
-      // Calculate the prediction delta to apply to the original angle.
-      this.deltaQ.setFromAxisAngle(axis, THREE.Math.degToRad(predictAngleDeg));
-      // DEBUG ONLY: As a sanity check, use the same axis and angle as before,
-      // which should cause no prediction to happen.
-      //this.deltaQ.setFromAxisAngle(axis, angle);
-
-      this.outQ.copy(this.lastQ);
-      this.outQ.multiply(this.deltaQ);
-
-      // Use the predicted quaternion as the new last one.
-      //this.lastQ.copy(this.outQ);
-      this.lastQ.copy(currentQ);
-      break;
-    case PredictionMode.NONE:
-    default:
-      this.outQ.copy(currentQ);
-  }
-  this.lastTimestamp = timestamp;
-
-  return this.outQ;
-};
-
-PosePredictor.prototype.setScreenOrientation = function(screenOrientation) {
-  this.screenOrientation = screenOrientation;
-};
-
-PosePredictor.prototype.getAxis_ = function(quat) {
-  // x = qx / sqrt(1-qw*qw)
-  // y = qy / sqrt(1-qw*qw)
-  // z = qz / sqrt(1-qw*qw)
-  var d = Math.sqrt(1 - quat.w * quat.w);
-  return new THREE.Vector3(quat.x / d, quat.y / d, quat.z / d);
-};
-
-PosePredictor.prototype.getAngle_ = function(quat) {
-  // angle = 2 * acos(qw)
-  // If w is greater than 1 (THREE.js, how can this be?), arccos is not defined.
-  if (quat.w > 1) {
-    return 0;
-  }
-  var angle = 2 * Math.acos(quat.w);
-  // Normalize the angle to be in [-π, π].
-  if (angle > Math.PI) {
-    angle -= 2 * Math.PI;
-  }
-  return angle;
-};
-
-PosePredictor.prototype.getAxisAngularSpeedFromRotationRate_ = function(rotationRate) {
-  if (!rotationRate) {
-    return null;
-  }
-  var screenRotationRate;
-  if (/iPad|iPhone|iPod/.test(navigator.platform)) {
-    // iOS: angular speed in deg/s.
-    var screenRotationRate = this.getScreenAdjustedRotationRateIOS_(rotationRate);
-  } else {
-    // Android: angular speed in rad/s, so need to convert.
-    rotationRate.alpha = THREE.Math.radToDeg(rotationRate.alpha);
-    rotationRate.beta = THREE.Math.radToDeg(rotationRate.beta);
-    rotationRate.gamma = THREE.Math.radToDeg(rotationRate.gamma);
-    var screenRotationRate = this.getScreenAdjustedRotationRate_(rotationRate);
-  }
-  var vec = new THREE.Vector3(
-      screenRotationRate.beta, screenRotationRate.alpha, screenRotationRate.gamma);
-
-  /*
-  var vec;
-  if (/iPad|iPhone|iPod/.test(navigator.platform)) {
-    vec = new THREE.Vector3(rotationRate.gamma, rotationRate.alpha, rotationRate.beta);
-  } else {
-    vec = new THREE.Vector3(rotationRate.beta, rotationRate.alpha, rotationRate.gamma);
-  }
-  // Take into account the screen orientation too!
-  vec.applyQuaternion(this.screenTransform);
-  */
-
-  // Angular speed in deg/s.
-  var angularSpeedDegS = vec.length();
-
-  var axis = vec.normalize();
-  return {
-    speed: angularSpeedDegS,
-    axis: axis
-  }
-};
-
-PosePredictor.prototype.getScreenAdjustedRotationRate_ = function(rotationRate) {
-  var screenRotationRate = {
-    alpha: -rotationRate.alpha,
-    beta: rotationRate.beta,
-    gamma: rotationRate.gamma
-  };
-  switch (this.screenOrientation) {
-    case 90:
-      screenRotationRate.beta  = - rotationRate.gamma;
-      screenRotationRate.gamma =   rotationRate.beta;
-      break;
-    case 180:
-      screenRotationRate.beta  = - rotationRate.beta;
-      screenRotationRate.gamma = - rotationRate.gamma;
-      break;
-    case 270:
-    case -90:
-      screenRotationRate.beta  =   rotationRate.gamma;
-      screenRotationRate.gamma = - rotationRate.beta;
-      break;
-    default: // SCREEN_ROTATION_0
-      screenRotationRate.beta  =   rotationRate.beta;
-      screenRotationRate.gamma =   rotationRate.gamma;
-      break;
-  }
-  return screenRotationRate;
-};
-
-PosePredictor.prototype.getScreenAdjustedRotationRateIOS_ = function(rotationRate) {
-  var screenRotationRate = {
-    alpha: rotationRate.alpha,
-    beta: rotationRate.beta,
-    gamma: rotationRate.gamma
-  };
-  // Values empirically derived.
-  switch (this.screenOrientation) {
-    case 90:
-      screenRotationRate.beta  = -rotationRate.beta;
-      screenRotationRate.gamma =  rotationRate.gamma;
-      break;
-    case 180:
-      // You can't even do this on iOS.
-      break;
-    case 270:
-    case -90:
-      screenRotationRate.alpha = -rotationRate.alpha;
-      screenRotationRate.beta  =  rotationRate.beta;
-      screenRotationRate.gamma =  rotationRate.gamma;
-      break;
-    default: // SCREEN_ROTATION_0
-      screenRotationRate.alpha =  rotationRate.beta;
-      screenRotationRate.beta  =  rotationRate.alpha;
-      screenRotationRate.gamma =  rotationRate.gamma;
-      break;
-  }
-  return screenRotationRate;
-};
-
-PosePredictor.prototype.getAxisAngularSpeedFromGyroDelta_ = function(currentQ, elapsedMs) {
-  // Sometimes we use the same sensor timestamp, in which case prediction
-  // won't work.
-  if (elapsedMs == 0) {
-    return null;
-  }
-  // Q_delta = Q_last^-1 * Q_curr
-  this.deltaQ.copy(this.lastQ);
-  this.deltaQ.inverse();
-  this.deltaQ.multiply(currentQ);
-
-  // Convert from delta quaternion to axis-angle.
-  var axis = this.getAxis_(this.deltaQ);
-  var angleRad = this.getAngle_(this.deltaQ);
-  // It took `elapsed` ms to travel the angle amount over the axis. Now,
-  // we make a new quaternion based how far in the future we want to
-  // calculate.
-  var angularSpeedRadMs = angleRad / elapsedMs;
-  var angularSpeedDegS = THREE.Math.radToDeg(angularSpeedRadMs) * 1000;
-  // If no rotation rate is provided, do no prediction.
-  return {
-    speed: angularSpeedDegS,
-    axis: axis
-  };
-};
-
-module.exports = PosePredictor;
-
-},{"./three-math.js":7}],7:[function(require,module,exports){
+},{"./base.js":1,"./three-math.js":6}],6:[function(require,module,exports){
 /*
  * A subset of THREE.js, providing mostly quaternion and euler-related
  * operations, manually lifted from
@@ -35844,7 +35552,7 @@ module.exports = PosePredictor;
 var THREE = window.THREE || {};
 
 // If some piece of THREE is missing, fill it in here.
-if (!THREE.Quaternion || !THREE.Vector3 || !THREE.Vector2 || !THREE.Euler || !THREE.Math) {
+if (!THREE.Quaternion || !THREE.Vector3 || !THREE.Vector2 || !THREE.Euler) {
 console.log('No THREE.js found.');
 
 
@@ -37952,183 +37660,12 @@ THREE.Euler.prototype = {
 
 };
 /*** END Euler ***/
-/*** START Math ***/
-/**
- * @author alteredq / http://alteredqualia.com/
- * @author mrdoob / http://mrdoob.com/
- */
-
-THREE.Math = {
-
-	generateUUID: function () {
-
-		// http://www.broofa.com/Tools/Math.uuid.htm
-
-		var chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'.split( '' );
-		var uuid = new Array( 36 );
-		var rnd = 0, r;
-
-		return function () {
-
-			for ( var i = 0; i < 36; i ++ ) {
-
-				if ( i == 8 || i == 13 || i == 18 || i == 23 ) {
-
-					uuid[ i ] = '-';
-
-				} else if ( i == 14 ) {
-
-					uuid[ i ] = '4';
-
-				} else {
-
-					if ( rnd <= 0x02 ) rnd = 0x2000000 + ( Math.random() * 0x1000000 ) | 0;
-					r = rnd & 0xf;
-					rnd = rnd >> 4;
-					uuid[ i ] = chars[ ( i == 19 ) ? ( r & 0x3 ) | 0x8 : r ];
-
-				}
-			}
-
-			return uuid.join( '' );
-
-		};
-
-	}(),
-
-	// Clamp value to range <a, b>
-
-	clamp: function ( x, a, b ) {
-
-		return ( x < a ) ? a : ( ( x > b ) ? b : x );
-
-	},
-
-	// Clamp value to range <a, inf)
-
-	clampBottom: function ( x, a ) {
-
-		return x < a ? a : x;
-
-	},
-
-	// Linear mapping from range <a1, a2> to range <b1, b2>
-
-	mapLinear: function ( x, a1, a2, b1, b2 ) {
-
-		return b1 + ( x - a1 ) * ( b2 - b1 ) / ( a2 - a1 );
-
-	},
-
-	// http://en.wikipedia.org/wiki/Smoothstep
-
-	smoothstep: function ( x, min, max ) {
-
-		if ( x <= min ) return 0;
-		if ( x >= max ) return 1;
-
-		x = ( x - min ) / ( max - min );
-
-		return x * x * ( 3 - 2 * x );
-
-	},
-
-	smootherstep: function ( x, min, max ) {
-
-		if ( x <= min ) return 0;
-		if ( x >= max ) return 1;
-
-		x = ( x - min ) / ( max - min );
-
-		return x * x * x * ( x * ( x * 6 - 15 ) + 10 );
-
-	},
-
-	// Random float from <0, 1> with 16 bits of randomness
-	// (standard Math.random() creates repetitive patterns when applied over larger space)
-
-	random16: function () {
-
-		return ( 65280 * Math.random() + 255 * Math.random() ) / 65535;
-
-	},
-
-	// Random integer from <low, high> interval
-
-	randInt: function ( low, high ) {
-
-		return Math.floor( this.randFloat( low, high ) );
-
-	},
-
-	// Random float from <low, high> interval
-
-	randFloat: function ( low, high ) {
-
-		return low + Math.random() * ( high - low );
-
-	},
-
-	// Random float from <-range/2, range/2> interval
-
-	randFloatSpread: function ( range ) {
-
-		return range * ( 0.5 - Math.random() );
-
-	},
-
-	degToRad: function () {
-
-		var degreeToRadiansFactor = Math.PI / 180;
-
-		return function ( degrees ) {
-
-			return degrees * degreeToRadiansFactor;
-
-		};
-
-	}(),
-
-	radToDeg: function () {
-
-		var radianToDegreesFactor = 180 / Math.PI;
-
-		return function ( radians ) {
-
-			return radians * radianToDegreesFactor;
-
-		};
-
-	}(),
-
-	isPowerOfTwo: function ( value ) {
-
-		return ( value & ( value - 1 ) ) === 0 && value !== 0;
-
-	},
-
-	nextPowerOfTwo: function ( value ) {
-
-		value --;
-		value |= value >> 1;
-		value |= value >> 2;
-		value |= value >> 4;
-		value |= value >> 8;
-		value |= value >> 16;
-		value ++;
-
-		return value;
-	}
-
-};
-
-/*** END Math ***/
 
 }
 
 module.exports = THREE;
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /*
  * Copyright 2015 Google Inc. All Rights Reserved.
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -39152,10 +38689,10 @@ THREE.VREffect = function ( renderer, done ) {
 				if ( devices[i] instanceof HMDVRDevice ) {
 					vrHMD = devices[i];
 					self._vrHMD = vrHMD;
-					self.leftEyeTranslation = vrHMD.getEyeParameters("left").eyeTranslation;
-					self.rightEyeTranslation = vrHMD.getEyeParameters("right").eyeTranslation;
-					self.leftEyeFOV = vrHMD.getEyeParameters("left").recommendedFieldOfView;
-					self.rightEyeFOV = vrHMD.getEyeParameters("right").recommendedFieldOfView;
+					self.leftEyeTranslation = vrHMD.getEyeTranslation( "left" );
+					self.rightEyeTranslation = vrHMD.getEyeTranslation( "right" );
+					self.leftEyeFOV = vrHMD.getRecommendedEyeFieldOfView( "left" );
+					self.rightEyeFOV = vrHMD.getRecommendedEyeFieldOfView( "right" );
 					break; // We keep the first we encounter
 				}
 			}
@@ -45682,13 +45219,13 @@ var _metaComponentControllerJs = require("./meta-component-controller.js");
 var _metaComponentControllerJs2 = _interopRequireDefault(_metaComponentControllerJs);
 
 var MetaBaseWallController = (function (_MetaComponentController) {
+  _inherits(MetaBaseWallController, _MetaComponentController);
+
   function MetaBaseWallController(dom) {
     _classCallCheck(this, MetaBaseWallController);
 
     _get(Object.getPrototypeOf(MetaBaseWallController.prototype), "constructor", this).call(this, dom);
   }
-
-  _inherits(MetaBaseWallController, _MetaComponentController);
 
   _createClass(MetaBaseWallController, [{
     key: "createMetaObject",
@@ -45737,13 +45274,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var MetaBase = (function (_HTMLElement) {
+  _inherits(MetaBase, _HTMLElement);
+
   function MetaBase() {
     _classCallCheck(this, MetaBase);
 
     _get(Object.getPrototypeOf(MetaBase.prototype), 'constructor', this).apply(this, arguments);
   }
-
-  _inherits(MetaBase, _HTMLElement);
 
   _createClass(MetaBase, [{
     key: 'createdCallback',
@@ -45759,6 +45296,10 @@ var MetaBase = (function (_HTMLElement) {
       // TODO: we will name the metaAttached to metaChildAttached, metaChildAttributeChanged
       if (typeof this.metaChildAttributeChanged == 'function') {
         this.addEventListener('meta-attribute-change', this.metaChildAttributeChanged, false);
+      }
+
+      if (typeof this.metaSizeAttributeChanged === 'function') {
+        this.addEventListener('size-attributes-change', this.metaSizeAttributeChanged, false);
       }
     }
   }]);
@@ -45787,13 +45328,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
-var _metaBaseControllerJs = require("./meta-base-controller.js");
+var _metaBaseControllerJs = require('./meta-base-controller.js');
 
 var _metaBaseControllerJs2 = _interopRequireDefault(_metaBaseControllerJs);
 
 var owner = (document._currentScript || document.currentScript).ownerDocument;
 
 var MetaComponentController = (function (_MetaBaseController) {
+  _inherits(MetaComponentController, _MetaBaseController);
+
   function MetaComponentController(dom) {
     var _this = this;
 
@@ -45803,6 +45346,7 @@ var MetaComponentController = (function (_MetaBaseController) {
     this.dom = dom;
     this.metaStyle = new MRM.MetaStyle(this);
     this.properties = {};
+    this.childrenPositionIndexMap = [];
     // TODO: create a class for property, to use the set and get of class
     this.propertiesKey.forEach(function (key) {
       var settings = _this.propertiesSettings[key];
@@ -45830,8 +45374,6 @@ var MetaComponentController = (function (_MetaBaseController) {
       });
     });
   }
-
-  _inherits(MetaComponentController, _MetaBaseController);
 
   _createClass(MetaComponentController, [{
     key: "attachMetaObject",
@@ -45867,60 +45409,94 @@ var MetaComponentController = (function (_MetaBaseController) {
   }, {
     key: "updateChildrenDisplayInline",
     value: function updateChildrenDisplayInline() {
+      var metaComponent = this,
+          children = this.getMetaChildren(),
+          lineIndex = 0,
+          currentLineWidth = 0,
+          currentLineLength = 0,
+          childrenInLine = [],
+          totalLength = 0,
+          eventToTriggerOnResize;
 
-      // TODO: change the board to parent to make it generic
-      var parent = this;
-      // TODO: only select the direct child
-      // TODO: refactore this mess
-      var children = this.getMetaChildren();
-      var lines = [];
-      var currentLine = 0;
-      var currentLineWidth = 0;
+      function pushChildForChildrenDisplayInline(index, child) {
+        if (metaComponent.childrenPositionIndexMap[index]) {
+          return;
+        }
+        if (checkResizeComponent(index, child)) {
+          // TODO: maybe we can add a new propertiesSettings `bubbleUp` to enable the event bubbling when attribute changes
+          var eventToTriggerOnResize = new CustomEvent('size-attributes-change', {
+            'detail': {
+              'controller': metaComponent
+            },
+            bubbles: true
+          });
+          resizeComponent(child.controller.properties.width, child.controller.properties.length);
+          metaComponent.updateChildrenDisplayInline();
+          return eventToTriggerOnResize;
+        }
+        calculateChildPosition(child);
+        metaComponent.childrenPositionIndexMap[index] = true;
+      }
+      function resizeComponent(deltaX, deltaY) {
+        if (deltaX + currentLineWidth > metaComponent.properties.width) {
+          metaComponent.properties.width = deltaX + currentLineWidth;
+          return;
+        }
+        if (deltaY + totalLength > metaComponent.properties.length) {
+          metaComponent.properties.length = deltaY + totalLength;
+        }
+      }
+      function checkResizeComponent(index, child) {
+        if (currentLineWidth + child.controller.properties.width > metaComponent.properties.width && metaComponent.properties.length - (totalLength + currentLineLength) < child.controller.properties.length) {
+          return 1;
+        } else if (totalLength + child.controller.properties.length > metaComponent.properties.length) {
+          return 1;
+        } else {
+          return 0;
+        }
+      }
+      function calculateChildPosition(child) {
+        var x = 0,
+            y = 0;
+        if (currentLineWidth + child.controller.properties.width > metaComponent.properties.width) {
+          totalLength += currentLineLength;
+          currentLineWidth = 0;
+          currentLineLength = 0;
+          lineIndex++;
+        }
+        x = currentLineWidth + child.controller.properties.width / 2 - metaComponent.properties.width / 2;
+        var group = child.controller.metaObject.group;
+        group.position.x = x;
+        currentLineWidth += child.controller.properties.width;
+        y = metaComponent.properties.length / 2 - totalLength - child.controller.properties.length / 2 - (currentLineLength - child.controller.properties.length);
+        if (currentLineLength < child.controller.properties.length) {
+          currentLineLength = child.controller.properties.length;
+          y = metaComponent.properties.length / 2 - (totalLength + currentLineLength / 2);
+          _.forEach(childrenInLine[lineIndex], function (child) {
+            var group = child.controller.metaObject.group;
+            group.position.y = metaComponent.properties.length / 2 - totalLength - child.controller.properties.length / 2 - (currentLineLength - child.controller.properties.length);
+          });
+        }
+        group.position.y = y;
+        childrenInLine[lineIndex] = childrenInLine[lineIndex] || [];
+        childrenInLine[lineIndex].push(child);
+      }
 
-      [].forEach.call(children, function (child, index) {
+      _.forEach(children, function (child, index) {
         if (!child.controller) {
           return;
         }
+        metaComponent.childrenPositionIndexMap[index] = false;
+      });
 
-        if (currentLineWidth + Number(child.controller.properties.width) <= parent.properties.width) {
-          currentLineWidth += Number(child.controller.properties.width);
-        } else {
-          currentLine += 1;
-          currentLineWidth = 0;
+      _.forEach(children, function (child, index) {
+        if (!child.controller) {
+          return;
         }
-        lines[currentLine] = lines[currentLine] || [];
-        lines[currentLine].push(child);
+        eventToTriggerOnResize = pushChildForChildrenDisplayInline(index, child);
       });
 
-      var biggestLengthForEachLine = [];
-      lines.forEach(function (line, lineIndex) {
-        var biggestLength = 0,
-            baseLineY,
-            nextComponentX = -(Number(parent.properties.width) / 2);
-        line.forEach(function (child, childIndex) {
-
-          nextComponentX += Number(child.controller.properties.width) / 2;
-
-          var group = child.controller.metaObject.group;
-          group.position.x = nextComponentX;
-          nextComponentX += child.controller.properties.width / 2;
-
-          if (child.controller.properties.length > biggestLength) {
-            biggestLength = Number(child.controller.properties.length);
-          }
-        });
-
-        biggestLengthForEachLine.push(biggestLength);
-
-        baseLineY = Number(parent.properties.length) / 2 - biggestLengthForEachLine.reduce(function (previousValue, currentValue) {
-          return previousValue += currentValue;
-        });
-
-        line.forEach(function (child, childIndex) {
-          var group = child.controller.metaObject.group;
-          group.position.y = baseLineY + child.controller.properties.length / 2;
-        });
-      });
+      return eventToTriggerOnResize;
     }
   }, {
     key: "metaAttachedActions",
@@ -45930,7 +45506,7 @@ var MetaComponentController = (function (_MetaBaseController) {
   }, {
     key: "tagName",
     get: function get() {
-      throw "Please define a tag name";
+      throw 'Please define a tag name';
     }
   }, {
     key: "propertiesSettings",
@@ -45952,7 +45528,7 @@ var MetaComponentController = (function (_MetaBaseController) {
     get: function get() {
       return this.metaChildrenNames.map(function (selector) {
         return ":scope > " + selector;
-      }).join(" ,");
+      }).join(' ,');
     }
   }, {
     key: "eventActionSettings",
@@ -45989,13 +45565,13 @@ var _metaBaseJs = require('./meta-base.js');
 var _metaBaseJs2 = _interopRequireDefault(_metaBaseJs);
 
 var MetaComponent = (function (_MetaBase) {
+  _inherits(MetaComponent, _MetaBase);
+
   function MetaComponent() {
     _classCallCheck(this, MetaComponent);
 
     _get(Object.getPrototypeOf(MetaComponent.prototype), 'constructor', this).apply(this, arguments);
   }
-
-  _inherits(MetaComponent, _MetaBase);
 
   _createClass(MetaComponent, [{
     key: 'attachedCallback',
@@ -46069,7 +45645,10 @@ var MetaComponent = (function (_MetaBase) {
       if (this.controller.isChildren(targetController.tagName)) {
         _.forEach(e.detail.actions, function (value, action) {
           if (typeof _this.controller[action] === 'function') {
-            _this.controller[action](targetController);
+            event = _this.controller[action](targetController);
+            if (event) {
+              _this.dispatchEvent(event);
+            }
             delete e.detail.actions[action];
           }
         });
@@ -46084,10 +45663,30 @@ var MetaComponent = (function (_MetaBase) {
       if (this.controller.isChildren(targetController.tagName)) {
         _.forEach(e.detail.actions, function (value, action) {
           if (typeof _this2.controller[action] === 'function') {
-            _this2.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
+            var event = _this2.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
+            if (event) {
+              _this2.dispatchEvent(event);
+            }
             delete e.detail.actions[action];
           }
         });
+      }
+    }
+  }, {
+    key: 'metaSizeAttributeChanged',
+    value: function metaSizeAttributeChanged(e) {
+      var targetController = e.detail.controller;
+      if (this.controller.isChildren(targetController.tagName)) {
+        this.controller.properties.width = targetController.properties.width;
+        this.controller.properties.length = targetController.properties.length;
+        this.controller.updateMetaObject();
+        var event = new CustomEvent('size-attributes-change', {
+          'detail': {
+            'controller': this.controller
+          },
+          bubbles: true
+        });
+        this.dispatchEvent(event);
       }
     }
   }]);
@@ -46111,7 +45710,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var _css = require("css");
+var _css = require('css');
 
 var _css2 = _interopRequireDefault(_css);
 
@@ -46128,14 +45727,14 @@ var MetaStyle = (function () {
     value: function clear() {
       //TODO: need to set everything back to default
       this.metaStyle = {};
-      this["material-color"] = "white";
+      this["material-color"] = 'white';
     }
   }, {
     key: "applyMetaStyleAttribute",
     value: function applyMetaStyleAttribute() {
       var _this = this;
 
-      var metaStyleAttribute = this.controller.dom.getAttribute("meta-style");
+      var metaStyleAttribute = this.controller.dom.getAttribute('meta-style');
       if (!metaStyleAttribute) {
         return;
       }
@@ -46231,7 +45830,7 @@ var MetaStyle = (function () {
       var mesh = this.controller.metaObject.mesh;
       if (mesh) {
         switch (type) {
-          case "phong":
+          case 'phong':
             mesh.material = new THREE.MeshPhongMaterial({ color: this.metaStyle["material-color"] });
             break;
           default:
@@ -46282,6 +45881,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var owner = (document._currentScript || document.currentScript).ownerDocument;
 
 var MetaVerseController = (function (_MRM$MetaBaseController) {
+  _inherits(MetaVerseController, _MRM$MetaBaseController);
+
   function MetaVerseController(dom) {
     _classCallCheck(this, MetaVerseController);
 
@@ -46294,8 +45895,6 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
     this.setupComponent();
   }
 
-  _inherits(MetaVerseController, _MRM$MetaBaseController);
-
   _createClass(MetaVerseController, [{
     key: "setupComponent",
     value: function setupComponent() {
@@ -46306,10 +45905,10 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
 
       this.dom.appendChild(template);
     }
-  }, {
-    key: "updateMetaStyle",
 
     // TODO: rename to update global metaStyle
+  }, {
+    key: "updateMetaStyle",
     value: function updateMetaStyle(targetController) {
       var _this = this;
 
@@ -46337,7 +45936,7 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
       var metaVerse = this;
       var metaChildren = this.getAllMetaChildren();
       var count = metaChildren.length;
-      var event = new CustomEvent("meta-ready", {});
+      var event = new CustomEvent('meta-ready', {});
 
       function dispatchWhenAllReady() {
         count--;
@@ -46354,7 +45953,7 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
           if (metaTag.controller) {
             dispatchWhenAllReady();
           } else {
-            metaTag.addEventListener("meta-ready", function () {
+            metaTag.addEventListener('meta-ready', function () {
               dispatchWhenAllReady();
             });
           }
@@ -46421,13 +46020,13 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
 })(MRM.MetaBaseController);
 
 var MetaVerse = (function (_MRM$MetaBase) {
+  _inherits(MetaVerse, _MRM$MetaBase);
+
   function MetaVerse() {
     _classCallCheck(this, MetaVerse);
 
     _get(Object.getPrototypeOf(MetaVerse.prototype), "constructor", this).apply(this, arguments);
   }
-
-  _inherits(MetaVerse, _MRM$MetaBase);
 
   _createClass(MetaVerse, [{
     key: "createdCallback",
@@ -46437,7 +46036,7 @@ var MetaVerse = (function (_MRM$MetaBase) {
       this.controller = new MetaVerseController(this);
       _get(Object.getPrototypeOf(MetaVerse.prototype), "createdCallback", this).call(this);
 
-      this.addEventListener("meta-ready", function (e) {
+      this.addEventListener('meta-ready', function (e) {
         _this3.controller.propagateMetaStyle();
       });
       //TODO: refactor this whole mess, we need to trigger the meta ready after we listen to meta-ready
@@ -46451,7 +46050,7 @@ var MetaVerse = (function (_MRM$MetaBase) {
       // TODO: move this to a mixin with meta component
       var targetController = e.detail.controller;
       _.forEach(e.detail.actions, function (value, action) {
-        if (typeof _this4.controller[action] === "function") {
+        if (typeof _this4.controller[action] === 'function') {
           _this4.controller[action].call(_this4.controller, targetController);
           delete e.detail.actions[action];
         }
@@ -46461,7 +46060,7 @@ var MetaVerse = (function (_MRM$MetaBase) {
     key: "metaDetached",
     value: function metaDetached(e) {
       var controller = e.detail.controller;
-      if (controller.tagName == "meta-room") {
+      if (controller.tagName == 'meta-room') {
         this.controller.gameObject.remove(e.detail.controller.metaObject);
       }
       // TODO: do something if meta-style is removed
@@ -46472,7 +46071,7 @@ var MetaVerse = (function (_MRM$MetaBase) {
       var targetController = e.detail.controller;
 
       if (e.detail.actions.propagateMetaStyle) {
-        if (targetController.tagName === "meta-style") {
+        if (targetController.tagName === 'meta-style') {
           this.controller.globalMetaStyle = {};
           this.controller.updateMetaStyle(targetController);
         }
@@ -46485,7 +46084,7 @@ var MetaVerse = (function (_MRM$MetaBase) {
   return MetaVerse;
 })(MRM.MetaBase);
 
-document.registerElement("meta-verse", MetaVerse);
+document.registerElement('meta-verse', MetaVerse);
 
 },{}]},{},[1])</script>
 <template id="meta-room">
@@ -46506,6 +46105,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 var owner = (document._currentScript || document.currentScript).ownerDocument;
 
 var MetaRoomController = (function (_MRM$MetaComponentController) {
+  _inherits(MetaRoomController, _MRM$MetaComponentController);
+
   function MetaRoomController(dom) {
     _classCallCheck(this, MetaRoomController);
 
@@ -46514,8 +46115,6 @@ var MetaRoomController = (function (_MRM$MetaComponentController) {
     this.setupComponent();
     this.metaObject = this.createMetaObject();
   }
-
-  _inherits(MetaRoomController, _MRM$MetaComponentController);
 
   _createClass(MetaRoomController, [{
     key: 'createMetaObject',
@@ -46533,6 +46132,9 @@ var MetaRoomController = (function (_MRM$MetaComponentController) {
       targetController.properties.roomHeight = this.properties.height;
       targetController.properties.roomLength = this.properties.length;
     }
+  }, {
+    key: 'updateMetaObject',
+    value: function updateMetaObject() {}
   }, {
     key: 'metaAttachedActions',
     get: function get() {
@@ -46581,28 +46183,29 @@ var MetaRoomController = (function (_MRM$MetaComponentController) {
   }, {
     key: 'tagName',
     get: function get() {
-      return 'meta-room';
+      return "meta-room";
     }
   }, {
     key: 'metaChildrenNames',
     get: function get() {
-      return ['meta-wall', 'meta-floor'];
+      return ["meta-wall", "meta-floor"];
     }
   }]);
 
   return MetaRoomController;
-})(MRM.MetaComponentController);
+})(MRM.MetaComponentController)
 
 //TODO: create a unit spec for MetaRoom
+;
 
 var MetaRoom = (function (_MRM$MetaComponent) {
+  _inherits(MetaRoom, _MRM$MetaComponent);
+
   function MetaRoom() {
     _classCallCheck(this, MetaRoom);
 
     _get(Object.getPrototypeOf(MetaRoom.prototype), 'constructor', this).apply(this, arguments);
   }
-
-  _inherits(MetaRoom, _MRM$MetaComponent);
 
   _createClass(MetaRoom, [{
     key: 'createdCallback',
@@ -46643,6 +46246,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var MetaWallController = (function (_MRM$MetaBaseWallController) {
+  _inherits(MetaWallController, _MRM$MetaBaseWallController);
+
   function MetaWallController(dom) {
     _classCallCheck(this, MetaWallController);
 
@@ -46654,8 +46259,6 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
     this.updateMetaObject();
   }
 
-  _inherits(MetaWallController, _MRM$MetaBaseWallController);
-
   _createClass(MetaWallController, [{
     key: "updateMetaObject",
     value: function updateMetaObject() {
@@ -46664,21 +46267,21 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
       // TODO: sets the properties.width and height of wall for refference
 
       switch (this.properties.align) {
-        case "left":
-        case "right":
+        case 'left':
+        case 'right':
           mesh.scale.set(this.properties.roomLength, this.properties.roomHeight, 1);
           this.properties.width = this.properties.roomLength;
           this.properties.length = this.properties.roomHeight;
           break;
 
-        case "ceiling":
+        case 'ceiling':
           mesh.scale.set(this.properties.roomWidth, this.properties.roomLength, 1);
           this.properties.width = this.properties.roomWidth;
           this.properties.length = this.properties.roomLength;
           break;
 
-        case "front":
-        case "back":
+        case 'front':
+        case 'back':
           mesh.scale.set(this.properties.roomWidth, this.properties.roomHeight, 1);
           this.properties.width = this.properties.roomWidth;
           this.properties.length = this.properties.roomHeight;
@@ -46687,33 +46290,33 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
       }
 
       switch (this.properties.align) {
-        case "left":
+        case 'left':
           group.rotation.x = 0;
           group.rotation.y = 90 * (Math.PI / 180);
           group.rotation.z = 0;
           group.position.set(-(this.properties.roomWidth / 2), this.properties.roomHeight / 2, 0);
           break;
-        case "front":
+        case 'front':
           group.position.set(0, this.properties.roomHeight / 2, -(this.properties.roomLength / 2));
           group.rotation.x = 0;
           group.rotation.y = 0;
           group.rotation.z = 0;
           break;
           break;
-        case "back":
+        case 'back':
           group.position.set(0, this.properties.roomHeight / 2, this.properties.roomLength / 2);
           group.rotation.x = 0;
           group.rotation.y = 180 * (Math.PI / 180);
           group.rotation.z = 0;
           break;
-        case "ceiling":
+        case 'ceiling':
           group.rotation.x = 90 * (Math.PI / 180);
           group.rotation.y = 0;
           group.rotation.z = 0;
 
           group.position.set(0, this.properties.roomHeight, 0);
           break;
-        case "right":
+        case 'right':
           group.rotation.x = 0;
           group.rotation.y = 270 * (Math.PI / 180);
           group.rotation.z = 0;
@@ -46765,7 +46368,7 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
       return {
         "width": ["updateChildrenDisplayInline"],
         "length": ["updateChildrenDisplayInline"],
-        "meta-style": ["propagateMetaStyle"],
+        "meta-style": ['propagateMetaStyle'],
         "class": ["propagateMetaStyle"],
         "id": ["propagateMetaStyle"]
       };
@@ -46781,13 +46384,13 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
 })(MRM.MetaBaseWallController);
 
 var MetaWall = (function (_MRM$MetaComponent) {
+  _inherits(MetaWall, _MRM$MetaComponent);
+
   function MetaWall() {
     _classCallCheck(this, MetaWall);
 
     _get(Object.getPrototypeOf(MetaWall.prototype), "constructor", this).apply(this, arguments);
   }
-
-  _inherits(MetaWall, _MRM$MetaComponent);
 
   _createClass(MetaWall, [{
     key: "createdCallback",
@@ -46826,7 +46429,7 @@ var MetaWall = (function (_MRM$MetaComponent) {
   return MetaWall;
 })(MRM.MetaComponent);
 
-document.registerElement("meta-wall", MetaWall);
+document.registerElement('meta-wall', MetaWall);
 
 },{}]},{},[1])</script>  
 <template id="meta-floor">
@@ -46844,6 +46447,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var MetaFloorController = (function (_MRM$MetaBaseWallController) {
+  _inherits(MetaFloorController, _MRM$MetaBaseWallController);
+
   function MetaFloorController(dom) {
     _classCallCheck(this, MetaFloorController);
 
@@ -46856,8 +46461,6 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
 
     this.updateMetaObject();
   }
-
-  _inherits(MetaFloorController, _MRM$MetaBaseWallController);
 
   _createClass(MetaFloorController, [{
     key: "updateMetaObject",
@@ -46918,7 +46521,7 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
     key: "eventActionSettings",
     get: function get() {
       return {
-        "meta-style": ["propagateMetaStyle"],
+        "meta-style": ['propagateMetaStyle'],
         "class": ["propagateMetaStyle"],
         "id": ["propagateMetaStyle"]
       };
@@ -46929,13 +46532,13 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
 })(MRM.MetaBaseWallController);
 
 var MetaFloor = (function (_MRM$MetaComponent) {
+  _inherits(MetaFloor, _MRM$MetaComponent);
+
   function MetaFloor() {
     _classCallCheck(this, MetaFloor);
 
     _get(Object.getPrototypeOf(MetaFloor.prototype), "constructor", this).apply(this, arguments);
   }
-
-  _inherits(MetaFloor, _MRM$MetaComponent);
 
   _createClass(MetaFloor, [{
     key: "createdCallback",
@@ -46973,7 +46576,7 @@ var MetaFloor = (function (_MRM$MetaComponent) {
   return MetaFloor;
 })(MRM.MetaComponent);
 
-document.registerElement("meta-floor", MetaFloor);
+document.registerElement('meta-floor', MetaFloor);
 
 },{}]},{},[1])</script>
 <template id="meta-board">
@@ -46991,6 +46594,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var MetaBoardController = (function (_MRM$MetaComponentController) {
+  _inherits(MetaBoardController, _MRM$MetaComponentController);
+
   function MetaBoardController(dom) {
     _classCallCheck(this, MetaBoardController);
 
@@ -47004,8 +46609,6 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
 
     this.updateMetaObject();
   }
-
-  _inherits(MetaBoardController, _MRM$MetaComponentController);
 
   _createClass(MetaBoardController, [{
     key: 'createMetaObject',
@@ -47048,31 +46651,31 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
   }, {
     key: 'tagName',
     get: function get() {
-      return 'meta-board';
+      return "meta-board";
     }
   }, {
     key: 'metaAttachedActions',
     get: function get() {
       return {
-        'attachMetaObject': true,
-        'updateChildrenDisplayInline': true,
-        'propagateMetaStyle': true
+        "attachMetaObject": true,
+        "updateChildrenDisplayInline": true,
+        "propagateMetaStyle": true
       };
     }
   }, {
     key: 'metaChildrenNames',
     get: function get() {
-      return ['meta-text', 'meta-picture', 'meta-table'];
+      return ["meta-text", "meta-picture", "meta-table"];
     }
   }, {
     key: 'eventActionSettings',
     get: function get() {
       return {
-        'width': ['updateChildrenDisplayInline'],
-        'length': ['updateChildrenDisplayInline'],
-        'meta-style': ['propagateMetaStyle'],
-        'class': ['propagateMetaStyle'],
-        'id': ['propagateMetaStyle']
+        "width": ["updateChildrenDisplayInline"],
+        "length": ["updateChildrenDisplayInline"],
+        "meta-style": ['propagateMetaStyle'],
+        "class": ["propagateMetaStyle"],
+        "id": ["propagateMetaStyle"]
       };
     }
   }]);
@@ -47081,13 +46684,13 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
 })(MRM.MetaComponentController);
 
 var MetaBoard = (function (_MRM$MetaComponent) {
+  _inherits(MetaBoard, _MRM$MetaComponent);
+
   function MetaBoard() {
     _classCallCheck(this, MetaBoard);
 
     _get(Object.getPrototypeOf(MetaBoard.prototype), 'constructor', this).apply(this, arguments);
   }
-
-  _inherits(MetaBoard, _MRM$MetaComponent);
 
   _createClass(MetaBoard, [{
     key: 'createdCallback',
@@ -47142,6 +46745,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var MetaPictureController = (function (_MRM$MetaComponentController) {
+  _inherits(MetaPictureController, _MRM$MetaComponentController);
+
   function MetaPictureController(dom) {
     _classCallCheck(this, MetaPictureController);
 
@@ -47155,14 +46760,15 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
     this.updateMetaObject();
   }
 
-  _inherits(MetaPictureController, _MRM$MetaComponentController);
-
   _createClass(MetaPictureController, [{
     key: 'createMetaObject',
     value: function createMetaObject() {
       var planeLength = 1;
       var planeWidth = 1;
+      THREE.ImageUtils.crossOrigin = 'Anonymous';
+
       var texture = THREE.ImageUtils.loadTexture(this.properties.src);
+      texture.needsUpdate = true;
 
       var geometry = new THREE.PlaneGeometry(planeWidth, planeLength, 1, 1);
       var material = new THREE.MeshBasicMaterial({
@@ -47207,17 +46813,17 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
   }, {
     key: 'tagName',
     get: function get() {
-      return 'meta-picture';
+      return "meta-picture";
     }
   }, {
     key: 'eventActionSettings',
     get: function get() {
       return {
-        'width': ['updateChildrenDisplayInline'],
-        'length': ['updateChildrenDisplayInline'],
-        'meta-style': ['propagateMetaStyle'],
-        'class': ['propagateMetaStyle'],
-        'id': ['propagateMetaStyle']
+        "width": ["updateChildrenDisplayInline"],
+        "length": ["updateChildrenDisplayInline"],
+        "meta-style": ['propagateMetaStyle'],
+        "class": ["propagateMetaStyle"],
+        "id": ["propagateMetaStyle"]
       };
     }
   }]);
@@ -47226,13 +46832,13 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
 })(MRM.MetaComponentController);
 
 var MetaPicture = (function (_MRM$MetaComponent) {
+  _inherits(MetaPicture, _MRM$MetaComponent);
+
   function MetaPicture() {
     _classCallCheck(this, MetaPicture);
 
     _get(Object.getPrototypeOf(MetaPicture.prototype), 'constructor', this).apply(this, arguments);
   }
-
-  _inherits(MetaPicture, _MRM$MetaComponent);
 
   _createClass(MetaPicture, [{
     key: 'createdCallback',
@@ -47263,6 +46869,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var MetaItemController = (function (_MRM$MetaComponentController) {
+  _inherits(MetaItemController, _MRM$MetaComponentController);
+
   function MetaItemController(dom) {
     _classCallCheck(this, MetaItemController);
 
@@ -47274,8 +46882,6 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
 
     this.updateMetaObject();
   }
-
-  _inherits(MetaItemController, _MRM$MetaComponentController);
 
   _createClass(MetaItemController, [{
     key: 'createMetaObject',
@@ -47304,11 +46910,14 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         _.forEach(_this.metaObject.group.children, function (child) {
           _this.metaObject.group.remove(child);
         });
-        _this.metaObject.group.add(object);
-        _this.metaObject.mesh = object;
+        _this.metaObject.mesh = object.children[1];
+        var bbox = new THREE.BoundingBoxHelper(_this.metaObject.mesh, 0xff0000);
+        bbox.update();
+        _this.metaObject.mesh.scale.set(_this.properties.width / bbox.box.size().x, _this.properties.height / bbox.box.size().y, _this.properties.length / bbox.box.size().z);
         _this.metaObject.mesh.rotation.x = 90 * (Math.PI / 180);
+        bbox.update();
+        _this.metaObject.group.add(object.children[1]);
         _this.metaObject.group.position.z = _this.properties.height / 2;
-        _this.metaObject.mesh.scale.set(_this.properties.width, _this.properties.length, _this.properties.height);
       });
     }
   }, {
@@ -47333,18 +46942,18 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
   }, {
     key: 'tagName',
     get: function get() {
-      return 'meta-item';
+      return "meta-item";
     }
   }, {
     key: 'eventActionSettings',
     get: function get() {
       return {
-        'width': ['updateChildrenDisplayInline'],
-        'height': ['updateChildrenDisplayInline'],
-        'length': ['updateChildrenDisplayInline'],
-        'meta-style': ['propagateMetaStyle'],
-        'class': ['propagateMetaStyle'],
-        'id': ['propagateMetaStyle']
+        "width": ["updateChildrenDisplayInline"],
+        "height": ["updateChildrenDisplayInline"],
+        "length": ["updateChildrenDisplayInline"],
+        "meta-style": ['propagateMetaStyle'],
+        "class": ["propagateMetaStyle"],
+        "id": ["propagateMetaStyle"]
       };
     }
   }]);
@@ -47353,13 +46962,13 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
 })(MRM.MetaComponentController);
 
 var MetaItem = (function (_MRM$MetaComponent) {
+  _inherits(MetaItem, _MRM$MetaComponent);
+
   function MetaItem() {
     _classCallCheck(this, MetaItem);
 
     _get(Object.getPrototypeOf(MetaItem.prototype), 'constructor', this).apply(this, arguments);
   }
-
-  _inherits(MetaItem, _MRM$MetaComponent);
 
   _createClass(MetaItem, [{
     key: 'createdCallback',
@@ -47390,6 +46999,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var MetaTextController = (function (_MRM$MetaComponentController) {
+  _inherits(MetaTextController, _MRM$MetaComponentController);
+
   function MetaTextController(dom) {
     _classCallCheck(this, MetaTextController);
 
@@ -47405,8 +47016,6 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
     this.updateMetaObject();
   }
 
-  _inherits(MetaTextController, _MRM$MetaComponentController);
-
   _createClass(MetaTextController, [{
     key: 'createMetaObject',
     value: function createMetaObject() {
@@ -47415,8 +47024,8 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
 
       var canvas1 = document.createElement('canvas');
       var context1 = canvas1.getContext('2d');
-      context1.fillStyle = 'rgba(255, 0, 0, 0.95)';
-      context1.font = '26px Arial';
+      context1.fillStyle = "rgba(255, 0, 0, 0.95)";
+      context1.font = "26px Arial";
 
       context1.fillText(this.properties.text, 0, 50);
 
@@ -47458,25 +47067,25 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
     key: 'eventActionSettings',
     get: function get() {
       return {
-        'width': ['updateChildrenDisplayInline'],
-        'length': ['updateChildrenDisplayInline'],
-        'meta-style': ['propagateMetaStyle'],
-        'class': ['propagateMetaStyle'],
-        'id': ['propagateMetaStyle']
+        "width": ["updateChildrenDisplayInline"],
+        "length": ["updateChildrenDisplayInline"],
+        "meta-style": ['propagateMetaStyle'],
+        "class": ["propagateMetaStyle"],
+        "id": ["propagateMetaStyle"]
       };
     }
   }, {
     key: 'metaAttachedActions',
     get: function get() {
       return {
-        'attachMetaObject': true,
-        'updateChildrenDisplayInline': true
+        "attachMetaObject": true,
+        "updateChildrenDisplayInline": true
       };
     }
   }, {
     key: 'tagName',
     get: function get() {
-      return 'meta-text';
+      return "meta-text";
     }
   }]);
 
@@ -47484,13 +47093,13 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
 })(MRM.MetaComponentController);
 
 var MetaText = (function (_MRM$MetaComponent) {
+  _inherits(MetaText, _MRM$MetaComponent);
+
   function MetaText() {
     _classCallCheck(this, MetaText);
 
     _get(Object.getPrototypeOf(MetaText.prototype), 'constructor', this).apply(this, arguments);
   }
-
-  _inherits(MetaText, _MRM$MetaComponent);
 
   _createClass(MetaText, [{
     key: 'createdCallback',
@@ -47524,6 +47133,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var owner = (document._currentScript || document.currentScript).ownerDocument;
 
 var MetaTableController = (function (_MRM$MetaComponentController) {
+  _inherits(MetaTableController, _MRM$MetaComponentController);
+
   function MetaTableController(dom) {
     _classCallCheck(this, MetaTableController);
 
@@ -47535,8 +47146,6 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
 
     this.updateMetaObject();
   }
-
-  _inherits(MetaTableController, _MRM$MetaComponentController);
 
   _createClass(MetaTableController, [{
     key: "createMetaObject",
@@ -47570,7 +47179,7 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
     value: function updateMetaObject() {
       this.metaObject.group.position.z = this.properties.height / 2;
       var geometry = this.metaObject.mesh.geometry,
-          tbottomPadding = this.metaStyle["tbottom-padding"] || geometry.parameters.tbottomPadding || 0,
+          tbottomPadding = this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
           tsurfaceThickness = geometry.parameters.tsurfaceThickness,
           tbottomThickness = geometry.parameters.tbottomThickness;
 
@@ -47593,7 +47202,7 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
   }, {
     key: "updateTSurfaceVisibility",
     value: function updateTSurfaceVisibility(targetController) {
-      this.properties["surface"] = true;
+      this.properties['surface'] = true;
     }
   }, {
     key: "updateFaceVisibility",
@@ -47609,31 +47218,31 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
         if (!controller) {
           return;
         }
-        if (controller.tagName === "meta-tbottom") {
+        if (controller.tagName === 'meta-tbottom') {
           switch (controller.properties.align) {
-            case "left":
+            case 'left':
               // TODO: use propertiesSettings face name
               _this.metaObject.mesh.material.materials[2].visible = true;
               _this.metaObject.mesh.material.materials[3].visible = true;
               _this.metaObject.mesh.material.materials[4].visible = true;
               break;
-            case "right":
+            case 'right':
               _this.metaObject.mesh.material.materials[0].visible = true;
               _this.metaObject.mesh.material.materials[6].visible = true;
               _this.metaObject.mesh.material.materials[7].visible = true;
               break;
-            case "front":
+            case 'front':
               _this.metaObject.mesh.material.materials[0].visible = true;
               _this.metaObject.mesh.material.materials[1].visible = true;
               _this.metaObject.mesh.material.materials[2].visible = true;
               break;
-            case "back":
+            case 'back':
               _this.metaObject.mesh.material.materials[4].visible = true;
               _this.metaObject.mesh.material.materials[5].visible = true;
               _this.metaObject.mesh.material.materials[6].visible = true;
               break;
           }
-        } else if (controller.tagName === "meta-tsurface") {
+        } else if (controller.tagName === 'meta-tsurface') {
           _this.metaObject.mesh.material.materials[8].visible = true;
         }
       });
@@ -47652,7 +47261,7 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
       return {
         "width": ["updateChildrenDisplayInline"],
         "length": ["updateChildrenDisplayInline"],
-        "meta-style": ["propagateMetaStyle"],
+        "meta-style": ['propagateMetaStyle'],
         "class": ["propagateMetaStyle"],
         "id": ["propagateMetaStyle"]
       };
@@ -47666,30 +47275,36 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
         width: {
           type: Number,
           "default": 1,
-          attrName: "width",
+          attrName: 'width',
           onChange: function onChange(value) {
             _this2.forEachMetaChildren(function (child) {
-              child.controller.properties.tableWidth = value;
+              if (child.controller) {
+                child.controller.properties.tableWidth = value;
+              }
             });
           }
         },
         height: {
           type: Number,
           "default": 1,
-          attrName: "height",
+          attrName: 'height',
           onChange: function onChange(value) {
             _this2.forEachMetaChildren(function (child) {
-              child.controller.properties.tableHeight = value;
+              if (child.controller) {
+                child.controller.properties.tableHeight = value;
+              }
             });
           }
         },
         length: {
           type: Number,
           "default": 1,
-          attrName: "length",
+          attrName: 'length',
           onChange: function onChange(value) {
             _this2.forEachMetaChildren(function (child) {
-              child.controller.properties.tableLength = value;
+              if (child.controller) {
+                child.controller.properties.tableLength = value;
+              }
             });
           }
         },
@@ -47753,7 +47368,7 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
   }, {
     key: "metaChildrenNames",
     get: function get() {
-      return ["meta-tsurface", "meta-tbottom"];
+      return ['meta-tsurface', 'meta-tbottom'];
     }
   }]);
 
@@ -47761,13 +47376,13 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
 })(MRM.MetaComponentController);
 
 var MetaTable = (function (_MRM$MetaComponent) {
+  _inherits(MetaTable, _MRM$MetaComponent);
+
   function MetaTable() {
     _classCallCheck(this, MetaTable);
 
     _get(Object.getPrototypeOf(MetaTable.prototype), "constructor", this).apply(this, arguments);
   }
-
-  _inherits(MetaTable, _MRM$MetaComponent);
 
   _createClass(MetaTable, [{
     key: "createdCallback",
@@ -47781,8 +47396,8 @@ var MetaTable = (function (_MRM$MetaComponent) {
       var targetController = e.detail.controller;
       if (this.controller.isChildren(targetController.tagName)) {
         e.stopPropagation();
-        if (targetController.tagName === "meta-tsurface") {
-          this.controller.properties["surface"] = false;
+        if (targetController.tagName === 'meta-tsurface') {
+          this.controller.properties['surface'] = false;
         } else {
           this.controller.properties[targetController.properties.align] = false;
         }
@@ -47794,7 +47409,7 @@ var MetaTable = (function (_MRM$MetaComponent) {
   return MetaTable;
 })(MRM.MetaComponent);
 
-document.registerElement("meta-table", MetaTable);
+document.registerElement('meta-table', MetaTable);
 
 },{}]},{},[1])</script>
 <template id="meta-tsurface">
@@ -47812,6 +47427,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
+  _inherits(MetaTsurfaceController, _MRM$MetaComponentController);
+
   function MetaTsurfaceController(dom) {
     _classCallCheck(this, MetaTsurfaceController);
 
@@ -47824,8 +47441,6 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
 
     this.updateMetaObject();
   }
-
-  _inherits(MetaTsurfaceController, _MRM$MetaComponentController);
 
   _createClass(MetaTsurfaceController, [{
     key: "updateDimension",
@@ -47918,13 +47533,13 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
 })(MRM.MetaComponentController);
 
 var MetaTsurface = (function (_MRM$MetaComponent) {
+  _inherits(MetaTsurface, _MRM$MetaComponent);
+
   function MetaTsurface() {
     _classCallCheck(this, MetaTsurface);
 
     _get(Object.getPrototypeOf(MetaTsurface.prototype), "constructor", this).apply(this, arguments);
   }
-
-  _inherits(MetaTsurface, _MRM$MetaComponent);
 
   _createClass(MetaTsurface, [{
     key: "createdCallback",
@@ -47937,7 +47552,7 @@ var MetaTsurface = (function (_MRM$MetaComponent) {
   return MetaTsurface;
 })(MRM.MetaComponent);
 
-document.registerElement("meta-tsurface", MetaTsurface);
+document.registerElement('meta-tsurface', MetaTsurface);
 
 },{}]},{},[1])</script>
 <template id="meta-tbottom">
@@ -47955,6 +47570,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var MetaTbottomController = (function (_MRM$MetaComponentController) {
+  _inherits(MetaTbottomController, _MRM$MetaComponentController);
+
   function MetaTbottomController(dom) {
     _classCallCheck(this, MetaTbottomController);
 
@@ -47967,8 +47584,6 @@ var MetaTbottomController = (function (_MRM$MetaComponentController) {
 
     this.updateMetaObject();
   }
-
-  _inherits(MetaTbottomController, _MRM$MetaComponentController);
 
   _createClass(MetaTbottomController, [{
     key: "createMetaObject",
@@ -48023,6 +47638,9 @@ var MetaTbottomController = (function (_MRM$MetaComponentController) {
     }
   }, {
     key: "tagName",
+    // onChange: (value) => {
+    //
+    // }
     get: function get() {
       return "meta-tbottom";
     }
@@ -48032,30 +47650,27 @@ var MetaTbottomController = (function (_MRM$MetaComponentController) {
 })(MRM.MetaComponentController);
 
 var MetaTbottom = (function (_MRM$MetaComponent) {
+  _inherits(MetaTbottom, _MRM$MetaComponent);
+
   function MetaTbottom() {
     _classCallCheck(this, MetaTbottom);
 
     _get(Object.getPrototypeOf(MetaTbottom.prototype), "constructor", this).apply(this, arguments);
   }
 
-  _inherits(MetaTbottom, _MRM$MetaComponent);
-
   _createClass(MetaTbottom, [{
     key: "createdCallback",
     value: function createdCallback() {
       this.controller = new MetaTbottomController(this);
     }
-    // attach callback: when attach set meta-table table geometry tbottom side to be visible
 
+    // attach callback: when attach set meta-table table geometry tbottom side to be visible
   }]);
 
   return MetaTbottom;
 })(MRM.MetaComponent);
 
-document.registerElement("meta-tbottom", MetaTbottom);
-// onChange: (value) => {
-//
-// }
+document.registerElement('meta-tbottom', MetaTbottom);
 
 },{}]},{},[1])</script>
 <template id="meta-style">
@@ -52536,6 +52151,8 @@ var _css2 = _interopRequireDefault(_css);
 var owner = (document._currentScript || document.currentScript).ownerDocument;
 
 var MetaStyleController = (function (_MRM$MetaBaseController) {
+  _inherits(MetaStyleController, _MRM$MetaBaseController);
+
   function MetaStyleController(dom) {
     var _this = this;
 
@@ -52562,8 +52179,6 @@ var MetaStyleController = (function (_MRM$MetaBaseController) {
     this.mutationObserver.observe(dom, { subtree: true, childList: true, characterData: true });
   }
 
-  _inherits(MetaStyleController, _MRM$MetaBaseController);
-
   _createClass(MetaStyleController, [{
     key: 'createGlobalMetaStyle',
     value: function createGlobalMetaStyle() {
@@ -52585,7 +52200,7 @@ var MetaStyleController = (function (_MRM$MetaBaseController) {
   }, {
     key: 'tagName',
     get: function get() {
-      return 'meta-style';
+      return "meta-style";
     }
   }, {
     key: 'metaChildrenNames',
@@ -52598,13 +52213,13 @@ var MetaStyleController = (function (_MRM$MetaBaseController) {
 })(MRM.MetaBaseController);
 
 var MetaStyle = (function (_MRM$MetaBase) {
+  _inherits(MetaStyle, _MRM$MetaBase);
+
   function MetaStyle() {
     _classCallCheck(this, MetaStyle);
 
     _get(Object.getPrototypeOf(MetaStyle.prototype), 'constructor', this).apply(this, arguments);
   }
-
-  _inherits(MetaStyle, _MRM$MetaBase);
 
   _createClass(MetaStyle, [{
     key: 'attachedCallback',

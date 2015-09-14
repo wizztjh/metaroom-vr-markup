@@ -12,5 +12,9 @@ export default class MetaBase extends HTMLElement{
     if(typeof this.metaChildAttributeChanged == 'function') {
       this.addEventListener('meta-attribute-change', this.metaChildAttributeChanged, false);
     }
+
+    if(typeof this.metaSizeAttributeChanged === 'function') {
+      this.addEventListener('size-attributes-change', this.metaSizeAttributeChanged, false);
+    }
   }
 }

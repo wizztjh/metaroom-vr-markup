@@ -42,9 +42,12 @@ class MetaPictureController extends MRM.MetaComponentController {
   createMetaObject(){
     var planeLength = 1;
     var planeWidth = 1;
+    THREE.ImageUtils.crossOrigin = 'Anonymous';
+
     var texture = THREE.ImageUtils.loadTexture(
       this.properties.src
     );
+    texture.needsUpdate = true
 
     var geometry = new THREE.PlaneGeometry(planeWidth, planeLength,1,1);
     var material = new THREE.MeshBasicMaterial({
