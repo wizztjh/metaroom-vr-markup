@@ -93,69 +93,6 @@ export default class MetaComponentController extends MetaBaseController{
     return this.dom.querySelectorAll(this.metaChildrenQuerySelectorString);
   }
 
-  newUpdateChildrenDisplayInline() {
-
-    // TODO: change the board to parent to make it generic
-    var parent = this;
-    // TODO: only select the direct child
-    // TODO: refactore this mess
-    var children = this.getMetaChildren()
-    var lines = [];
-    var currentLine = 0;
-    var currentLineWidth = 0;
-    var newBiggestLengthForEachLine = [0];
-
-    [].forEach.call(children, function (child, index) {
-      if (!child.controller){ return; }
-
-      if(currentLineWidth + Number(child.controller.properties.width) <= parent.properties.width){
-      }else{
-        if(newBiggestLengthForEachLine.reduce((previousValue, currentValue) => {
-          return previousValue + currentValue;
-        }) < parent.properties.length){
-          currentLine += 1;
-          currentLineWidth = 0;
-          newBiggestLengthForEachLine[currentLine] = 0;
-        }
-      }
-      currentLineWidth += Number(child.controller.properties.width);
-      if(newBiggestLengthForEachLine[currentLine] < child.controller.properties.length)
-        newBiggestLengthForEachLine[currentLine] = child.controller.properties.length;
-      lines[currentLine] = lines[currentLine] || []
-      lines[currentLine].push(child);
-    });
-
-    var biggestLengthForEachLine = []
-    lines.forEach(function(line, lineIndex){
-      var biggestLength = 0
-      ,   baseLineY
-      ,   nextComponentX = -(Number(parent.properties.width)/2);
-      line.forEach(function(child, childIndex){
-
-        nextComponentX += Number(child.controller.properties.width)/2;
-
-        var group = child.controller.metaObject.group;
-        group.position.x = nextComponentX;
-        nextComponentX += child.controller.properties.width/2;
-
-        if(child.controller.properties.length > biggestLength) {
-          biggestLength = Number(child.controller.properties.length)
-        }
-      });
-
-      biggestLengthForEachLine.push(biggestLength)
-
-      baseLineY = Number(parent.properties.length)/2 - biggestLengthForEachLine.reduce((previousValue, currentValue) => {
-        return previousValue += currentValue
-      });
-
-      line.forEach(function(child, childIndex){
-        var group = child.controller.metaObject.group;
-        group.position.y = baseLineY + child.controller.properties.length/2;
-      });
-    });
-  }
-
   updateChildrenDisplayInline(){
     var metaComponent = this,
         children = this.getMetaChildren(),
@@ -163,15 +100,24 @@ export default class MetaComponentController extends MetaBaseController{
         currentLineWidth = 0,
         currentLineLength = 0,
         childrenInLine = [],
-        totalLength = 0;
+        totalLength = 0,
+        eventToTriggerOnResize;
 
     function pushChildForChildrenDisplayInline(index, child){
       if(metaComponent.childrenPositionIndexMap[index]){
         return;
       }
       if(checkResizeComponent(index, child)){
+        // TODO: maybe we can add a new propertiesSettings `bubbleUp` to enable the event bubbling when attribute changes
+        var eventToTriggerOnResize = new CustomEvent('size-attributes-change', {
+          'detail': {
+            'controller': metaComponent,
+          },
+          bubbles: true
+        });
         resizeComponent(child.controller.properties.width, child.controller.properties.length)
         metaComponent.updateChildrenDisplayInline();
+        return eventToTriggerOnResize;
       }
       calculateChildPosition(child);
       metaComponent.childrenPositionIndexMap[index] = true;
@@ -233,7 +179,9 @@ export default class MetaComponentController extends MetaBaseController{
 
     _.forEach(children, (child, index) =>{
       if (!child.controller){ return; }
-      pushChildForChildrenDisplayInline(index, child);
+      eventToTriggerOnResize = pushChildForChildrenDisplayInline(index, child);
     });
+
+    return eventToTriggerOnResize;
   }
 }

@@ -45297,6 +45297,10 @@ var MetaBase = (function (_HTMLElement) {
       if (typeof this.metaChildAttributeChanged == 'function') {
         this.addEventListener('meta-attribute-change', this.metaChildAttributeChanged, false);
       }
+
+      if (typeof this.metaSizeAttributeChanged === 'function') {
+        this.addEventListener('size-attributes-change', this.metaSizeAttributeChanged, false);
+      }
     }
   }]);
 
@@ -45403,70 +45407,6 @@ var MetaComponentController = (function (_MetaBaseController) {
       return this.dom.querySelectorAll(this.metaChildrenQuerySelectorString);
     }
   }, {
-    key: "newUpdateChildrenDisplayInline",
-    value: function newUpdateChildrenDisplayInline() {
-
-      // TODO: change the board to parent to make it generic
-      var parent = this;
-      // TODO: only select the direct child
-      // TODO: refactore this mess
-      var children = this.getMetaChildren();
-      var lines = [];
-      var currentLine = 0;
-      var currentLineWidth = 0;
-      var newBiggestLengthForEachLine = [0];
-
-      [].forEach.call(children, function (child, index) {
-        if (!child.controller) {
-          return;
-        }
-
-        if (currentLineWidth + Number(child.controller.properties.width) <= parent.properties.width) {} else {
-          if (newBiggestLengthForEachLine.reduce(function (previousValue, currentValue) {
-            return previousValue + currentValue;
-          }) < parent.properties.length) {
-            currentLine += 1;
-            currentLineWidth = 0;
-            newBiggestLengthForEachLine[currentLine] = 0;
-          }
-        }
-        currentLineWidth += Number(child.controller.properties.width);
-        if (newBiggestLengthForEachLine[currentLine] < child.controller.properties.length) newBiggestLengthForEachLine[currentLine] = child.controller.properties.length;
-        lines[currentLine] = lines[currentLine] || [];
-        lines[currentLine].push(child);
-      });
-
-      var biggestLengthForEachLine = [];
-      lines.forEach(function (line, lineIndex) {
-        var biggestLength = 0,
-            baseLineY,
-            nextComponentX = -(Number(parent.properties.width) / 2);
-        line.forEach(function (child, childIndex) {
-
-          nextComponentX += Number(child.controller.properties.width) / 2;
-
-          var group = child.controller.metaObject.group;
-          group.position.x = nextComponentX;
-          nextComponentX += child.controller.properties.width / 2;
-
-          if (child.controller.properties.length > biggestLength) {
-            biggestLength = Number(child.controller.properties.length);
-          }
-        });
-
-        biggestLengthForEachLine.push(biggestLength);
-
-        baseLineY = Number(parent.properties.length) / 2 - biggestLengthForEachLine.reduce(function (previousValue, currentValue) {
-          return previousValue += currentValue;
-        });
-
-        line.forEach(function (child, childIndex) {
-          var group = child.controller.metaObject.group;
-          group.position.y = baseLineY + child.controller.properties.length / 2;
-        });
-      });
-    }
-  }, {
     key: "updateChildrenDisplayInline",
     value: function updateChildrenDisplayInline() {
       var metaComponent = this,
@@ -45475,22 +45415,24 @@ var MetaComponentController = (function (_MetaBaseController) {
           currentLineWidth = 0,
           currentLineLength = 0,
           childrenInLine = [],
-          totalLength = 0;
+          totalLength = 0,
+          eventToTriggerOnResize;
 
-      // if(children.length > 10){
-      //   debugger;
-      // }
       function pushChildForChildrenDisplayInline(index, child) {
         if (metaComponent.childrenPositionIndexMap[index]) {
           return;
         }
         if (checkResizeComponent(index, child)) {
-          debugger;
+          // TODO: maybe we can add a new propertiesSettings `bubbleUp` to enable the event bubbling when attribute changes
+          var eventToTriggerOnResize = new CustomEvent('size-attributes-change', {
+            'detail': {
+              'controller': metaComponent
+            },
+            bubbles: true
+          });
           resizeComponent(child.controller.properties.width, child.controller.properties.length);
-          // for(var i = 0; i < index; i++){
-          //   metaComponent.childrenPositionIndexMap[i] = false;
-          // }
           metaComponent.updateChildrenDisplayInline();
+          return eventToTriggerOnResize;
         }
         calculateChildPosition(child);
         metaComponent.childrenPositionIndexMap[index] = true;
@@ -45551,8 +45493,10 @@ var MetaComponentController = (function (_MetaBaseController) {
         if (!child.controller) {
           return;
         }
-        pushChildForChildrenDisplayInline(index, child);
+        eventToTriggerOnResize = pushChildForChildrenDisplayInline(index, child);
       });
+
+      return eventToTriggerOnResize;
     }
   }, {
     key: "metaAttachedActions",
@@ -45701,7 +45645,11 @@ var MetaComponent = (function (_MetaBase) {
       if (this.controller.isChildren(targetController.tagName)) {
         _.forEach(e.detail.actions, function (value, action) {
           if (typeof _this.controller[action] === 'function') {
-            _this.controller[action](targetController);
+            event = _this.controller[action](targetController);
+            if (event) {
+              console.log(event, 'event and details');
+              _this.dispatchEvent(event);
+            }
             delete e.detail.actions[action];
           }
         });
@@ -45716,10 +45664,32 @@ var MetaComponent = (function (_MetaBase) {
       if (this.controller.isChildren(targetController.tagName)) {
         _.forEach(e.detail.actions, function (value, action) {
           if (typeof _this2.controller[action] === 'function') {
-            _this2.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
+            var event = _this2.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
+            if (event) {
+              console.log(event, 'event and details');
+              _this2.dispatchEvent(event);
+            }
             delete e.detail.actions[action];
           }
         });
+      }
+    }
+  }, {
+    key: 'metaSizeAttributeChanged',
+    value: function metaSizeAttributeChanged(e) {
+      var targetController = e.detail.controller;
+      if (this.controller.isChildren(targetController.tagName)) {
+        console.log('updateChildrenDisplayInline', targetController.tagName, this.controller.tagName);
+        this.controller.properties.width = targetController.properties.width;
+        this.controller.properties.length = targetController.properties.length;
+        this.controller.updateMetaObject();
+        var event = new CustomEvent('size-attributes-change', {
+          'detail': {
+            'controller': this.controller
+          },
+          bubbles: true
+        });
+        this.dispatchEvent(event);
       }
     }
   }]);
@@ -46165,6 +46135,9 @@ var MetaRoomController = (function (_MRM$MetaComponentController) {
       targetController.properties.roomHeight = this.properties.height;
       targetController.properties.roomLength = this.properties.length;
     }
+  }, {
+    key: 'updateMetaObject',
+    value: function updateMetaObject() {}
   }, {
     key: 'metaAttachedActions',
     get: function get() {
@@ -47308,7 +47281,9 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
           attrName: 'width',
           onChange: function onChange(value) {
             _this2.forEachMetaChildren(function (child) {
-              child.controller.properties.tableWidth = value;
+              if (child.controller) {
+                child.controller.properties.tableWidth = value;
+              }
             });
           }
         },
@@ -47318,7 +47293,9 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
           attrName: 'height',
           onChange: function onChange(value) {
             _this2.forEachMetaChildren(function (child) {
-              child.controller.properties.tableHeight = value;
+              if (child.controller) {
+                child.controller.properties.tableHeight = value;
+              }
             });
           }
         },
@@ -47328,7 +47305,9 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
           attrName: 'length',
           onChange: function onChange(value) {
             _this2.forEachMetaChildren(function (child) {
-              child.controller.properties.tableLength = value;
+              if (child.controller) {
+                child.controller.properties.tableLength = value;
+              }
             });
           }
         },
