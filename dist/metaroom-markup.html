@@ -46157,7 +46157,9 @@ var MetaRoomController = (function (_MRM$MetaComponentController) {
           attrName: 'width',
           onChange: function onChange(value) {
             _this.forEachMetaChildren(function (child) {
-              child.controller.properties.roomWidth = value;
+              if (child.controller) {
+                child.controller.properties.roomWidth = value;
+              }
             });
           }
         },
@@ -46167,7 +46169,9 @@ var MetaRoomController = (function (_MRM$MetaComponentController) {
           attrName: 'height',
           onChange: function onChange(value) {
             _this.forEachMetaChildren(function (child) {
-              child.controller.properties.roomHeight = value;
+              if (child.controller) {
+                child.controller.properties.roomHeight = value;
+              }
             });
           }
         },
@@ -46177,7 +46181,9 @@ var MetaRoomController = (function (_MRM$MetaComponentController) {
           attrName: 'length',
           onChange: function onChange(value) {
             _this.forEachMetaChildren(function (child) {
-              child.controller.properties.roomLength = value;
+              if (child.controller) {
+                child.controller.properties.roomLength = value;
+              }
             });
           }
         }
