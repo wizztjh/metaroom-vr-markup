@@ -68,7 +68,6 @@ export default class MetaComponent extends MetaBase{
         if (typeof this.controller[action] === 'function') {
           event = this.controller[action](targetController);
           if(event){
-            console.log(event, 'event and details');
             this.dispatchEvent(event);
           }
           delete e.detail.actions[action]
