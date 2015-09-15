@@ -167,11 +167,12 @@ class MetaTableController extends MRM.MetaComponentController{
   updateMetaObject (){
     this.metaObject.group.position.z = this.properties.height / 2;
     var geometry = this.metaObject.mesh.geometry,
-        tbottomPadding = this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
+        tbottomPaddingTop = this.metaStyle['tbottom-padding-top'] || this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
+        tbottomPaddingBottom = this.metaStyle['tbottom-padding-bottom'] || this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
         tsurfaceThickness = geometry.parameters.tsurfaceThickness,
         tbottomThickness = geometry.parameters.tbottomThickness;
 
-    geometry.update(this.properties.width, this.properties.height, this.properties.length, tsurfaceThickness, tbottomThickness, tbottomPadding, tbottomPadding);
+    geometry.update(this.properties.width, this.properties.height, this.properties.length, tsurfaceThickness, tbottomThickness, tbottomPaddingTop, tbottomPaddingBottom);
   }
 
   updateTableDimension(targetController){

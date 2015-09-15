@@ -68,7 +68,6 @@ export default class MetaComponent extends MetaBase{
         if (typeof this.controller[action] === 'function') {
           event = this.controller[action](targetController);
           if(event){
-            console.log(event, 'event and details');
             this.dispatchEvent(event);
           }
           delete e.detail.actions[action]
@@ -84,7 +83,6 @@ export default class MetaComponent extends MetaBase{
         if (typeof this.controller[action] === 'function') {
           var event = this.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
           if(event){
-            console.log(event, 'event and details');
             this.dispatchEvent(event);
           }
           delete e.detail.actions[action]
@@ -96,7 +94,6 @@ export default class MetaComponent extends MetaBase{
   metaSizeAttributeChanged(e){
     var targetController = e.detail.controller;
     if(this.controller.isChildren(targetController.tagName)){
-      console.log('updateChildrenDisplayInline', targetController.tagName, this.controller.tagName);
       this.controller.properties.width = targetController.properties.width;
       this.controller.properties.length = targetController.properties.length;
       this.controller.updateMetaObject();

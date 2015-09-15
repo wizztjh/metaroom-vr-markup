@@ -45647,7 +45647,6 @@ var MetaComponent = (function (_MetaBase) {
           if (typeof _this.controller[action] === 'function') {
             event = _this.controller[action](targetController);
             if (event) {
-              console.log(event, 'event and details');
               _this.dispatchEvent(event);
             }
             delete e.detail.actions[action];
@@ -45666,7 +45665,6 @@ var MetaComponent = (function (_MetaBase) {
           if (typeof _this2.controller[action] === 'function') {
             var event = _this2.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
             if (event) {
-              console.log(event, 'event and details');
               _this2.dispatchEvent(event);
             }
             delete e.detail.actions[action];
@@ -45679,7 +45677,6 @@ var MetaComponent = (function (_MetaBase) {
     value: function metaSizeAttributeChanged(e) {
       var targetController = e.detail.controller;
       if (this.controller.isChildren(targetController.tagName)) {
-        console.log('updateChildrenDisplayInline', targetController.tagName, this.controller.tagName);
         this.controller.properties.width = targetController.properties.width;
         this.controller.properties.length = targetController.properties.length;
         this.controller.updateMetaObject();
@@ -47188,11 +47185,12 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
     value: function updateMetaObject() {
       this.metaObject.group.position.z = this.properties.height / 2;
       var geometry = this.metaObject.mesh.geometry,
-          tbottomPadding = this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
+          tbottomPaddingTop = this.metaStyle['tbottom-padding-top'] || this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
+          tbottomPaddingBottom = this.metaStyle['tbottom-padding-bottom'] || this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
           tsurfaceThickness = geometry.parameters.tsurfaceThickness,
           tbottomThickness = geometry.parameters.tbottomThickness;
 
-      geometry.update(this.properties.width, this.properties.height, this.properties.length, tsurfaceThickness, tbottomThickness, tbottomPadding, tbottomPadding);
+      geometry.update(this.properties.width, this.properties.height, this.properties.length, tsurfaceThickness, tbottomThickness, tbottomPaddingTop, tbottomPaddingBottom);
     }
   }, {
     key: "updateTableDimension",
