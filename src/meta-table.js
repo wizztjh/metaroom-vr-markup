@@ -8,8 +8,24 @@ class MetaTableController extends MRM.MetaComponentController{
     this.setupComponent();
     this.parent = null;
     this.metaObject = this.createMetaObject();
-
+    this.computedProperties = {};
+    this.computedPropertiesKey.forEach((key) => {
+      var settings = this.computedPropertiesSettings[key];
+      var value = settings.type(this.properties[key] || settings.default)
+      Object.defineProperty(this.computedProperties, key, {
+        get: function(){
+          return value
+        },
+        set: (inputValue) => {
+          value = settings.type(inputValue)
+        }
+      })
+    });
     this.updateMetaObject();
+  }
+
+  get computedPropertiesKey(){
+    return Object.keys(this.computedPropertiesSettings);
   }
 
   createMetaObject(){
@@ -65,42 +81,56 @@ class MetaTableController extends MRM.MetaComponentController{
     }
   }
 
+  get computedPropertiesSettings(){
+    return {
+      width: {
+        type: Number,
+        default: null,
+      },
+      length: {
+        type: Number,
+        default: null,
+      },
+      height: {
+        type: Number,
+        default: null
+      }
+    };
+  }
+
   get propertiesSettings() {
     return {
       width: {
         type: Number,
-        default: 1,
+        default: null,
         attrName: 'width',
         onChange: (value)=>{
+          this.computedProperties.width = value;
           this.forEachMetaChildren((child)=>{
-            if(child.controller){
-              child.controller.properties.tableWidth = value
-            }
+            child.controller.properties.tableWidth = value
           })
         }
       },
       height: {
         type: Number,
-        default: 1,
+        default: null,
         attrName: 'height',
         onChange: (value)=>{
+          this.computedProperties.height = value;
           this.forEachMetaChildren((child)=>{
-            if(child.controller){
-              child.controller.properties.tableHeight = value
-            }
+            child.controller.properties.tableHeight = value
           })
         }
       },
       length: {
         type: Number,
-        default: 1,
+        default: null,
         attrName: 'length',
         onChange: (value)=>{
+          this.computedProperties.length = value;
           this.forEachMetaChildren((child)=>{
-            if(child.controller){
-              child.controller.properties.tableLength = value
-            }
-          });
+            child.controller.properties.tableLength = value
+          })
         }
       },
       tsurfaceThickness: {
@@ -164,15 +194,25 @@ class MetaTableController extends MRM.MetaComponentController{
     return ['meta-tsurface', 'meta-tbottom']
   }
 
+  resetComputedProperties(){
+    _.forEach(this.computedPropertiesS)
+    this.computedPropertiesKey.forEach((key) => {
+      this.computedProperties[key] = this.properties[key];
+    });
+  }
+
   updateMetaObject (){
-    this.metaObject.group.position.z = this.properties.height / 2;
+    this.metaObject.group.position.z = this.properties.height / 2 || 0.5;
     var geometry = this.metaObject.mesh.geometry,
         tbottomPaddingTop = this.metaStyle['tbottom-padding-top'] || this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
         tbottomPaddingBottom = this.metaStyle['tbottom-padding-bottom'] || this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
         tsurfaceThickness = geometry.parameters.tsurfaceThickness,
-        tbottomThickness = geometry.parameters.tbottomThickness;
+        tbottomThickness = geometry.parameters.tbottomThickness,
+        width = this.properties.width || this.computedProperties.width || 1,
+        length = this.properties.length || this.computedProperties.length || 1,
+        height = this.properties.height || this.computedProperties.height || 1;
 
-    geometry.update(this.properties.width, this.properties.height, this.properties.length, tsurfaceThickness, tbottomThickness, tbottomPaddingTop, tbottomPaddingBottom);
+    geometry.update(width, height, length, tsurfaceThickness, tbottomThickness, tbottomPaddingTop, tbottomPaddingBottom);
   }
 
   updateTableDimension(targetController){

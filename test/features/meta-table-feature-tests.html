@@ -118,6 +118,21 @@
           })
         })
 
+        describe("when width and height is not specified", function (){
+          beforeEach(function(){
+            J.metaFloor.innerHTML = "<meta-table id='main-meta-table'></meta-table>";
+          });
+          describe("when an item is added", function(){
+            beforeEach(function(){
+              J.metaTable.innerHTML = "<meta-tsurface> <meta-picture src='img/VRcollab.png'  width='3' length='3'></meta-picture> </meta-tsurface>";
+            });
+
+            it("width and length of the table changes", function(){
+              expect(J.metaTable.controller.computedProperties.width).to.equal(3)
+              expect(J.metaTable.controller.computedProperties.length).to.equal(3)
+            });
+          })
+        });
 
       });
 

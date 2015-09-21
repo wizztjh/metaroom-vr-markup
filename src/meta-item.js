@@ -2,7 +2,7 @@ class MetaItemController extends MRM.MetaComponentController {
   constructor(dom){
     super(dom)
     this.setupComponent();
-    this.parent = null;
+    this.parent = dom.parentElement.controller;
 
     this.metaObject = this.createMetaObject()
 
@@ -22,7 +22,7 @@ class MetaItemController extends MRM.MetaComponentController {
   get metaAttachedActions(){
     return {
       attachMetaObject: true,
-      updateChildrenDisplayInline: true
+      updateChildrenDisplayInline: true,
     }
   }
 

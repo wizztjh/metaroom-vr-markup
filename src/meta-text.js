@@ -2,7 +2,7 @@ class MetaTextController extends MRM.MetaComponentController {
   constructor(dom){
     super(dom)
     this.setupComponent();
-    this.parent = null;
+    this.parent = dom.parentElement.controller;
 
     this.properties.text = this.dom.innerText || '';
 

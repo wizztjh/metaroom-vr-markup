@@ -2,7 +2,7 @@ class MetaPictureController extends MRM.MetaComponentController {
   constructor(dom){
     super(dom)
     this.setupComponent();
-    this.parent = null;
+    this.parent = dom.parentElement.controller;
 
     this.metaObject = this.createMetaObject()
     this.metaObject.mesh.position.set(0,0,0.2)

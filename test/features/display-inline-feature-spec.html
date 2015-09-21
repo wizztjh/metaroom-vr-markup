@@ -15,21 +15,40 @@
       <meta-room width='8' height='4' length='10' id='main-meta-room'>
         <meta-wall align='left' id='main-meta-wall'>
           <meta-board width='4' length='5' id='narrower-board'>
-            <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
+            <meta-picture src='../../demo/img/VRcollab.png' width='3' length='2'></meta-picture>
             <meta-text width='3' length='1'>Test</meta-text>
           </meta-board>
 
           <meta-board width='6' length='5' id='main-meta-board'>
-            <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
+            <meta-picture src='../../demo/img/VRcollab.png' width='3' length='2'></meta-picture>
             <meta-text width='3' length='1'>A place for you to build future VR websites collaboratively</meta-text>
           </meta-board>
 
         </meta-wall>
 
         <meta-wall id='meta-wall-for-picture-and-text' align='right'>
-          <meta-picture id='meta-picture-on-wall'src='img/VRcollab.png' width='3' length='2'></meta-picture>
+          <meta-picture id='meta-picture-on-wall'src='../../demo/img/VRcollab.png' width='3' length='2'></meta-picture>
           <meta-text id='meta-text-on-wall' width='3' length='2'>This is it</meta-text>
         </meta-wall>
+
+        <meta-floor id='main-meta-floor'>
+          <meta-table id='dynamic-meta-table'>
+            <meta-tsurface id='main-meta-tsurface'>
+              <meta-picture src='../../demo/img/VRcollab.png' width='3' length='2' id='first-meta-pic'></meta-picture>
+              <meta-picture src='../../demo/img/VRcollab.png' width='4' length='5' id='second-meta-pic'></meta-picture>
+              <meta-picture src='../../demo/img/VRcollab.png' width='1' length='3' id='third-meta-pic'></meta-picture>
+            </meta-tsurface>
+            <meta-tbottom>
+            </meta-tbottom>
+          </meta-table>
+
+          <meta-table width='3' height='3' length='3' id='second-meta-table'>
+            <meta-tsurface>
+            </meta-tsurface>
+          </meta-table>
+
+
+        </meta-floor>
 
       </meta-room>
     </meta-verse>
@@ -49,6 +68,8 @@
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
 
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
+
+        jlet('metaFloor', function(){ return document.querySelector('meta-table')});
 
         jlet('metaWallWidth', function(){ return J.metaWall.controller.metaObject.mesh.scale.x });
         jlet('metaWallLength', function(){ return J.metaWall.controller.metaObject.mesh.scale.y});
@@ -110,6 +131,37 @@
           });
 
           shouldBehaveLikeA["Inline MetaComponent"]('metaWall', 'firstMetaBoard', 'secondMetaBoard');
+        });
+      });
+
+      describe("meta-floor and meta-table", function(){
+        beforeEach(function(){
+          jlet('metaFloor', function(){ return document.querySelector('#main-meta-floor')});
+          jlet('dynamicMetaTable', function(){ return document.querySelector('#dynamic-meta-table')});
+          jlet('secondMetaTable', function(){ return document.querySelector('#second-meta-table')});
+        });
+        it('aligns side by side', function(){
+          expect(J.dynamicMetaTable.controller.metaObject.group.position.x).to.equal(0);
+          expect(J.dynamicMetaTable.controller.metaObject.group.position.y).to.equal(2.5);
+          expect(J.secondMetaTable.controller.metaObject.group.position.x).to.equal(-2.5);
+          expect(J.secondMetaTable.controller.metaObject.group.position.y).to.equal(-1.5);
+        });
+      });
+
+      describe('meta-tsurface and meta-item', function(){
+        beforeEach(function(){
+          jlet('firstMetaPicture', function(){ return document.querySelector('#first-meta-pic')});
+          jlet('secondMetaPicture', function(){ return document.querySelector('#second-meta-pic')});
+          jlet('thirdMetaPicture', function(){ return document.querySelector('#third-meta-pic')});
+          jlet('metaTsurface', function(){ return document.querySelector('#main-meta-tsurface')});
+        });
+        it('aligns side by side', function(){
+          expect(J.firstMetaPicture.controller.metaObject.group.position.x).to.equal(-2.5);
+          expect(J.firstMetaPicture.controller.metaObject.group.position.y).to.equal(-1.5);
+          expect(J.secondMetaPicture.controller.metaObject.group.position.x).to.equal(1);
+          expect(J.secondMetaPicture.controller.metaObject.group.position.y).to.equal(0);
+          expect(J.thirdMetaPicture.controller.metaObject.group.position.x).to.equal(3.5);
+          expect(J.thirdMetaPicture.controller.metaObject.group.position.y).to.equal(-1);
         });
       });
 
@@ -188,6 +240,30 @@
 
         });
 
+      });
+      describe('meta-floor contains meta-table with width attribute', function(){
+        beforeEach(function(){
+          J.metaRoom.innerHTML = '<meta-floor><meta-table width="5" id="main-meta-table"><meta-tsurface>'+
+          '<meta-picture src="../../demo/img/VRcollab.png" width="3" length="2" id="first-meta-pic"></meta-picture>'+
+          '<meta-picture src="../../demo/img/VRcollab.png" width="3" length="2" id="second-meta-pic"></meta-picture>'+
+          '<meta-picture src="../../demo/img/VRcollab.png" width="2" length="2" id="third-meta-pic"></meta-picture>'+
+          '<meta-picture src="../../demo/img/VRcollab.png" width="3" length="2" id="fourth-meta-pic"></meta-picture>'+
+          '</meta-tsurface></meta-table></meta-floor>';
+          jlet('firstMetaPicture', function(){ return document.querySelector('#first-meta-pic')});
+          jlet('secondMetaPicture', function(){ return document.querySelector('#second-meta-pic')});
+          jlet('thirdMetaPicture', function(){ return document.querySelector('#third-meta-pic')});
+          jlet('fourthMetaPic', function(){ return document.querySelector('#fourth-meta-pic')});
+          jlet('metaTable', function(){ return document.querySelector('#main-meta-table')});
+        });
+        it('aligns the objects on table length wise', function(){
+          expect(J.metaTable.controller.computedProperties.length).to.equal(6);
+          expect(J.firstMetaPicture.controller.metaObject.group.position.x).to.equal(-1);
+          expect(J.firstMetaPicture.controller.metaObject.group.position.y).to.equal(2);
+          expect(J.secondMetaPicture.controller.metaObject.group.position.x).to.equal(-1);
+          expect(J.secondMetaPicture.controller.metaObject.group.position.y).to.equal(0);
+          expect(J.thirdMetaPicture.controller.metaObject.group.position.x).to.equal(1.5);
+          expect(J.thirdMetaPicture.controller.metaObject.group.position.y).to.equal(0);
+        });
       });
     });
   </script>

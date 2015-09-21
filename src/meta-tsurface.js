@@ -5,7 +5,7 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
     this.metaObject = this.createMetaObject();
 
     this.setupComponent();
-    this.parent = null;
+    this.parent = dom.parentElement.controller;
 
     this.updateMetaObject()
   }
@@ -84,9 +84,146 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
 
   updateMetaObject(){
     this.metaObject.group.position.z = this.properties.tableHeight / 2;
-    this.updateChildrenDisplayInline();
+    this.updateTableChildrenDisplayInline();
   }
 
+  updateTableChildrenDisplayInline(){
+    var metaTsurface = this,
+        children = this.getMetaChildren(),
+        lineIndex = 0,
+        currentLineWidth = 0,
+        currentLineLength = 0,
+        childrenInLine = [],
+        totalLength = 0,
+        eventToTriggerOnResize;
+
+    function pushChildForChildrenDisplayInline(index, child){
+      if(currentLineLength === 0){
+        currentLineLength = child.controller.properties.length;
+      }
+      if(currentLineWidth + child.controller.properties.width > (metaTsurface.parent.properties.width !== 0 ? metaTsurface.parent.properties.width : metaTsurface.parent.parent.properties.width)){
+        totalLength += currentLineLength;
+        currentLineWidth = 0;
+        currentLineLength = child.controller.properties.length;
+        lineIndex++;
+      }
+      if(checkResizeTable(child)){
+        var eventToTriggerOnResize;
+        resizeTable(child.controller.properties.width, child.controller.properties.length);
+        eventToTriggerOnResize = new CustomEvent('size-attributes-change', {
+          'detail' : {
+            'controller' : metaTsurface
+          },
+          bubbles: true
+        });
+        if(index > 0){
+          lineIndex = 0,
+          currentLineWidth = 0,
+          currentLineLength = 0,
+          totalLength = 0;
+          for(var i = 0; i < index; i++){
+            if(currentLineWidth + children[i].controller.properties.width > (metaTsurface.parent.properties.width !== 0 ? metaTsurface.parent.properties.width : metaTsurface.parent.parent.properties.width)){
+              totalLength += currentLineLength;
+              currentLineWidth = 0;
+              currentLineLength = 0;
+              lineIndex++;
+            }
+            if(currentLineLength < children[i].controller.properties.length){
+              currentLineLength = children[i].controller.properties.length;
+              _.forEach(childrenInLine[lineIndex], (child) =>{
+                var group = child.controller.metaObject.group;
+                group.position.y = (((metaTsurface.parent.computedProperties.length || 0) / 2) - totalLength) - (child.controller.properties.length / 2) -
+                  (currentLineLength - child.controller.properties.length);
+              });
+            }
+            calculateChildPosition(children[i]);
+          }
+        }
+      }
+      if(currentLineWidth + child.controller.properties.width > (metaTsurface.parent.properties.width !== 0 ? metaTsurface.parent.properties.width : metaTsurface.parent.parent.properties.width)){
+        totalLength += currentLineLength;
+        currentLineWidth = 0;
+        currentLineLength = 0;
+        lineIndex++;
+      }
+      if(currentLineLength < child.controller.properties.length){
+        currentLineLength = child.controller.properties.length;
+        _.forEach(childrenInLine[lineIndex], (child) =>{
+          var group = child.controller.metaObject.group;
+          group.position.y = (((metaTsurface.parent.computedProperties.length || 0) / 2) - totalLength) - (child.controller.properties.length / 2) -
+            (currentLineLength - child.controller.properties.length);
+        });
+      }
+      calculateChildPosition(child);
+      return eventToTriggerOnResize;
+    }
+
+    function checkResizeTable(child){
+
+      if(metaTsurface.parent.properties.width === 0 && metaTsurface.parent.properties.length === 0){
+        if((metaTsurface.parent.computedProperties.width < (currentLineWidth + child.controller.properties.width) &&
+          (currentLineWidth + child.controller.properties.width) <= metaTsurface.parent.parent.properties.width) ||
+          (metaTsurface.parent.computedProperties.length < (currentLineLength + totalLength) &&
+          (currentLineLength + totalLength) <= metaTsurface.parent.parent.properties.length)){
+          return true;
+        }
+      }else if(metaTsurface.parent.properties.width === 0){
+        if((currentLineWidth + child.controller.properties.width) <= metaTsurface.parent.parent.properties.width){
+          return true;
+        }
+      }else if(metaTsurface.parent.properties.length === 0){
+        if(totalLength + currentLineLength <= metaTsurface.parent.parent.properties.width){
+          return true;
+        }
+      }else {
+        return false;
+      }
+    }
+
+    function resizeTable(deltaX, deltaY){
+      if(metaTsurface.parent.properties.width === 0 && metaTsurface.parent.properties.length === 0){
+        // if(metaTsurface.parent.computedProperties.width + deltaX <= metaTsurface.parent.parent.properties.width){
+        if(metaTsurface.parent.computedProperties.width < (currentLineWidth + deltaX) &&
+          (currentLineWidth + deltaX) <= metaTsurface.parent.parent.properties.width){
+          metaTsurface.parent.computedProperties.width += deltaX;
+        }
+        if((metaTsurface.parent.computedProperties.length < (currentLineLength + totalLength) &&
+        (currentLineLength + totalLength) <= metaTsurface.parent.parent.properties.length)){
+          metaTsurface.parent.computedProperties.length = totalLength + currentLineLength;
+        }
+      }
+      else if(metaTsurface.parent.properties.width === 0){
+        if((currentLineWidth + deltaX) <= metaTsurface.parent.parent.properties.width){
+          metaTsurface.parent.computedProperties.width += deltaX;
+        }
+      }else{
+        metaTsurface.parent.computedProperties.length = totalLength + currentLineLength;
+      }
+    }
+
+    function calculateChildPosition(child){
+      var x = 0, y = 0;
+      x = currentLineWidth + (child.controller.properties.width / 2) - ((metaTsurface.parent.computedProperties.width || 0) / 2);
+      var group = child.controller.metaObject.group;
+      group.position.x = x;
+      currentLineWidth += child.controller.properties.width;
+      if(currentLineLength === child.controller.properties.length){
+        y = ((metaTsurface.parent.computedProperties.length || 0)  / 2) - (totalLength + (currentLineLength / 2));
+      }else{
+        y = (((metaTsurface.parent.computedProperties.length || 0) / 2) - totalLength) - (child.controller.properties.length / 2) -
+          (currentLineLength - child.controller.properties.length);
+      }
+      group.position.y = y;
+      childrenInLine[lineIndex] = childrenInLine[lineIndex] || [];
+      childrenInLine[lineIndex].push(child);
+    }
+    metaTsurface.parent.resetComputedProperties();
+    _.forEach(children, (child, index) => {
+      if (!child.controller){ return; }
+      eventToTriggerOnResize = pushChildForChildrenDisplayInline(index, child);
+    })
+    return eventToTriggerOnResize;
+  }
 }
 
 class MetaTsurface extends MRM.MetaComponent {
