@@ -217,7 +217,11 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
       childrenInLine[lineIndex] = childrenInLine[lineIndex] || [];
       childrenInLine[lineIndex].push(child);
     }
-    metaTsurface.parent.resetComputedProperties();
+    if(metaTsurface.parent){
+      metaTsurface.parent.resetComputedProperties();
+    }else{
+      return;
+    }
     _.forEach(children, (child, index) => {
       if (!child.controller){ return; }
       eventToTriggerOnResize = pushChildForChildrenDisplayInline(index, child);
