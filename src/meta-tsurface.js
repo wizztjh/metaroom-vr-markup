@@ -168,7 +168,7 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
           return true;
         }
       }else if(metaTsurface.parent.properties.width === 0){
-        if((currentLineWidth + child.controller.properties.width) <= metaTsurface.parent.parent.properties.width){
+        if((metaTsurface.parent.computedProperties.width + child.controller.properties.width) <= metaTsurface.parent.parent.properties.width){
           return true;
         }
       }else if(metaTsurface.parent.properties.length === 0){

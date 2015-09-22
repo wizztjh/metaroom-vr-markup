@@ -265,6 +265,32 @@
           expect(J.thirdMetaPicture.controller.metaObject.group.position.y).to.equal(0);
         });
       });
+      describe('meta-floor contains meta-table with length attribute', function(){
+        beforeEach(function(){
+          J.metaRoom.innerHTML = '<meta-floor><meta-table length="5" id="main-meta-table"><meta-tsurface>'+
+          '<meta-picture src="../../demo/img/VRcollab.png" width="3" length="3" id="first-meta-pic"></meta-picture>'+
+          '<meta-picture src="../../demo/img/VRcollab.png" width="3" length="2" id="second-meta-pic"></meta-picture>'+
+          '<meta-picture src="../../demo/img/VRcollab.png" width="2" length="2" id="third-meta-pic"></meta-picture>'+
+          '<meta-picture src="../../demo/img/VRcollab.png" width="3" length="2" id="fourth-meta-pic"></meta-picture>'+
+          '</meta-tsurface></meta-table></meta-floor>';
+          jlet('firstMetaPicture', function(){ return document.querySelector('#first-meta-pic')});
+          jlet('secondMetaPicture', function(){ return document.querySelector('#second-meta-pic')});
+          jlet('thirdMetaPicture', function(){ return document.querySelector('#third-meta-pic')});
+          jlet('fourthMetaPic', function(){ return document.querySelector('#fourth-meta-pic')});
+          jlet('metaTable', function(){ return document.querySelector('#main-meta-table')});
+        });
+        it('aligns the objects on table length wise', function(){
+          expect(J.metaTable.controller.computedProperties.width).to.equal(8);
+          expect(J.firstMetaPicture.controller.metaObject.group.position.x).to.equal(-2.5);
+          expect(J.firstMetaPicture.controller.metaObject.group.position.y).to.equal(1);
+          expect(J.secondMetaPicture.controller.metaObject.group.position.x).to.equal(0.5);
+          expect(J.secondMetaPicture.controller.metaObject.group.position.y).to.equal(0.5);
+          expect(J.thirdMetaPicture.controller.metaObject.group.position.x).to.equal(3);
+          expect(J.thirdMetaPicture.controller.metaObject.group.position.y).to.equal(0.5);
+          expect(J.fourthMetaPic.controller.metaObject.group.position.x).to.equal(-2.5);
+          expect(J.fourthMetaPic.controller.metaObject.group.position.y).to.equal(-1.5);
+        });
+      });
     });
   </script>
 </body>
