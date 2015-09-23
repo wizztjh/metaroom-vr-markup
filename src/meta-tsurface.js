@@ -224,7 +224,10 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
     }
     _.forEach(children, (child, index) => {
       if (!child.controller){ return; }
-      eventToTriggerOnResize = pushChildForChildrenDisplayInline(index, child);
+      var event = pushChildForChildrenDisplayInline(index, child);
+      if(event){
+        eventToTriggerOnResize = event;
+      }
     })
     return eventToTriggerOnResize;
   }
@@ -235,6 +238,19 @@ class MetaTsurface extends MRM.MetaComponent {
     this.controller = new MetaTsurfaceController(this);
     super.createdCallback();
   }
+
+  metaDetached(e) {
+    var targetController = e.detail.controller;
+    if (this.controller.isChildren(targetController.tagName) ){
+      e.stopPropagation();
+      this.controller.metaObject.group.remove(targetController.metaObject.group);
+      var event = this.controller.updateTableChildrenDisplayInline();
+      if(event){
+        this.dispatchEvent(event);
+      }
+    }
+  }
+
 }
 
 document.registerElement('meta-tsurface', MetaTsurface);

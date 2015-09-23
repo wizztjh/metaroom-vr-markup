@@ -46833,6 +46833,9 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
       var mesh = new THREE.Mesh(geometry, material);
       mesh.scale.set(1, 1, 1);
       mesh.position.set(-this.properties.width / 2, -this.properties.length / 2, 0);
+      this.properties.width = width - 2 * frameWidth;
+      this.properties.length = length - 2 * frameWidth;
+      this.updateMetaObject();
       this.metaObject.group.add(mesh);
     }
   }, {
@@ -47683,7 +47686,10 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
         if (!child.controller) {
           return;
         }
-        eventToTriggerOnResize = pushChildForChildrenDisplayInline(index, child);
+        var event = pushChildForChildrenDisplayInline(index, child);
+        if (event) {
+          eventToTriggerOnResize = event;
+        }
       });
       return eventToTriggerOnResize;
     }
@@ -47770,6 +47776,19 @@ var MetaTsurface = (function (_MRM$MetaComponent) {
     value: function createdCallback() {
       this.controller = new MetaTsurfaceController(this);
       _get(Object.getPrototypeOf(MetaTsurface.prototype), "createdCallback", this).call(this);
+    }
+  }, {
+    key: "metaDetached",
+    value: function metaDetached(e) {
+      var targetController = e.detail.controller;
+      if (this.controller.isChildren(targetController.tagName)) {
+        e.stopPropagation();
+        this.controller.metaObject.group.remove(targetController.metaObject.group);
+        var event = this.controller.updateTableChildrenDisplayInline();
+        if (event) {
+          this.dispatchEvent(event);
+        }
+      }
     }
   }]);
 

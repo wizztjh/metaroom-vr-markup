@@ -96,6 +96,9 @@ class MetaPictureController extends MRM.MetaComponentController {
     var mesh = new THREE.Mesh( geometry, material );
     mesh.scale.set(1, 1, 1);
     mesh.position.set( -this.properties.width / 2, -this.properties.length / 2, 0);
+    this.properties.width = width - (2 * frameWidth);
+    this.properties.length = length - (2 * frameWidth);
+    this.updateMetaObject();
     this.metaObject.group.add(mesh);
   }
 }
