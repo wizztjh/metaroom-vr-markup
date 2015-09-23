@@ -15,7 +15,7 @@
       <meta-style>
         meta-table{
           material-color: red;
-          tbottom-padding: 3;
+          tbottom-padding-top: 3;
           thickness: 2;
         }
       </meta-style>
@@ -118,6 +118,21 @@
           })
         })
 
+        describe("when width and height is not specified", function (){
+          beforeEach(function(){
+            J.metaFloor.innerHTML = "<meta-table id='main-meta-table'></meta-table>";
+          });
+          describe("when an item is added", function(){
+            beforeEach(function(){
+              J.metaTable.innerHTML = "<meta-tsurface> <meta-picture src='img/VRcollab.png'  width='3' length='3'></meta-picture> </meta-tsurface>";
+            });
+
+            it("width and length of the table changes", function(){
+              expect(J.metaTable.controller.computedProperties.width).to.equal(3)
+              expect(J.metaTable.controller.computedProperties.length).to.equal(3)
+            });
+          })
+        });
 
       });
 
@@ -135,7 +150,7 @@
 
         describe("tbottom padding", function(){
           it("sets the geometry tbottom padding", function(){
-            expect(J.metaTableMesh.geometry.tbottomPadding).to.equal(3)
+            expect(J.metaTableMesh.geometry.tbottomPaddingTop).to.equal(3)
           })
         });
 

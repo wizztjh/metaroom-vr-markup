@@ -9,9 +9,9 @@
     <meta-verse>
       <meta-style>
         #vrcollab-poster {
-          frame-style: ridge;
+          frame-style: solid;
           frame-thickness: 2;
-          frame-width: 2;
+          frame-width: 0.3;
           frame-color: #F33;
           padding: 0.1;
         }
@@ -31,7 +31,7 @@
 
         .light-chocolate{
           material-color: #8D6E63;
-          tbottom-padding-top: 1;
+          tbottom-padding-top: 0.5;
           tbottom-padding-bottom: 0.3;
         }
 
@@ -57,11 +57,11 @@
         <!-- maybe we should make all the left wall and right wall to meta&#45;wall with left , right, top , floor alignement -->
 
         <meta-wall align='left' meta-style='material-color: #EEEEEE'>
-          <meta-picture src='img/VRcollab.png' width='6' length='2'></meta-picture>
+          <meta-picture id='vrcollab-poster' src='img/VRcollab.png' width='6' length='3'></meta-picture>
           <meta-picture src='img/VRcollab.png' width='4' length='2'></meta-picture>
-          <meta-board id='vrcollab-poster' width='6' length='3'>
+          <meta-board width='6' length='5'>
             <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
-            <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
+            <meta-picture meta-style='frame-width: 0.5' src='img/VRcollab.png' width='3' length='2'></meta-picture>
             <meta-text width='3'>A place for you to build future VR websites collaboratively</meta-text>
           </meta-board>
           <meta-text width='1'>Yay!</meta-text>
@@ -69,7 +69,7 @@
         </meta-wall>
 
         <meta-wall align='right' class='styled-wall'>
-          <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
+          <meta-picture meta-style='frame-width: 0.5' src='img/VRcollab.png' width='3' length='2'></meta-picture>
           <meta-html>
             <img src='img/VRcollab.png'/>
             A Place for you to build future VR websites collaboratively
@@ -105,7 +105,7 @@
 
           <meta-table class='light-chocolate' width='5' length='4' height='2' >
             <meta-tsurface class='chocolate'>
-              <meta-item width='4' length='4' height='4' material-src='model/sydney/model_mesh.obj.mtl' geometry-src='model/sydney/model_mesh.obj' id='meta-item-on-floor'></meta-item>
+              <meta-item width='4' length='2' height='4' material-src='model/sydney/model_mesh.obj.mtl' geometry-src='model/sydney/model_mesh.obj' id='meta-item-on-floor'></meta-item>
             </meta-tsurface>
             <meta-tbottom class='chocolate' align='right'></meta-tbottom>
             <meta-tbottom align='left'>
@@ -115,9 +115,21 @@
           </meta-table>
 
 
-          <meta-table width='6' length='8' height='3' meta-style='tbottom-padding-top: 1'>
+          <meta-table height='3' meta-style='tbottom-padding-top: 0.5'>
             <meta-tsurface class='chocolate'>
-              <meta-item width='10' length='10' height='10' material-src='model/pokka/model_mesh.obj.mtl' geometry-src='model/pokka/model_mesh.obj' id='meta-item-on-floor'></meta-item>
+              <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
+              <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
+              <meta-picture src='img/VRcollab.png' width='2' length='2'></meta-picture>
+              <meta-item width='4' length='2' height='4' material-src='model/sydney/model_mesh.obj.mtl' geometry-src='model/sydney/model_mesh.obj' id='meta-item-on-floor'></meta-item>
+              <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
+              <meta-picture src='img/VRcollab.png' width='2' length='2'></meta-picture>
+              <meta-picture src='img/VRcollab.png' width='2' length='2'></meta-picture>
+              <meta-picture src='img/VRcollab.png' width='2' length='2'></meta-picture>
+              <meta-picture src='img/VRcollab.png' width='2' length='2'></meta-picture>
+              <meta-picture src='img/VRcollab.png' width='2' length='2'></meta-picture>
+              <meta-picture src='img/VRcollab.png' width='2' length='2'></meta-picture>
+              <meta-item width='2' length='2' height='4' material-src='model/pokka/model_mesh.obj.mtl' geometry-src='model/pokka/model_mesh.obj' id='meta-item-on-floor'></meta-item>
+              <meta-picture src='img/VRcollab.png' width='2' length='2'></meta-picture>
             </meta-tsurface>
             <meta-tbottom class='chocolate' align='right'></meta-tbottom>
             <meta-tbottom align='left'>
@@ -130,16 +142,17 @@
 
             <meta-tsurface class='light-chocolate' id="phong-meta-tsurface">
               <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
-              <meta-item width='10' length='10' height='10' material-src='model/pokka/model_mesh.obj.mtl' geometry-src='model/pokka/model_mesh.obj' id='meta-item-on-floor'></meta-item>
+              <meta-item width='2' length='2' height='4' material-src='model/pokka/model_mesh.obj.mtl' geometry-src='model/pokka/model_mesh.obj' id='meta-item-on-floor'></meta-item>
             </meta-tsurface>
             <meta-tbottom class='light-chocolate' align='left'></meta-tbottom>
             <meta-tbottom class='light-chocolate' align='right'></meta-tbottom>
           </meta-table>
+
           <meta-table class='light-chocolate' width='5' length='4' height='3' >
 
             <meta-tsurface class='light-chocolate' id="phong-meta-tsurface">
               <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
-              <meta-item width='10' length='10' height='10' material-src='model/pokka/model_mesh.obj.mtl' geometry-src='model/pokka/model_mesh.obj' id='meta-item-on-floor'></meta-item>
+              <meta-item width='2' length='2' height='4' material-src='model/pokka/model_mesh.obj.mtl' geometry-src='model/pokka/model_mesh.obj' id='meta-item-on-floor'></meta-item>
             </meta-tsurface>
 
             <meta-tbottom class='light-chocolate' align='right'></meta-tbottom>

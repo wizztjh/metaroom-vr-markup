@@ -23,7 +23,9 @@ class MetaRoomController extends MRM.MetaComponentController{
         attrName: 'width',
         onChange: (value)=>{
           this.forEachMetaChildren((child)=>{
-            child.controller.properties.roomWidth = value
+            if(child.controller){
+              child.controller.properties.roomWidth = value
+            }
           })
         }
       },
@@ -33,7 +35,9 @@ class MetaRoomController extends MRM.MetaComponentController{
         attrName: 'height',
         onChange: (value)=>{
           this.forEachMetaChildren((child)=>{
-            child.controller.properties.roomHeight = value
+            if(child.controller){
+              child.controller.properties.roomHeight = value
+            }
           })
         }
       },
@@ -43,7 +47,9 @@ class MetaRoomController extends MRM.MetaComponentController{
         attrName: 'length',
         onChange: (value)=>{
           this.forEachMetaChildren((child)=>{
-            child.controller.properties.roomLength = value
+            if(child.controller){
+              child.controller.properties.roomLength = value
+            }
           })
         }
       },
@@ -70,6 +76,9 @@ class MetaRoomController extends MRM.MetaComponentController{
     targetController.properties.roomWidth = this.properties.width
     targetController.properties.roomHeight = this.properties.height
     targetController.properties.roomLength = this.properties.length
+  }
+
+  updateMetaObject(){
   }
 }
 

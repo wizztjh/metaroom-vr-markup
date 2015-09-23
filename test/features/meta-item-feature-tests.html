@@ -14,7 +14,7 @@
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
         <meta-floor align='left' id='main-meta-floor'>
-          <meta-item width='4' length='5' height='6' material-src='fixtures/male02.mtl' geometry-src='fixtures/male02.obj' src='fixtures/male02.obj, fixtures/male02.mtl'id='meta-item-on-floor'></meta-item>
+          <meta-item width='4' length='5' height='6' material-src='fixtures/model/male02.mtl' geometry-src='fixtures/model/male02.obj' src='fixtures/model/smale02.obj, fixtures/model/male02.mtl'id='meta-item-on-floor'></meta-item>
         </meta-floor>
       </meta-room>
     </meta-verse>
@@ -37,7 +37,21 @@
       });
 
       describe("when initilize", function(){
-        shouldBehaveLikeA['MetaObject that scales in 3 dimension']('metaItemMesh', {x: 4, y: 5, z: 6});
+        var scale;
+        beforeEach(function(){
+          var loader = new THREE.OBJMTLLoader();
+          loader.load( J.metaItem.controller.properties.geometrySrc , J.metaItem.controller.properties.materialSrc, ( object ) => {
+            var bbox = new THREE.BoundingBoxHelper( object.children[1], 0xff0000 );
+            bbox.update();
+            scale = {x : J.metaItem.controller.properties.width / bbox.box.size().x,
+              y: J.metaItem.controller.properties.height / bbox.box.size().y, z: J.metaItem.controller.properties.length / bbox.box.size().z};
+          });
+        });
+        it("sets the dimension of the object", function(){
+          expect(J.metaItemMesh.scale.x, 'width').to.equal(scale.x);
+          expect(J.metaItemMesh.scale.y, 'length').to.equal(scale.y);
+          expect(J.metaItemMesh.scale.z, 'height').to.equal(scale.z);
+        });
 
         shouldBehaveLikeA['Plane Adding MetaTag']('metaItem', 'metaFloor');
 

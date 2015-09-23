@@ -17,7 +17,7 @@
           <meta-picture width='3' height='4' src='fixtures/ball.png' id='meta-picture-on-wall'></meta-picture>
 
           <meta-board width='3' length='5' id='main-meta-board'>
-            <meta-picture width='3' length='4' src='fixtures/ball.png' id='main-meta-picture'></meta-picture>
+            <meta-picture width='3' meta-style='frame-width: 0.3' length='4' src='fixtures/ball.png' id='main-meta-picture'></meta-picture>
           </meta-board>
 
         </meta-wall>
@@ -42,6 +42,10 @@
 
         it('updates the texture based on src', function(){
           expect(J.metaPicture.controller.metaObject.mesh.material.map.sourceFile).to.equal("fixtures/ball.png");
+        });
+
+        it('adds another mesh in group when frame-width is included in meta-style', function(){
+          expect(J.metaPicture.controller.metaObject.group.children.length).to.equal(2);
         });
 
         describe("when the meta-picture is on the wall", function(){

@@ -45530,6 +45530,7 @@ var GameObject = (function () {
     //   self.add(name, returnObject);
     // });
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
+    document.addEventListener('keydown', this.onKeyDown.bind(this), false);
   }
 
   _createClass(GameObject, [{
@@ -45538,6 +45539,23 @@ var GameObject = (function () {
       this.camera.aspect = this.getWidth() / this.getHeight();
       this.camera.updateProjectionMatrix();
       this.effect.setSize(this.getWidth(), this.getHeight());
+    }
+  }, {
+    key: 'onKeyDown',
+    value: function onKeyDown(e) {
+      if (e.keyCode == 87) {
+        // Move forward incrementally with W
+        this.camera.translateZ(-.5);
+      } else if (e.keyCode == 65) {
+        //Move left incrementally with A
+        this.camera.translateX(-.5);
+      } else if (e.keyCode == 68) {
+        //Move right incrementally with D
+        this.camera.translateX(.5);
+      } else if (e.keyCode == 83) {
+        //Move left incrementally with S
+        this.camera.translateZ(.5);
+      }
     }
   }, {
     key: 'getWidth',
@@ -45760,6 +45778,10 @@ var MetaBase = (function (_HTMLElement) {
       if (typeof this.metaChildAttributeChanged == 'function') {
         this.addEventListener('meta-attribute-change', this.metaChildAttributeChanged, false);
       }
+
+      if (typeof this.metaSizeAttributeChanged === 'function') {
+        this.addEventListener('size-attributes-change', this.metaSizeAttributeChanged, false);
+      }
     }
   }]);
 
@@ -45803,6 +45825,7 @@ var MetaComponentController = (function (_MetaBaseController) {
     this.dom = dom;
     this.metaStyle = new MRM.MetaStyle(this);
     this.properties = {};
+    this.childrenPositionIndexMap = [];
     // TODO: create a class for property, to use the set and get of class
     this.propertiesKey.forEach(function (key) {
       var settings = _this.propertiesSettings[key];
@@ -45867,7 +45890,6 @@ var MetaComponentController = (function (_MetaBaseController) {
   }, {
     key: "updateChildrenDisplayInline",
     value: function updateChildrenDisplayInline() {
-
       // TODO: change the board to parent to make it generic
       var parent = this;
       // TODO: only select the direct child
@@ -45876,18 +45898,20 @@ var MetaComponentController = (function (_MetaBaseController) {
       var lines = [];
       var currentLine = 0;
       var currentLineWidth = 0;
+      var childLength, childWidth;
 
       [].forEach.call(children, function (child, index) {
+
         if (!child.controller) {
           return;
         }
-
-        if (currentLineWidth + Number(child.controller.properties.width) <= parent.properties.width) {
-          currentLineWidth += Number(child.controller.properties.width);
-        } else {
+        childWidth = Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) : child.controller.computedProperties.width;
+        childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
+        if (currentLineWidth + Number(childWidth) <= parent.properties.width) {} else {
           currentLine += 1;
           currentLineWidth = 0;
         }
+        currentLineWidth += Number(childWidth);
         lines[currentLine] = lines[currentLine] || [];
         lines[currentLine].push(child);
       });
@@ -45898,15 +45922,16 @@ var MetaComponentController = (function (_MetaBaseController) {
             baseLineY,
             nextComponentX = -(Number(parent.properties.width) / 2);
         line.forEach(function (child, childIndex) {
-
-          nextComponentX += Number(child.controller.properties.width) / 2;
+          childWidth = Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) : child.controller.computedProperties.width;
+          childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
+          nextComponentX += Number(childWidth) / 2;
 
           var group = child.controller.metaObject.group;
           group.position.x = nextComponentX;
-          nextComponentX += child.controller.properties.width / 2;
+          nextComponentX += childWidth / 2;
 
-          if (child.controller.properties.length > biggestLength) {
-            biggestLength = Number(child.controller.properties.length);
+          if (childLength > biggestLength) {
+            biggestLength = Number(childLength);
           }
         });
 
@@ -45918,7 +45943,8 @@ var MetaComponentController = (function (_MetaBaseController) {
 
         line.forEach(function (child, childIndex) {
           var group = child.controller.metaObject.group;
-          group.position.y = baseLineY + child.controller.properties.length / 2;
+          childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
+          group.position.y = baseLineY + childLength / 2;
         });
       });
     }
@@ -46069,7 +46095,15 @@ var MetaComponent = (function (_MetaBase) {
       if (this.controller.isChildren(targetController.tagName)) {
         _.forEach(e.detail.actions, function (value, action) {
           if (typeof _this.controller[action] === 'function') {
-            _this.controller[action](targetController);
+            var event;
+            if (_this.controller.tagName === 'meta-tsurface' && action === 'updateChildrenDisplayInline') {
+              event = _this.controller['updateTableChildrenDisplayInline'](targetController);
+            } else {
+              event = _this.controller[action](targetController);
+            }
+            if (event) {
+              _this.dispatchEvent(event);
+            }
             delete e.detail.actions[action];
           }
         });
@@ -46084,10 +46118,33 @@ var MetaComponent = (function (_MetaBase) {
       if (this.controller.isChildren(targetController.tagName)) {
         _.forEach(e.detail.actions, function (value, action) {
           if (typeof _this2.controller[action] === 'function') {
-            _this2.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
+            var event;
+            if (_this2.controller.tagName === 'meta-tsurface' && action === 'updateChildrenDisplayInline') {
+              event = _this2.controller['updateTableChildrenDisplayInline'](targetController, e.detail.oldValue, e.detail.newValue);
+            } else {
+              event = _this2.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
+            }
+            if (event) {
+              _this2.dispatchEvent(event);
+            }
             delete e.detail.actions[action];
           }
         });
+      }
+    }
+  }, {
+    key: 'metaSizeAttributeChanged',
+    value: function metaSizeAttributeChanged(e) {
+      var targetController = e.detail.controller;
+      if (this.controller.isChildren(targetController.tagName)) {
+        this.controller.updateMetaObject();
+        var event = new CustomEvent('size-attributes-change', {
+          'detail': {
+            'controller': this.controller
+          },
+          bubbles: true
+        });
+        this.dispatchEvent(event);
       }
     }
   }]);
@@ -46169,8 +46226,8 @@ var MetaStyle = (function () {
   }, {
     key: "tbottom-padding",
     set: function set(tbottomPadding) {
-      this.controller.metaStyle['tbottom-padding-top'] = tbottomPadding;
-      this.controller.metaStyle['tbottom-padding-bottom'] = tbottomPadding;
+      this.controller.metaStyle["tbottom-padding-top"] = tbottomPadding;
+      this.controller.metaStyle["tbottom-padding-bottom"] = tbottomPadding;
       return Number(tbottomPadding);
     },
     get: function get() {
@@ -46180,11 +46237,11 @@ var MetaStyle = (function () {
     key: "tbottom-padding-top",
     set: function set(tbottomPaddingTop) {
       var mesh = this.controller.metaObject.mesh;
-      var properties = this.controller.properties;
+      var computedProperties = this.controller.computedProperties;
       if (mesh) {
         var geometry = mesh.geometry;
         if (mesh.geometry.update) {
-          mesh.geometry.update(properties.width, properties.height, properties.length, geometry.tbottomThickness, geometry.tsurfaceThickness, Number(tbottomPaddingTop), this.metaStyle['tbottom-padding-bottom'] || 0);
+          mesh.geometry.update(computedProperties.width, computedProperties.height, computedProperties.length, geometry.tbottomThickness, geometry.tsurfaceThickness, Number(tbottomPaddingTop), this.metaStyle["tbottom-padding-bottom"] || 0);
         }
         this.metaStyle["tbottom-padding-top"] = Number(tbottomPaddingTop);
       }
@@ -46197,11 +46254,11 @@ var MetaStyle = (function () {
     key: "tbottom-padding-bottom",
     set: function set(tbottomPaddingBottom) {
       var mesh = this.controller.metaObject.mesh;
-      var properties = this.controller.properties;
+      var computedProperties = this.controller.computedProperties;
       if (mesh) {
         var geometry = mesh.geometry;
         if (mesh.geometry.update) {
-          mesh.geometry.update(properties.width, properties.height, properties.length, geometry.tbottomThickness, geometry.tsurfaceThickness, this.metaStyle['tbottom-padding-top'] || 0, Number(tbottomPaddingBottom));
+          mesh.geometry.update(computedProperties.width, computedProperties.height, computedProperties.length, geometry.tbottomThickness, geometry.tsurfaceThickness, this.metaStyle["tbottom-padding-top"] || 0, Number(tbottomPaddingBottom));
         }
         this.metaStyle["tbottom-padding-bottom"] = Number(tbottomPaddingBottom);
       }
@@ -46224,6 +46281,19 @@ var MetaStyle = (function () {
     },
     get: function get() {
       return this.metaStyle["thickness"];
+    }
+  }, {
+    key: "frame-width",
+    set: function set(frameWidth) {
+      var controller = this.controller;
+      if (controller && typeof controller.updateFrame === "function") {
+        controller.updateFrame(frameWidth);
+        this.metaStyle["frame-width"] = Number(frameWidth);
+      }
+      return Number(frameWidth);
+    },
+    get: function get() {
+      return this.metaStyle["frame-width"];
     }
   }, {
     key: "material-type",
@@ -46534,6 +46604,9 @@ var MetaRoomController = (function (_MRM$MetaComponentController) {
       targetController.properties.roomLength = this.properties.length;
     }
   }, {
+    key: 'updateMetaObject',
+    value: function updateMetaObject() {}
+  }, {
     key: 'metaAttachedActions',
     get: function get() {
       return {
@@ -46552,7 +46625,9 @@ var MetaRoomController = (function (_MRM$MetaComponentController) {
           attrName: 'width',
           onChange: function onChange(value) {
             _this.forEachMetaChildren(function (child) {
-              child.controller.properties.roomWidth = value;
+              if (child.controller) {
+                child.controller.properties.roomWidth = value;
+              }
             });
           }
         },
@@ -46562,7 +46637,9 @@ var MetaRoomController = (function (_MRM$MetaComponentController) {
           attrName: 'height',
           onChange: function onChange(value) {
             _this.forEachMetaChildren(function (child) {
-              child.controller.properties.roomHeight = value;
+              if (child.controller) {
+                child.controller.properties.roomHeight = value;
+              }
             });
           }
         },
@@ -46572,7 +46649,9 @@ var MetaRoomController = (function (_MRM$MetaComponentController) {
           attrName: 'length',
           onChange: function onChange(value) {
             _this.forEachMetaChildren(function (child) {
-              child.controller.properties.roomLength = value;
+              if (child.controller) {
+                child.controller.properties.roomLength = value;
+              }
             });
           }
         }
@@ -47147,7 +47226,7 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
 
     _get(Object.getPrototypeOf(MetaPictureController.prototype), 'constructor', this).call(this, dom);
     this.setupComponent();
-    this.parent = null;
+    this.parent = dom.parentElement.controller;
 
     this.metaObject = this.createMetaObject();
     this.metaObject.mesh.position.set(0, 0, 0.2);
@@ -47162,7 +47241,10 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
     value: function createMetaObject() {
       var planeLength = 1;
       var planeWidth = 1;
+      THREE.ImageUtils.crossOrigin = 'Anonymous';
+
       var texture = THREE.ImageUtils.loadTexture(this.properties.src);
+      texture.needsUpdate = true;
 
       var geometry = new THREE.PlaneGeometry(planeWidth, planeLength, 1, 1);
       var material = new THREE.MeshBasicMaterial({
@@ -47186,6 +47268,37 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
 
       mesh.scale.x = this.properties.width;
       mesh.scale.y = this.properties.length;
+    }
+  }, {
+    key: 'updateFrame',
+    value: function updateFrame(frameWidth, frameThickness) {
+      //TODO: Add the Frame mesh to the group
+      var length = this.properties.length;
+      var width = this.properties.width;
+      var frameShape = new THREE.Shape();
+      frameShape.moveTo(0, 0);
+      frameShape.lineTo(0, length);
+      frameShape.lineTo(width, length);
+      frameShape.lineTo(width, 0);
+      frameShape.lineTo(0, 0);
+
+      var frameHole = new THREE.Path();
+      frameHole.moveTo(frameWidth + 0, frameWidth + 0);
+      frameHole.lineTo(width - frameWidth, frameWidth + 0);
+      frameHole.lineTo(width - frameWidth, length - frameWidth);
+      frameHole.lineTo(frameWidth + 0, length - frameWidth);
+      frameShape.holes.push(frameHole);
+
+      var extrudeSettings = { amount: frameThickness || 0.3, bevelEnabled: false };
+      var geometry = new THREE.ExtrudeGeometry(frameShape, extrudeSettings);
+      var material = new THREE.MeshPhongMaterial({ color: 0xb00000, wireframe: false });
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.scale.set(1, 1, 1);
+      mesh.position.set(-this.properties.width / 2, -this.properties.length / 2, 0);
+      this.properties.width = width - 2 * frameWidth;
+      this.properties.length = length - 2 * frameWidth;
+      this.updateMetaObject();
+      this.metaObject.group.add(mesh);
     }
   }, {
     key: 'propertiesSettings',
@@ -47268,7 +47381,7 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
 
     _get(Object.getPrototypeOf(MetaItemController.prototype), 'constructor', this).call(this, dom);
     this.setupComponent();
-    this.parent = null;
+    this.parent = dom.parentElement.controller;
 
     this.metaObject = this.createMetaObject();
 
@@ -47304,11 +47417,14 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         _.forEach(_this.metaObject.group.children, function (child) {
           _this.metaObject.group.remove(child);
         });
-        _this.metaObject.group.add(object);
-        _this.metaObject.mesh = object;
+        _this.metaObject.mesh = object.children[1];
+        var bbox = new THREE.BoundingBoxHelper(_this.metaObject.mesh, 0xff0000);
+        bbox.update();
+        _this.metaObject.mesh.scale.set(_this.properties.width / bbox.box.size().x, _this.properties.height / bbox.box.size().y, _this.properties.length / bbox.box.size().z);
         _this.metaObject.mesh.rotation.x = 90 * (Math.PI / 180);
+        bbox.update();
+        _this.metaObject.group.add(object.children[1]);
         _this.metaObject.group.position.z = _this.properties.height / 2;
-        _this.metaObject.mesh.scale.set(_this.properties.width, _this.properties.length, _this.properties.height);
       });
     }
   }, {
@@ -47395,7 +47511,7 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
 
     _get(Object.getPrototypeOf(MetaTextController.prototype), 'constructor', this).call(this, dom);
     this.setupComponent();
-    this.parent = null;
+    this.parent = dom.parentElement.controller;
 
     this.properties.text = this.dom.innerText || '';
 
@@ -47525,6 +47641,8 @@ var owner = (document._currentScript || document.currentScript).ownerDocument;
 
 var MetaTableController = (function (_MRM$MetaComponentController) {
   function MetaTableController(dom) {
+    var _this = this;
+
     _classCallCheck(this, MetaTableController);
 
     _get(Object.getPrototypeOf(MetaTableController.prototype), "constructor", this).call(this, dom);
@@ -47532,7 +47650,19 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
     this.setupComponent();
     this.parent = null;
     this.metaObject = this.createMetaObject();
-
+    this.computedProperties = {};
+    this.computedPropertiesKey.forEach(function (key) {
+      var settings = _this.computedPropertiesSettings[key];
+      var value = settings.type(_this.properties[key] || settings["default"]);
+      Object.defineProperty(_this.computedProperties, key, {
+        get: function get() {
+          return value;
+        },
+        set: function set(inputValue) {
+          value = settings.type(inputValue);
+        }
+      });
+    });
     this.updateMetaObject();
   }
 
@@ -47566,15 +47696,29 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
       };
     }
   }, {
+    key: "resetComputedProperties",
+    value: function resetComputedProperties() {
+      var _this2 = this;
+
+      _.forEach(this.computedPropertiesS);
+      this.computedPropertiesKey.forEach(function (key) {
+        _this2.computedProperties[key] = _this2.properties[key];
+      });
+    }
+  }, {
     key: "updateMetaObject",
     value: function updateMetaObject() {
-      this.metaObject.group.position.z = this.properties.height / 2;
+      this.metaObject.group.position.z = this.properties.height / 2 || 0.5;
       var geometry = this.metaObject.mesh.geometry,
-          tbottomPadding = this.metaStyle["tbottom-padding"] || geometry.parameters.tbottomPadding || 0,
+          tbottomPaddingTop = this.metaStyle["tbottom-padding-top"] || this.metaStyle["tbottom-padding"] || geometry.parameters.tbottomPadding || 0,
+          tbottomPaddingBottom = this.metaStyle["tbottom-padding-bottom"] || this.metaStyle["tbottom-padding"] || geometry.parameters.tbottomPadding || 0,
           tsurfaceThickness = geometry.parameters.tsurfaceThickness,
-          tbottomThickness = geometry.parameters.tbottomThickness;
+          tbottomThickness = geometry.parameters.tbottomThickness,
+          width = this.properties.width || this.computedProperties.width || 1,
+          length = this.properties.length || this.computedProperties.length || 1,
+          height = this.properties.height || this.computedProperties.height || 1;
 
-      geometry.update(this.properties.width, this.properties.height, this.properties.length, tsurfaceThickness, tbottomThickness, tbottomPadding, tbottomPadding);
+      geometry.update(width, height, length, tsurfaceThickness, tbottomThickness, tbottomPaddingTop, tbottomPaddingBottom);
     }
   }, {
     key: "updateTableDimension",
@@ -47598,7 +47742,7 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
   }, {
     key: "updateFaceVisibility",
     value: function updateFaceVisibility(value, oldValue, key) {
-      var _this = this;
+      var _this3 = this;
 
       this.metaObject.mesh.material.materials.forEach(function (material) {
         material.visible = false;
@@ -47613,30 +47757,35 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
           switch (controller.properties.align) {
             case "left":
               // TODO: use propertiesSettings face name
-              _this.metaObject.mesh.material.materials[2].visible = true;
-              _this.metaObject.mesh.material.materials[3].visible = true;
-              _this.metaObject.mesh.material.materials[4].visible = true;
+              _this3.metaObject.mesh.material.materials[2].visible = true;
+              _this3.metaObject.mesh.material.materials[3].visible = true;
+              _this3.metaObject.mesh.material.materials[4].visible = true;
               break;
             case "right":
-              _this.metaObject.mesh.material.materials[0].visible = true;
-              _this.metaObject.mesh.material.materials[6].visible = true;
-              _this.metaObject.mesh.material.materials[7].visible = true;
+              _this3.metaObject.mesh.material.materials[0].visible = true;
+              _this3.metaObject.mesh.material.materials[6].visible = true;
+              _this3.metaObject.mesh.material.materials[7].visible = true;
               break;
             case "front":
-              _this.metaObject.mesh.material.materials[0].visible = true;
-              _this.metaObject.mesh.material.materials[1].visible = true;
-              _this.metaObject.mesh.material.materials[2].visible = true;
+              _this3.metaObject.mesh.material.materials[0].visible = true;
+              _this3.metaObject.mesh.material.materials[1].visible = true;
+              _this3.metaObject.mesh.material.materials[2].visible = true;
               break;
             case "back":
-              _this.metaObject.mesh.material.materials[4].visible = true;
-              _this.metaObject.mesh.material.materials[5].visible = true;
-              _this.metaObject.mesh.material.materials[6].visible = true;
+              _this3.metaObject.mesh.material.materials[4].visible = true;
+              _this3.metaObject.mesh.material.materials[5].visible = true;
+              _this3.metaObject.mesh.material.materials[6].visible = true;
               break;
           }
         } else if (controller.tagName === "meta-tsurface") {
-          _this.metaObject.mesh.material.materials[8].visible = true;
+          _this3.metaObject.mesh.material.materials[8].visible = true;
         }
       });
+    }
+  }, {
+    key: "computedPropertiesKey",
+    get: function get() {
+      return Object.keys(this.computedPropertiesSettings);
     }
   }, {
     key: "metaAttachedActions",
@@ -47658,37 +47807,58 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
       };
     }
   }, {
+    key: "computedPropertiesSettings",
+    get: function get() {
+      return {
+        width: {
+          type: Number,
+          "default": null
+        },
+        length: {
+          type: Number,
+          "default": null
+        },
+        height: {
+          type: Number,
+          "default": null
+        }
+      };
+    }
+  }, {
     key: "propertiesSettings",
     get: function get() {
-      var _this2 = this;
+      var _this4 = this;
 
       return {
         width: {
           type: Number,
-          "default": 1,
+          "default": null,
           attrName: "width",
           onChange: function onChange(value) {
-            _this2.forEachMetaChildren(function (child) {
+            _this4.computedProperties.width = value;
+            _this4.forEachMetaChildren(function (child) {
               child.controller.properties.tableWidth = value;
             });
           }
         },
         height: {
           type: Number,
-          "default": 1,
+          "default": null,
           attrName: "height",
           onChange: function onChange(value) {
-            _this2.forEachMetaChildren(function (child) {
+            _this4.computedProperties.height = value;
+            _this4.forEachMetaChildren(function (child) {
               child.controller.properties.tableHeight = value;
             });
           }
         },
         length: {
           type: Number,
-          "default": 1,
+          "default": null,
           attrName: "length",
           onChange: function onChange(value) {
-            _this2.forEachMetaChildren(function (child) {
+            _this4.computedProperties.length = value;
+            _this4.forEachMetaChildren(function (child) {
               child.controller.properties.tableLength = value;
             });
           }
@@ -47820,7 +47990,7 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
     this.metaObject = this.createMetaObject();
 
     this.setupComponent();
-    this.parent = null;
+    this.parent = dom.parentElement.controller;
 
     this.updateMetaObject();
   }
@@ -47846,7 +48016,144 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
     key: "updateMetaObject",
     value: function updateMetaObject() {
       this.metaObject.group.position.z = this.properties.tableHeight / 2;
-      this.updateChildrenDisplayInline();
+      this.updateTableChildrenDisplayInline();
+    }
+  }, {
+    key: "updateTableChildrenDisplayInline",
+    value: function updateTableChildrenDisplayInline() {
+      var metaTsurface = this,
+          children = this.getMetaChildren(),
+          lineIndex = 0,
+          currentLineWidth = 0,
+          currentLineLength = 0,
+          childrenInLine = [],
+          totalLength = 0,
+          eventToTriggerOnResize;
+
+      function pushChildForChildrenDisplayInline(index, child) {
+        if (currentLineLength === 0) {
+          currentLineLength = child.controller.properties.length;
+        }
+        if (currentLineWidth + child.controller.properties.width > (metaTsurface.parent.properties.width !== 0 ? metaTsurface.parent.properties.width : metaTsurface.parent.parent.properties.width)) {
+          totalLength += currentLineLength;
+          currentLineWidth = 0;
+          currentLineLength = child.controller.properties.length;
+          lineIndex++;
+        }
+        if (checkResizeTable(child)) {
+          var eventToTriggerOnResize;
+          resizeTable(child.controller.properties.width, child.controller.properties.length);
+          eventToTriggerOnResize = new CustomEvent("size-attributes-change", {
+            "detail": {
+              "controller": metaTsurface
+            },
+            bubbles: true
+          });
+          if (index > 0) {
+            lineIndex = 0, currentLineWidth = 0, currentLineLength = 0, totalLength = 0;
+            for (var i = 0; i < index; i++) {
+              if (currentLineWidth + children[i].controller.properties.width > (metaTsurface.parent.properties.width !== 0 ? metaTsurface.parent.properties.width : metaTsurface.parent.parent.properties.width)) {
+                totalLength += currentLineLength;
+                currentLineWidth = 0;
+                currentLineLength = 0;
+                lineIndex++;
+              }
+              if (currentLineLength < children[i].controller.properties.length) {
+                currentLineLength = children[i].controller.properties.length;
+                _.forEach(childrenInLine[lineIndex], function (child) {
+                  var group = child.controller.metaObject.group;
+                  group.position.y = (metaTsurface.parent.computedProperties.length || 0) / 2 - totalLength - child.controller.properties.length / 2 - (currentLineLength - child.controller.properties.length);
+                });
+              }
+              calculateChildPosition(children[i]);
+            }
+          }
+        }
+        if (currentLineWidth + child.controller.properties.width > (metaTsurface.parent.properties.width !== 0 ? metaTsurface.parent.properties.width : metaTsurface.parent.parent.properties.width)) {
+          totalLength += currentLineLength;
+          currentLineWidth = 0;
+          currentLineLength = 0;
+          lineIndex++;
+        }
+        if (currentLineLength < child.controller.properties.length) {
+          currentLineLength = child.controller.properties.length;
+          _.forEach(childrenInLine[lineIndex], function (child) {
+            var group = child.controller.metaObject.group;
+            group.position.y = (metaTsurface.parent.computedProperties.length || 0) / 2 - totalLength - child.controller.properties.length / 2 - (currentLineLength - child.controller.properties.length);
+          });
+        }
+        calculateChildPosition(child);
+        return eventToTriggerOnResize;
+      }
+
+      function checkResizeTable(child) {
+
+        if (metaTsurface.parent.properties.width === 0 && metaTsurface.parent.properties.length === 0) {
+          if (metaTsurface.parent.computedProperties.width < currentLineWidth + child.controller.properties.width && currentLineWidth + child.controller.properties.width <= metaTsurface.parent.parent.properties.width || metaTsurface.parent.computedProperties.length < currentLineLength + totalLength && currentLineLength + totalLength <= metaTsurface.parent.parent.properties.length) {
+            return true;
+          }
+        } else if (metaTsurface.parent.properties.width === 0) {
+          if (currentLineWidth + child.controller.properties.width <= metaTsurface.parent.parent.properties.width) {
+            return true;
+          }
+        } else if (metaTsurface.parent.properties.length === 0) {
+          if (totalLength + currentLineLength <= metaTsurface.parent.parent.properties.width) {
+            return true;
+          }
+        } else {
+          return false;
+        }
+      }
+
+      function resizeTable(deltaX, deltaY) {
+        if (metaTsurface.parent.properties.width === 0 && metaTsurface.parent.properties.length === 0) {
+          // if(metaTsurface.parent.computedProperties.width + deltaX <= metaTsurface.parent.parent.properties.width){
+          if (metaTsurface.parent.computedProperties.width < currentLineWidth + deltaX && currentLineWidth + deltaX <= metaTsurface.parent.parent.properties.width) {
+            metaTsurface.parent.computedProperties.width += deltaX;
+          }
+          if (metaTsurface.parent.computedProperties.length < currentLineLength + totalLength && currentLineLength + totalLength <= metaTsurface.parent.parent.properties.length) {
+            metaTsurface.parent.computedProperties.length = totalLength + currentLineLength;
+          }
+        } else if (metaTsurface.parent.properties.width === 0) {
+          if (currentLineWidth + deltaX <= metaTsurface.parent.parent.properties.width) {
+            metaTsurface.parent.computedProperties.width += deltaX;
+          }
+        } else {
+          metaTsurface.parent.computedProperties.length = totalLength + currentLineLength;
+        }
+      }
+
+      function calculateChildPosition(child) {
+        var x = 0,
+            y = 0;
+        x = currentLineWidth + child.controller.properties.width / 2 - (metaTsurface.parent.computedProperties.width || 0) / 2;
+        var group = child.controller.metaObject.group;
+        group.position.x = x;
+        currentLineWidth += child.controller.properties.width;
+        if (currentLineLength === child.controller.properties.length) {
+          y = (metaTsurface.parent.computedProperties.length || 0) / 2 - (totalLength + currentLineLength / 2);
+        } else {
+          y = (metaTsurface.parent.computedProperties.length || 0) / 2 - totalLength - child.controller.properties.length / 2 - (currentLineLength - child.controller.properties.length);
+        }
+        group.position.y = y;
+        childrenInLine[lineIndex] = childrenInLine[lineIndex] || [];
+        childrenInLine[lineIndex].push(child);
+      }
+      if (metaTsurface.parent) {
+        metaTsurface.parent.resetComputedProperties();
+      } else {
+        return;
+      }
+      _.forEach(children, function (child, index) {
+        if (!child.controller) {
+          return;
+        }
+        var event = pushChildForChildrenDisplayInline(index, child);
+        if (event) {
+          eventToTriggerOnResize = event;
+        }
+      });
+      return eventToTriggerOnResize;
     }
   }, {
     key: "eventActionSettings",
@@ -47931,6 +48238,19 @@ var MetaTsurface = (function (_MRM$MetaComponent) {
     value: function createdCallback() {
       this.controller = new MetaTsurfaceController(this);
       _get(Object.getPrototypeOf(MetaTsurface.prototype), "createdCallback", this).call(this);
+    }
+  }, {
+    key: "metaDetached",
+    value: function metaDetached(e) {
+      var targetController = e.detail.controller;
+      if (this.controller.isChildren(targetController.tagName)) {
+        e.stopPropagation();
+        this.controller.metaObject.group.remove(targetController.metaObject.group);
+        var event = this.controller.updateTableChildrenDisplayInline();
+        if (event) {
+          this.dispatchEvent(event);
+        }
+      }
     }
   }]);
 

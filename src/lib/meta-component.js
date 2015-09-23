@@ -66,7 +66,15 @@ export default class MetaComponent extends MetaBase{
     if (this.controller.isChildren(targetController.tagName) ){
       _.forEach(e.detail.actions, (value, action) => {
         if (typeof this.controller[action] === 'function') {
-          this.controller[action](targetController)
+          var event;
+          if(this.controller.tagName === 'meta-tsurface' && action === 'updateChildrenDisplayInline'){
+            event = this.controller['updateTableChildrenDisplayInline'](targetController);
+          }else{
+            event = this.controller[action](targetController);
+          }
+          if(event){
+            this.dispatchEvent(event);
+          }
           delete e.detail.actions[action]
         }
       })
@@ -78,11 +86,32 @@ export default class MetaComponent extends MetaBase{
     if (this.controller.isChildren(targetController.tagName) ){
       _.forEach(e.detail.actions, (value, action) => {
         if (typeof this.controller[action] === 'function') {
-          this.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
+          var event;
+          if(this.controller.tagName === 'meta-tsurface' && action === 'updateChildrenDisplayInline'){
+            event = this.controller['updateTableChildrenDisplayInline'](targetController, e.detail.oldValue, e.detail.newValue);
+          }else{
+            event = this.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
+          }
+          if(event){
+            this.dispatchEvent(event);
+          }
           delete e.detail.actions[action]
         }
-      })
+      });
     }
   }
 
+  metaSizeAttributeChanged(e){
+    var targetController = e.detail.controller;
+    if(this.controller.isChildren(targetController.tagName)){
+      this.controller.updateMetaObject();
+      var event = new CustomEvent('size-attributes-change', {
+        'detail': {
+          'controller': this.controller,
+        },
+        bubbles: true
+      });
+      this.dispatchEvent(event);
+    }
+  }
 }

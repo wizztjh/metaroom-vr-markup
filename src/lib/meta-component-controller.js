@@ -9,6 +9,7 @@ export default class MetaComponentController extends MetaBaseController{
     this.dom = dom;
     this.metaStyle = new MRM.MetaStyle(this)
     this.properties = {}
+    this.childrenPositionIndexMap = [];
     // TODO: create a class for property, to use the set and get of class
     this.propertiesKey.forEach((key) => {
       var settings = this.propertiesSettings[key]
@@ -93,7 +94,6 @@ export default class MetaComponentController extends MetaBaseController{
   }
 
   updateChildrenDisplayInline() {
-
     // TODO: change the board to parent to make it generic
     var parent = this;
     // TODO: only select the direct child
@@ -102,16 +102,21 @@ export default class MetaComponentController extends MetaBaseController{
     var lines = [];
     var currentLine = 0;
     var currentLineWidth = 0;
+    var childLength, childWidth;
 
     [].forEach.call(children, function (child, index) {
-      if (!child.controller){ return; }
 
-      if(currentLineWidth + Number(child.controller.properties.width) <= parent.properties.width){
-        currentLineWidth += Number(child.controller.properties.width);
+      if (!child.controller){ return; }
+      childWidth = (Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) :
+        child.controller.computedProperties.width);
+      childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
+        child.controller.computedProperties.length);
+      if(currentLineWidth + Number(childWidth) <= parent.properties.width){
       }else{
         currentLine += 1;
         currentLineWidth = 0;
       }
+      currentLineWidth += Number(childWidth);
       lines[currentLine] = lines[currentLine] || []
       lines[currentLine].push(child);
     });
@@ -122,15 +127,18 @@ export default class MetaComponentController extends MetaBaseController{
       ,   baseLineY
       ,   nextComponentX = -(Number(parent.properties.width)/2);
       line.forEach(function(child, childIndex){
-
-        nextComponentX += Number(child.controller.properties.width)/2;
+        childWidth = (Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) :
+          child.controller.computedProperties.width);
+        childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
+          child.controller.computedProperties.length);
+        nextComponentX += Number(childWidth)/2;
 
         var group = child.controller.metaObject.group;
         group.position.x = nextComponentX;
-        nextComponentX += child.controller.properties.width/2;
+        nextComponentX += childWidth/2;
 
-        if(child.controller.properties.length > biggestLength) {
-          biggestLength = Number(child.controller.properties.length)
+        if(childLength > biggestLength) {
+          biggestLength = Number(childLength)
         }
       });
 
@@ -142,12 +150,10 @@ export default class MetaComponentController extends MetaBaseController{
 
       line.forEach(function(child, childIndex){
         var group = child.controller.metaObject.group;
-        group.position.y = baseLineY + child.controller.properties.length/2;
+        childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
+          child.controller.computedProperties.length);
+        group.position.y = baseLineY + childLength/2;
       });
-
     });
-
   }
-
-
 }

@@ -37,11 +37,11 @@ export default class MetaStyle {
 
   set ["tbottom-padding-top"](tbottomPaddingTop) {
     var mesh = this.controller.metaObject.mesh;
-    var properties = this.controller.properties;
+    var computedProperties = this.controller.computedProperties;
     if (mesh) {
       var geometry = mesh.geometry
       if(mesh.geometry.update){
-        mesh.geometry.update(properties.width, properties.height, properties.length, geometry.tbottomThickness, geometry.tsurfaceThickness, Number(tbottomPaddingTop), this.metaStyle['tbottom-padding-bottom'] || 0);
+        mesh.geometry.update(computedProperties.width, computedProperties.height, computedProperties.length, geometry.tbottomThickness, geometry.tsurfaceThickness, Number(tbottomPaddingTop), this.metaStyle['tbottom-padding-bottom'] || 0);
       }
       this.metaStyle["tbottom-padding-top"] = Number(tbottomPaddingTop);
     }
@@ -54,11 +54,11 @@ export default class MetaStyle {
 
   set ["tbottom-padding-bottom"](tbottomPaddingBottom) {
     var mesh = this.controller.metaObject.mesh;
-    var properties = this.controller.properties;
+    var computedProperties = this.controller.computedProperties;
     if (mesh) {
       var geometry = mesh.geometry
       if(mesh.geometry.update){
-        mesh.geometry.update(properties.width, properties.height, properties.length, geometry.tbottomThickness, geometry.tsurfaceThickness, this.metaStyle['tbottom-padding-top'] || 0, Number(tbottomPaddingBottom))
+        mesh.geometry.update(computedProperties.width, computedProperties.height, computedProperties.length, geometry.tbottomThickness, geometry.tsurfaceThickness, this.metaStyle['tbottom-padding-top'] || 0, Number(tbottomPaddingBottom))
       }
       this.metaStyle["tbottom-padding-bottom"] = Number(tbottomPaddingBottom);
     }
@@ -82,6 +82,19 @@ export default class MetaStyle {
 
   get ["thickness"]() {
     return this.metaStyle["thickness"];
+  }
+
+  set ["frame-width"](frameWidth) {
+    var controller = this.controller;
+    if (controller && typeof controller.updateFrame === 'function') {
+      controller.updateFrame(frameWidth);
+      this.metaStyle["frame-width"] = Number(frameWidth);
+    }
+    return Number(frameWidth);
+  }
+
+  get ["frame-width"]() {
+    return this.metaStyle["frame-width"];
   }
 
   set ["material-type"](type) {

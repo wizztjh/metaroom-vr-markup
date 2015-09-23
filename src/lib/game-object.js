@@ -74,12 +74,29 @@ export default class GameObject{
     //   self.add(name, returnObject);
     // });
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
+    document.addEventListener('keydown', this.onKeyDown.bind(this), false);
+
   }
 
   onWindowResize(){
     this.camera.aspect = this.getWidth() / this.getHeight()
     this.camera.updateProjectionMatrix();
     this.effect.setSize( this.getWidth(), this.getHeight() );
+  }
+
+  onKeyDown(e){
+    if (e.keyCode == 87) { // Move forward incrementally with W
+      this.camera.translateZ(-.5);
+    }
+    else if(e.keyCode == 65) { //Move left incrementally with A
+      this.camera.translateX(-.5);
+    }
+    else if (e.keyCode == 68) { //Move right incrementally with D
+      this.camera.translateX(.5);
+    }
+    else if (e.keyCode == 83) { //Move left incrementally with S
+      this.camera.translateZ(.5);
+    }
   }
 
   getWidth() {
