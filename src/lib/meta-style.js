@@ -84,6 +84,19 @@ export default class MetaStyle {
     return this.metaStyle["thickness"];
   }
 
+  set ["frame-width"](frameWidth) {
+    var controller = this.controller;
+    if (controller && typeof controller.updateFrame === 'function') {
+      controller.updateFrame(frameWidth);
+      this.metaStyle["frame-width"] = Number(frameWidth);
+    }
+    return Number(frameWidth);
+  }
+
+  get ["frame-width"]() {
+    return this.metaStyle["frame-width"];
+  }
+
   set ["material-type"](type) {
     var mesh = this.controller.metaObject.mesh
     if (mesh) {
