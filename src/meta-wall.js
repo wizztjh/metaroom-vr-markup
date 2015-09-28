@@ -135,6 +135,7 @@ class MetaWall extends MRM.MetaComponent {
     if (this.controller.isChildren(targetController.tagName) ){
       e.stopPropagation();
       this.controller.metaObject.group.remove(targetController.metaObject.group);
+      this.controller.updateChildrenDisplayInline();
     }
   }
 
@@ -152,7 +153,6 @@ class MetaWall extends MRM.MetaComponent {
         }
       }
     }
-
   }
 }
 
