@@ -52,6 +52,10 @@ export default class GameObject{
 
     this.controls = new THREE.VRControls(this.camera);
 
+    this.dollyCam = new THREE.PerspectiveCamera();
+    this.dollyCam.add(this.camera);
+    this.scene.add(this.dollyCam);
+
     this.effect = new THREE.VREffect(this.renderer);
     this.effect.setSize(this.getWidth(), this.getHeight());
 
@@ -65,6 +69,8 @@ export default class GameObject{
       // Render the scene through the manager.
       self.camera.position.y = 5;
       self.manager.render(self.scene, self.camera);
+      // self.dollyCam.rotation.x = self.camera.x;
+      // self.dollyCam.rotation.y = self.camera.y;
       requestAnimationFrame(animate);
     }
 
@@ -79,16 +85,16 @@ export default class GameObject{
 
   onKeyDown(e){
     if (e.keyCode == 87) { // Move forward incrementally with W
-      this.camera.translateZ(-.5);
+      this.dollyCam.translateZ(-.5);
     }
     else if(e.keyCode == 65) { //Move left incrementally with A
-      this.camera.translateX(-.5);
+      this.dollyCam.translateX(-.5);
     }
     else if (e.keyCode == 68) { //Move right incrementally with D
-      this.camera.translateX(.5);
+      this.dollyCam.translateX(.5);
     }
     else if (e.keyCode == 83) { //Move left incrementally with S
-      this.camera.translateZ(.5);
+      this.dollyCam.translateZ(.5);
     }
   }
 
