@@ -45553,6 +45553,15 @@ var GameObject = (function () {
     _classCallCheck(this, GameObject);
 
     var self = this;
+
+    this.moveForward = false;
+    this.moveBackward = false;
+    this.moveLeft = false;
+    this.moveRight = false;
+
+    this.prevTime = performance.now();
+    this.velocity = new THREE.Vector3();
+
     this.metaObjects = new Map();
 
     this.renderer = new THREE.WebGLRenderer({ antialias: false });
@@ -45617,13 +45626,31 @@ var GameObject = (function () {
     this.clock.start();
 
     function animate() {
+      var velocity = self.velocity;
+      var time = performance.now();
+      var delta = (time - self.prevTime) / 1000;
+
+      velocity.x -= velocity.x * 10.0 * delta;
+      velocity.z -= velocity.z * 10.0 * delta;
+
+      velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+
+      if (self.moveForward) velocity.z -= 400.0 * delta;
+      if (self.moveBackward) velocity.z += 400.0 * delta;
+
+      if (self.moveLeft) velocity.x -= 400.0 * delta;
+      if (self.moveRight) velocity.x += 400.0 * delta;
+
+      self.dollyCam.translateX(velocity.x * delta);
+      self.dollyCam.translateZ(velocity.z * delta);
+
       self.controls.update();
       // Render the scene through the manager.
       self.camera.position.y = 5;
       self.manager.render(self.scene, self.camera);
-      // self.dollyCam.rotation.x = self.camera.x;
-      // self.dollyCam.rotation.y = self.camera.y;
+
       requestAnimationFrame(animate);
+      self.prevTime = time;
     }
 
     animate();
@@ -45631,28 +45658,74 @@ var GameObject = (function () {
     //   returnObject = initObjs[name].apply(self)
     //   self.add(name, returnObject);
     // });
+
+    var onKeyDown = function onKeyDown(event) {
+
+      switch (event.keyCode) {
+
+        case 38: // up
+        case 87:
+          // w
+          self.moveForward = true;
+          break;
+
+        case 37: // left
+        case 65:
+          // a
+          self.moveLeft = true;break;
+
+        case 40: // down
+        case 83:
+          // s
+          self.moveBackward = true;
+          break;
+
+        case 39: // right
+        case 68:
+          // d
+          self.moveRight = true;
+          break;
+
+      }
+    };
+
+    var onKeyUp = function onKeyUp(event) {
+
+      switch (event.keyCode) {
+
+        case 38: // up
+        case 87:
+          // w
+          self.moveForward = false;
+          break;
+
+        case 37: // left
+        case 65:
+          // a
+          self.moveLeft = false;
+          break;
+
+        case 40: // down
+        case 83:
+          // s
+          self.moveBackward = false;
+          break;
+
+        case 39: // right
+        case 68:
+          // d
+          self.moveRight = false;
+          break;
+
+      }
+    };
+
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
-    document.addEventListener('keydown', this.onKeyDown.bind(this), false);
+    document.addEventListener('keydown', onKeyDown, false);
+    document.addEventListener('keyup', onKeyUp, false);
   }
 
   _createClass(GameObject, [{
-    key: 'onKeyDown',
-    value: function onKeyDown(e) {
-      if (e.keyCode == 87) {
-        // Move forward incrementally with W
-        this.dollyCam.translateZ(-.5);
-      } else if (e.keyCode == 65) {
-        //Move left incrementally with A
-        this.dollyCam.translateX(-.5);
-      } else if (e.keyCode == 68) {
-        //Move right incrementally with D
-        this.dollyCam.translateX(.5);
-      } else if (e.keyCode == 83) {
-        //Move left incrementally with S
-        this.dollyCam.translateZ(.5);
-      }
-    }
-  }, {
     key: 'onWindowResize',
     value: function onWindowResize() {
       this.camera.aspect = this.getWidth() / this.getHeight();
