@@ -107,6 +107,11 @@ export default class MetaComponentController extends MetaBaseController{
     [].forEach.call(children, function (child, index) {
 
       if (!child.controller){ return; }
+      if(child.controller.hasOwnProperty("metaStyle")){
+        if(child.controller.metaStyle['position'] === 'absolute'){
+          return;
+        }
+      }
       childWidth = (Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) :
         child.controller.computedProperties.width);
       childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
