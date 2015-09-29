@@ -6,7 +6,7 @@ class MetaTableController extends MRM.MetaComponentController{
     super(dom);
     this.dom = dom;
     this.setupComponent();
-    this.parent = null;
+    this.parent = dom.parentElement.controller;
     this.metaObject = this.createMetaObject();
     this.computedProperties = {};
     this.computedPropertiesKey.forEach((key) => {
@@ -213,6 +213,11 @@ class MetaTableController extends MRM.MetaComponentController{
         height = this.properties.height || this.computedProperties.height || 1;
 
     geometry.update(width, height, length, tsurfaceThickness, tbottomThickness, tbottomPaddingTop, tbottomPaddingBottom);
+    if(this.metaStyle.metaStyle["position"] === 'absolute'){
+      var group = this.metaObject.group;
+      group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
+      group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
+    }
   }
 
   updateTableDimension(targetController){

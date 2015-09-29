@@ -9,14 +9,16 @@ export default class MetaStyle {
   set ["material-color"](color) {
     var mesh = this.controller.metaObject.mesh
     if (mesh) {
-      if(mesh.material.color){
-        mesh.material.color.set(color);
-      }else {
-        for(var i = 0; i < mesh.material.materials.length; i++){
-          mesh.material.materials[i].color.set(color);
+      if(mesh.material){
+        if(mesh.material.color){
+          mesh.material.color.set(color);
+        }else {
+          for(var i = 0; i < mesh.material.materials.length; i++){
+            mesh.material.materials[i].color.set(color);
+          }
         }
+        this.metaStyle["material-color"] = color
       }
-      this.metaStyle["material-color"] = color
     }
     return color;
   }

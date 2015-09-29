@@ -48,7 +48,7 @@ class MetaVerseController extends MRM.MetaBaseController {
   }
 
   getAllMetaChildren(){
-    return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface, meta-tbottom", "meta-item");
+    return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface, meta-tbottom, meta-item");
   }
 
   triggerMetaReady(){

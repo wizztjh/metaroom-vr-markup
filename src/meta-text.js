@@ -75,6 +75,11 @@ class MetaTextController extends MRM.MetaComponentController {
     var mesh = this.metaObject.mesh;
     mesh.scale.x = this.properties.width
     mesh.scale.y = this.properties.length
+    if(this.metaStyle.metaStyle["position"] === 'absolute'){
+      var group = this.metaObject.group;
+      group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
+      group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
+    }
   }
 }
 

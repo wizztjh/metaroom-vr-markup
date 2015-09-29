@@ -46196,14 +46196,16 @@ var MetaStyle = (function () {
     set: function set(color) {
       var mesh = this.controller.metaObject.mesh;
       if (mesh) {
-        if (mesh.material.color) {
-          mesh.material.color.set(color);
-        } else {
-          for (var i = 0; i < mesh.material.materials.length; i++) {
-            mesh.material.materials[i].color.set(color);
+        if (mesh.material) {
+          if (mesh.material.color) {
+            mesh.material.color.set(color);
+          } else {
+            for (var i = 0; i < mesh.material.materials.length; i++) {
+              mesh.material.materials[i].color.set(color);
+            }
           }
+          this.metaStyle["material-color"] = color;
         }
-        this.metaStyle["material-color"] = color;
       }
       return color;
     },
@@ -46414,7 +46416,7 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
   }, {
     key: "getAllMetaChildren",
     value: function getAllMetaChildren() {
-      return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface, meta-tbottom", "meta-item");
+      return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface, meta-tbottom, meta-item");
     }
   }, {
     key: "triggerMetaReady",
@@ -47106,7 +47108,7 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
 
     this.metaObject.mesh.position.set(0, 0, 0.1);
     this.setupComponent();
-    this.parent = null;
+    this.parent = dom.parentElement.controller;
 
     this.updateMetaObject();
   }
@@ -47138,6 +47140,12 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
 
       mesh.scale.x = this.properties.width;
       mesh.scale.y = this.properties.length;
+
+      if (this.metaStyle.metaStyle["position"] === 'absolute') {
+        var group = this.metaObject.group;
+        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
+        group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+      }
 
       this.updateChildrenDisplayInline();
     }
@@ -47492,6 +47500,12 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
       if (!this.properties.geometrySrc) {
         return;
       }
+      if (this.metaStyle.metaStyle["position"] === 'absolute') {
+        var group = this.metaObject.group;
+        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
+        group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+        console.log('position absolute', group.position.x, group.position.y);
+      }
       //TODO: why keep loading this? Don't need to keep loading if geometrySrc and materialSrc did not change
       loader.load(this.properties.geometrySrc, this.properties.materialSrc, function (object) {
         _.forEach(_this.metaObject.group.children, function (child) {
@@ -47641,6 +47655,11 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
       var mesh = this.metaObject.mesh;
       mesh.scale.x = this.properties.width;
       mesh.scale.y = this.properties.length;
+      if (this.metaStyle.metaStyle["position"] === 'absolute') {
+        var group = this.metaObject.group;
+        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
+        group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+      }
     }
   }, {
     key: 'propertiesSettings',
@@ -47730,7 +47749,7 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
     _get(Object.getPrototypeOf(MetaTableController.prototype), "constructor", this).call(this, dom);
     this.dom = dom;
     this.setupComponent();
-    this.parent = null;
+    this.parent = dom.parentElement.controller;
     this.metaObject = this.createMetaObject();
     this.computedProperties = {};
     this.computedPropertiesKey.forEach(function (key) {
@@ -47799,6 +47818,11 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
           height = this.properties.height || this.computedProperties.height || 1;
 
       geometry.update(width, height, length, tsurfaceThickness, tbottomThickness, tbottomPaddingTop, tbottomPaddingBottom);
+      if (this.metaStyle.metaStyle["position"] === 'absolute') {
+        var group = this.metaObject.group;
+        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
+        group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+      }
     }
   }, {
     key: "updateTableDimension",
@@ -48227,6 +48251,11 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
       _.forEach(children, function (child, index) {
         if (!child.controller) {
           return;
+        }
+        if (child.controller.hasOwnProperty("metaStyle")) {
+          if (child.controller.metaStyle['position'] === 'absolute') {
+            return;
+          }
         }
         var event = pushChildForChildrenDisplayInline(index, child);
         if (event) {

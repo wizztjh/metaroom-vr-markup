@@ -14,13 +14,30 @@
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
         <meta-wall align='left' id='main-meta-wall'>
-          <meta-picture  meta-style='position: absolute; top: 5; left: 5' width='3' length='4' src='fixtures/ball.png' id='meta-picture-on-wall-abs'></meta-picture>
+          <meta-picture  meta-style='position: absolute; top: 5; left: 5' width='3' length='4' src='../../../demo/img/VRcollab.png' id='meta-picture-on-wall-abs'></meta-picture>
+          <meta-text  meta-style='position: absolute; top: 5; left: 5' width='3' length='4' id='meta-text-on-wall-abs'>Hello, Test!</meta-text>
+          <meta-board width='3' length='5' id='meta-board-on-wall-abs' meta-style='position: absolute; top: 5; left: 5'>
+            <meta-picture width='2' meta-style='frame-width: 0.3' length='4' src='../../../demo/img/VRcollab.png' id='meta-picture-on-board'></meta-picture>
+          </meta-board>
 
           <meta-board width='3' length='5' id='main-meta-board'>
-            <meta-picture width='2' meta-style='frame-width: 0.3' length='4' src='fixtures/ball.png' id='main-meta-picture'></meta-picture>
+            <meta-picture width='2' meta-style='frame-width: 0.3' length='4' src='../../../demo/img/VRcollab.png' id='main-meta-picture'></meta-picture>
           </meta-board>
 
         </meta-wall>
+        <meta-floor>
+          <meta-table id='meta-table-on-floor-abs' class='light-chocolate' width='3' length='4' height='3' meta-style='position: absolute; top: 5; left: 5'>
+
+            <meta-tsurface class='light-chocolate' id="phong-meta-tsurface">
+              <meta-picture src='../../../demo/img/VRcollab.png' width='3' length='2' id='meta-picture-on-table'></meta-picture>
+              <meta-item meta-style='position:absolute; top:0; left:1' width='2' length='2' height='4' material-src='../../../demo/model/pokka/model_mesh.obj.mtl' geometry-src='../../../demo/model/pokka/model_mesh.obj' id='meta-item-on-table-abs'></meta-item>
+            </meta-tsurface>
+
+            <meta-tbottom class='light-chocolate' align='right'></meta-tbottom>
+            <meta-tbottom class='light-chocolate' align='left'></meta-tbottom>
+
+          </meta-table>
+        </meta-floor>
       </meta-room>
     </meta-verse>
   </div>
@@ -32,7 +49,12 @@
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
         jlet('metaBoard', function(){ return document.querySelector('#main-meta-board')});
+        jlet('metaBoardAbs', function(){ return document.querySelector('#meta-board-on-wall-abs')});
         jlet('metaPictureAbs', function(){ return document.querySelector('#meta-picture-on-wall-abs')});
+        jlet('metaTextAbs', function(){ return document.querySelector('#meta-text-on-wall-abs')});
+        jlet('metaItemAbs', function(){ return document.querySelector('#meta-item-on-table-abs')});
+        jlet('metaPictureOnTable', function(){ return document.querySelector('#meta-picture-on-table')});
+        jlet('metaTableAbs', function(){ return document.querySelector('#meta-table-on-floor-abs')});
         jlet('metaPicture', function(){ return document.querySelector('#main-meta-picture')});
         jlet('metaPictureMesh', function(){ return J.metaPicture.controller.metaObject.mesh});
       });
@@ -41,6 +63,41 @@
         it('sets the position with absolute top and left', function(){
           expect(J.metaPictureAbs.controller.metaObject.group.position.x).to.equal(1.5);
           expect(J.metaPictureAbs.controller.metaObject.group.position.y).to.equal(-2);
+        });
+      });
+
+      describe("text on wall", function(){
+        it('sets the position with absolute top and left', function(){
+          expect(J.metaTextAbs.controller.metaObject.group.position.x).to.equal(1.5);
+          expect(J.metaTextAbs.controller.metaObject.group.position.y).to.equal(-2);
+        });
+      });
+
+      describe("board on wall", function(){
+        it('sets the position with absolute top and left', function(){
+          expect(J.metaBoardAbs.controller.metaObject.group.position.x).to.equal(1.5);
+          expect(J.metaBoardAbs.controller.metaObject.group.position.y).to.equal(-2.5);
+        });
+      });
+
+      describe("table on floor", function(){
+        it('sets the position with absolute top and left', function(){
+          expect(J.metaTableAbs.controller.metaObject.group.position.x).to.equal( 1.5 );
+          expect(J.metaTableAbs.controller.metaObject.group.position.y).to.equal(-2);
+        });
+      });
+
+      describe("item on table", function(){
+        it('sets the position with absolute top and left', function(){
+          expect(J.metaItemAbs.controller.metaObject.group.position.x).to.equal( 0.5 );
+          expect(J.metaItemAbs.controller.metaObject.group.position.y).to.equal(1);
+        });
+      });
+
+      describe("picture on table", function(){
+        it('sets the position with display inline', function(){
+          expect(J.metaPictureOnTable.controller.metaObject.group.position.x).to.equal( 0 );
+          expect(J.metaPictureOnTable.controller.metaObject.group.position.y).to.equal(1);
         });
       });
 
