@@ -6,7 +6,7 @@ class MetaBoardController extends MRM.MetaComponentController {
 
     this.metaObject.mesh.position.set(0,0,0.1)
     this.setupComponent();
-    this.parent = null;
+    this.parent = dom.parentElement.controller;
 
     this.updateMetaObject()
   }
@@ -54,6 +54,12 @@ class MetaBoardController extends MRM.MetaComponentController {
 
     mesh.scale.x = this.properties.width
     mesh.scale.y = this.properties.length
+
+    if(this.metaStyle.metaStyle["position"] === 'absolute'){
+      var group = this.metaObject.group;
+      group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
+      group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
+    }
 
     this.updateChildrenDisplayInline();
   }

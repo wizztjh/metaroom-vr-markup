@@ -224,6 +224,11 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
     }
     _.forEach(children, (child, index) => {
       if (!child.controller){ return; }
+      if(child.controller.hasOwnProperty("metaStyle")){
+        if(child.controller.metaStyle['position'] === 'absolute'){
+          return;
+        }
+      }
       var event = pushChildForChildrenDisplayInline(index, child);
       if(event){
         eventToTriggerOnResize = event;

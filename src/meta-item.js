@@ -58,6 +58,12 @@ class MetaItemController extends MRM.MetaComponentController {
     if(!this.properties.geometrySrc){
       return;
     }
+    if(this.metaStyle.metaStyle["position"] === 'absolute'){
+      var group = this.metaObject.group;
+      group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
+      group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
+      console.log('position absolute', group.position.x, group.position.y);
+    }
     //TODO: why keep loading this? Don't need to keep loading if geometrySrc and materialSrc did not change
     loader.load( this.properties.geometrySrc , this.properties.materialSrc, ( object ) => {
       _.forEach(this.metaObject.group.children, (child) => {
