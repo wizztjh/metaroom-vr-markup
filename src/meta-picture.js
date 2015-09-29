@@ -5,15 +5,59 @@ class MetaPictureController extends MRM.MetaComponentController {
     this.parent = dom.parentElement.controller;
 
     this.metaObject = this.createMetaObject()
+    this.computedProperties = {};
+    this.computedPropertiesKey.forEach((key) => {
+      var settings = this.computedPropertiesSettings[key];
+      var value = settings.type(this.properties[key] || settings.default)
+      Object.defineProperty(this.computedProperties, key, {
+        get: function(){
+          return value
+        },
+        set: (inputValue) => {
+          value = settings.type(inputValue)
+        }
+      })
+    });
     this.metaObject.mesh.position.set(0,0,0.2)
 
     this.updateMetaObject()
   }
 
+  get computedPropertiesKey(){
+    return Object.keys(this.computedPropertiesSettings);
+  }
+
+  get computedPropertiesSettings(){
+    return {
+      width: {
+        type: Number,
+        default: null,
+      },
+      length: {
+        type: Number,
+        default: null,
+      },
+    };
+  }
+
   get propertiesSettings() {
     return {
-      width: {type: Number, default: 1, attrName: 'width'},
-      length: {type: Number, default: 1, attrName: 'length'},
+      width: {
+        type: Number,
+        default: 1,
+        attrName: 'width',
+        onChange: (value)=>{
+          this.computedProperties.width = value;
+        }
+      },
+      length: {
+        type: Number,
+        default: 1,
+        attrName: 'length',
+        onChange: (value)=>{
+          this.computedProperties.length = value;
+        }
+      },
       src: {type: String, default: '', attrName: 'src'},
     }
   }
@@ -68,8 +112,13 @@ class MetaPictureController extends MRM.MetaComponentController {
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
 
-    mesh.scale.x = this.properties.width
-    mesh.scale.y = this.properties.length
+    mesh.scale.x = this.computedProperties.width;
+    mesh.scale.y = this.computedProperties.length;
+    if(this.metaStyle.metaStyle["position"] === 'absolute'){
+      var group = this.metaObject.group;
+      group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
+      group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
+    }
   }
 
   updateFrame(frameWidth, frameThickness){
@@ -96,8 +145,8 @@ class MetaPictureController extends MRM.MetaComponentController {
     var mesh = new THREE.Mesh( geometry, material );
     mesh.scale.set(1, 1, 1);
     mesh.position.set( -this.properties.width / 2, -this.properties.length / 2, 0);
-    this.properties.width = width - (2 * frameWidth);
-    this.properties.length = length - (2 * frameWidth);
+    this.computedProperties.width = width - (2 * frameWidth);
+    this.computedProperties.length = length - (2 * frameWidth);
     this.updateMetaObject();
     this.metaObject.group.add(mesh);
   }

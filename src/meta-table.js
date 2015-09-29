@@ -206,8 +206,8 @@ class MetaTableController extends MRM.MetaComponentController{
     var geometry = this.metaObject.mesh.geometry,
         tbottomPaddingTop = this.metaStyle['tbottom-padding-top'] || this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
         tbottomPaddingBottom = this.metaStyle['tbottom-padding-bottom'] || this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
-        tsurfaceThickness = geometry.parameters.tsurfaceThickness,
-        tbottomThickness = geometry.parameters.tbottomThickness,
+        tsurfaceThickness = this.metaStyle['thickness'] || 0.03,
+        tbottomThickness = this.metaStyle['thickness'] || 0.03,
         width = this.properties.width || this.computedProperties.width || 1,
         length = this.properties.length || this.computedProperties.length || 1,
         height = this.properties.height || this.computedProperties.height || 1;

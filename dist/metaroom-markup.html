@@ -45887,6 +45887,11 @@ var MetaComponentController = (function (_MetaBaseController) {
         if (!child.controller) {
           return;
         }
+        if (child.controller.hasOwnProperty("metaStyle")) {
+          if (child.controller.metaStyle['position'] === 'absolute') {
+            return;
+          }
+        }
         childWidth = Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) : child.controller.computedProperties.width;
         childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
         if (currentLineWidth + Number(childWidth) <= parent.properties.width) {} else {
@@ -46278,6 +46283,34 @@ var MetaStyle = (function () {
       return this.metaStyle["frame-width"];
     }
   }, {
+    key: "position",
+    set: function set(type) {
+      this.metaStyle['position'] = type;
+      this.controller.updateMetaObject();
+      return type;
+    },
+    get: function get() {
+      return this.metaStyle["position"];
+    }
+  }, {
+    key: "top",
+    set: function set(length) {
+      this.metaStyle["top"] = Number(length);
+      return length;
+    },
+    get: function get() {
+      return this.metaStyle["top"];
+    }
+  }, {
+    key: "left",
+    set: function set(width) {
+      this.metaStyle["left"] = Number(width);
+      return width;
+    },
+    get: function get() {
+      return this.metaStyle["left"];
+    }
+  }, {
     key: "material-type",
     set: function set(type) {
       var mesh = this.controller.metaObject.mesh;
@@ -46447,6 +46480,14 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
         if (metaTag.controller) {
           if (metaTag.controller.metaStyle.applyMetaStyleAttribute) {
             metaTag.controller.metaStyle.applyMetaStyleAttribute();
+          }
+        }
+      });
+
+      [].forEach.call(metaChildren, function (metaTag) {
+        if (metaTag.controller) {
+          if (metaTag.controller.metaStyle.applyMetaStyleAttribute) {
+            metaTag.controller.updateMetaObject();
           }
         }
       });
@@ -47208,6 +47249,8 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
   _inherits(MetaPictureController, _MRM$MetaComponentController);
 
   function MetaPictureController(dom) {
+    var _this = this;
+
     _classCallCheck(this, MetaPictureController);
 
     _get(Object.getPrototypeOf(MetaPictureController.prototype), 'constructor', this).call(this, dom);
@@ -47215,6 +47258,19 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
     this.parent = dom.parentElement.controller;
 
     this.metaObject = this.createMetaObject();
+    this.computedProperties = {};
+    this.computedPropertiesKey.forEach(function (key) {
+      var settings = _this.computedPropertiesSettings[key];
+      var value = settings.type(_this.properties[key] || settings['default']);
+      Object.defineProperty(_this.computedProperties, key, {
+        get: function get() {
+          return value;
+        },
+        set: function set(inputValue) {
+          value = settings.type(inputValue);
+        }
+      });
+    });
     this.metaObject.mesh.position.set(0, 0, 0.2);
 
     this.updateMetaObject();
@@ -47250,8 +47306,13 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
     value: function updateMetaObject() {
       var mesh = this.metaObject.mesh;
 
-      mesh.scale.x = this.properties.width;
-      mesh.scale.y = this.properties.length;
+      mesh.scale.x = this.computedProperties.width;
+      mesh.scale.y = this.computedProperties.length;
+      if (this.metaStyle.metaStyle["position"] === 'absolute') {
+        var group = this.metaObject.group;
+        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
+        group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+      }
     }
   }, {
     key: 'updateFrame',
@@ -47279,17 +47340,52 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
       var mesh = new THREE.Mesh(geometry, material);
       mesh.scale.set(1, 1, 1);
       mesh.position.set(-this.properties.width / 2, -this.properties.length / 2, 0);
-      this.properties.width = width - 2 * frameWidth;
-      this.properties.length = length - 2 * frameWidth;
+      this.computedProperties.width = width - 2 * frameWidth;
+      this.computedProperties.length = length - 2 * frameWidth;
       this.updateMetaObject();
       this.metaObject.group.add(mesh);
     }
   }, {
-    key: 'propertiesSettings',
+    key: 'computedPropertiesKey',
+    get: function get() {
+      return Object.keys(this.computedPropertiesSettings);
+    }
+  }, {
+    key: 'computedPropertiesSettings',
     get: function get() {
       return {
-        width: { type: Number, 'default': 1, attrName: 'width' },
-        length: { type: Number, 'default': 1, attrName: 'length' },
+        width: {
+          type: Number,
+          'default': null
+        },
+        length: {
+          type: Number,
+          'default': null
+        }
+      };
+    }
+  }, {
+    key: 'propertiesSettings',
+    get: function get() {
+      var _this2 = this;
+
+      return {
+        width: {
+          type: Number,
+          'default': 1,
+          attrName: 'width',
+          onChange: function onChange(value) {
+            _this2.computedProperties.width = value;
+          }
+        },
+        length: {
+          type: Number,
+          'default': 1,
+          attrName: 'length',
+          onChange: function onChange(value) {
+            _this2.computedProperties.length = value;
+          }
+        },
         src: { type: String, 'default': '', attrName: 'src' }
       };
     }
@@ -47696,8 +47792,8 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
       var geometry = this.metaObject.mesh.geometry,
           tbottomPaddingTop = this.metaStyle['tbottom-padding-top'] || this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
           tbottomPaddingBottom = this.metaStyle['tbottom-padding-bottom'] || this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
-          tsurfaceThickness = geometry.parameters.tsurfaceThickness,
-          tbottomThickness = geometry.parameters.tbottomThickness,
+          tsurfaceThickness = this.metaStyle['thickness'] || 0.03,
+          tbottomThickness = this.metaStyle['thickness'] || 0.03,
           width = this.properties.width || this.computedProperties.width || 1,
           length = this.properties.length || this.computedProperties.length || 1,
           height = this.properties.height || this.computedProperties.height || 1;

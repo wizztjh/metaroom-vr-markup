@@ -97,6 +97,34 @@ export default class MetaStyle {
     return this.metaStyle["frame-width"];
   }
 
+  set ["position"](type) {
+    this.metaStyle['position'] = type;
+    this.controller.updateMetaObject();
+    return type;
+  }
+
+  get ["position"]() {
+    return this.metaStyle["position"];
+  }
+
+  set ["top"](length) {
+    this.metaStyle["top"] = Number(length);
+    return length;
+  }
+
+  get ["top"]() {
+    return this.metaStyle["top"];
+  }
+
+  set ["left"](width) {
+    this.metaStyle["left"] = Number(width);
+    return width;
+  }
+
+  get ["left"]() {
+    return this.metaStyle["left"];
+  }
+
   set ["material-type"](type) {
     var mesh = this.controller.metaObject.mesh
     if (mesh) {

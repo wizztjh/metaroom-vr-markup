@@ -109,11 +109,18 @@ class MetaVerseController extends MRM.MetaBaseController {
     [].forEach.call(metaChildren, function(metaTag){
       if(metaTag.controller) {
         if(metaTag.controller.metaStyle.applyMetaStyleAttribute){
-          metaTag.controller.metaStyle.applyMetaStyleAttribute()
+          metaTag.controller.metaStyle.applyMetaStyleAttribute();
         }
       }
     });
 
+    [].forEach.call(metaChildren, function(metaTag){
+      if(metaTag.controller) {
+        if(metaTag.controller.metaStyle.applyMetaStyleAttribute){
+          metaTag.controller.updateMetaObject();
+        }
+      }
+    });
   }
 
   attachMetaObject(targetController){
