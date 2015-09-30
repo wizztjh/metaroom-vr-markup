@@ -1,6 +1,7 @@
 export default class GameObject{
-  constructor(){
+  constructor(metaVerse){
     var self = this;
+    this.metaVerseController = metaVerse;
 
     this.moveForward = false;
     this.moveBackward = false;
@@ -116,6 +117,7 @@ export default class GameObject{
 
       requestAnimationFrame(animate);
       self.prevTime = time;
+      self.metaVerseController.needsUpdate();
     }
 
     animate();

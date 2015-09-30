@@ -43,7 +43,7 @@ class MetaFloorController extends MRM.MetaBaseWallController{
   }
 
   get metaChildrenNames(){
-    return ["meta-table", "meta-picture", "meta-text", "meta-board", "meta-item"]
+    return ["meta-table", "meta-picture", "meta-text", "meta-board", "meta-item", "meta-video"]
   }
 
   get eventActionSettings(){

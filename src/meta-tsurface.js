@@ -26,7 +26,7 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
   }
 
   get metaChildrenNames(){
-    return ["meta-board", "meta-text", "meta-picture", "meta-table", "meta-item"]
+    return ["meta-board", "meta-text", "meta-picture", "meta-table", "meta-item", "meta-video"]
   }
 
   get propertiesSettings() {
