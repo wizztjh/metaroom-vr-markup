@@ -17,6 +17,17 @@ MetaRoomMarkup applies the HTML/CSS way of positioning and styling to a 3D objec
 }
 ```
 
+## Why MetaRoom Markup?
+
+- **Dynamic scaling** base on children
+![alt tag](demo/img/dynamic-table.gif)
+
+- **Styleable 3d objects**
+![alt tag](demo/img/tbottom-padding-mixed.gif)
+
+- **Display inline positioning**
+![alt tag](demo/img/display-inline.gif)
+
 ## Features
 - **Smaller size**: Defines common 3D object with style instead of vertexes.
 - **Display Inline**: Brings display inline to 3D VR
