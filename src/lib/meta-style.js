@@ -146,6 +146,33 @@ export default class MetaStyle {
     return this.metaStyle["material-type"];
   }
 
+  set ["rotate-x"](angleInDegrees) {
+    this.metaStyle["rotate-x"] = Number(angleInDegrees);
+    return angleInDegrees;
+  }
+
+  get ["rotate-x"]() {
+    return this.metaStyle["rotate-x"];
+  }
+
+  set ["rotate-y"](angleInDegrees) {
+    this.metaStyle["rotate-y"] = Number(angleInDegrees);
+    return angleInDegrees;
+  }
+
+  get ["rotate-y"]() {
+    return this.metaStyle["rotate-y"];
+  }
+
+  set ["rotate-z"](angleInDegrees) {
+    this.metaStyle["rotate-z"] = Number(angleInDegrees);
+    return angleInDegrees;
+  }
+
+  get ["rotate-z"]() {
+    return this.metaStyle["rotate-z"];
+  }
+
   clear(){
     //TODO: need to set everything back to default
     this.metaStyle = {}

@@ -46524,6 +46524,33 @@ var MetaStyle = (function () {
     get: function get() {
       return this.metaStyle["material-type"];
     }
+  }, {
+    key: "rotate-x",
+    set: function set(angleInDegrees) {
+      this.metaStyle["rotate-x"] = Number(angleInDegrees);
+      return angleInDegrees;
+    },
+    get: function get() {
+      return this.metaStyle["rotate-x"];
+    }
+  }, {
+    key: "rotate-y",
+    set: function set(angleInDegrees) {
+      this.metaStyle["rotate-y"] = Number(angleInDegrees);
+      return angleInDegrees;
+    },
+    get: function get() {
+      return this.metaStyle["rotate-y"];
+    }
+  }, {
+    key: "rotate-z",
+    set: function set(angleInDegrees) {
+      this.metaStyle["rotate-z"] = Number(angleInDegrees);
+      return angleInDegrees;
+    },
+    get: function get() {
+      return this.metaStyle["rotate-z"];
+    }
   }]);
 
   return MetaStyle;
@@ -47337,6 +47364,13 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
         var group = this.metaObject.group;
         group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
         group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+        if (this.metaStyle.metaStyle['rotate-x']) {
+          group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
+        } else if (this.metaStyle.metaStyle['rotate-y']) {
+          group.rotation.y = this.metaStyle.metaStyle['rotate-y'] * (Math.PI / 180);
+        } else if (this.metaStyle.metaStyle['rotate-z']) {
+          group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
+        }
       }
 
       this.updateChildrenDisplayInline();
@@ -47512,6 +47546,13 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
         var group = this.metaObject.group;
         group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
         group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+        if (this.metaStyle.metaStyle['rotate-x']) {
+          group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
+        } else if (this.metaStyle.metaStyle['rotate-y']) {
+          group.rotation.y = this.metaStyle.metaStyle['rotate-y'] * (Math.PI / 180);
+        } else if (this.metaStyle.metaStyle['rotate-z']) {
+          group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
+        }
       }
     }
   }, {
@@ -47696,7 +47737,13 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         var group = this.metaObject.group;
         group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
         group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
-        console.log('position absolute', group.position.x, group.position.y);
+        if (this.metaStyle.metaStyle['rotate-x']) {
+          group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
+        } else if (this.metaStyle.metaStyle['rotate-y']) {
+          group.rotation.y = this.metaStyle.metaStyle['rotate-y'] * (Math.PI / 180);
+        } else if (this.metaStyle.metaStyle['rotate-z']) {
+          group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
+        }
       }
       //TODO: why keep loading this? Don't need to keep loading if geometrySrc and materialSrc did not change
       loader.load(this.properties.geometrySrc, this.properties.materialSrc, function (object) {
@@ -47851,6 +47898,13 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
         var group = this.metaObject.group;
         group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
         group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+        if (this.metaStyle.metaStyle['rotate-x']) {
+          group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
+        } else if (this.metaStyle.metaStyle['rotate-y']) {
+          group.rotation.y = this.metaStyle.metaStyle['rotate-y'] * (Math.PI / 180);
+        } else if (this.metaStyle.metaStyle['rotate-z']) {
+          group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
+        }
       }
     }
   }, {
@@ -48014,6 +48068,13 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
         var group = this.metaObject.group;
         group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
         group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+        if (this.metaStyle.metaStyle['rotate-x']) {
+          group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
+        } else if (this.metaStyle.metaStyle['rotate-y']) {
+          group.rotation.y = this.metaStyle.metaStyle['rotate-y'] * (Math.PI / 180);
+        } else if (this.metaStyle.metaStyle['rotate-z']) {
+          group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
+        }
       }
     }
   }, {
