@@ -59,6 +59,13 @@ class MetaBoardController extends MRM.MetaComponentController {
       var group = this.metaObject.group;
       group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
       group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
+      if(this.metaStyle.metaStyle['rotate-x']){
+        group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
+      }else if(this.metaStyle.metaStyle['rotate-y']){
+        group.rotation.y = this.metaStyle.metaStyle['rotate-y'] * (Math.PI / 180);
+      }else if(this.metaStyle.metaStyle['rotate-z']){
+        group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
+      }
     }
 
     this.updateChildrenDisplayInline();

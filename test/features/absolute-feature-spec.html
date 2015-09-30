@@ -26,7 +26,7 @@
 
         </meta-wall>
         <meta-floor>
-          <meta-table id='meta-table-on-floor-abs' class='light-chocolate' width='3' length='4' height='3' meta-style='position: absolute; top: 5; left: 5'>
+          <meta-table id='meta-table-on-floor-abs' class='light-chocolate' width='3' length='4' height='3' meta-style='position: absolute; top: 5; left: 5; rotate-x: 45'>
 
             <meta-tsurface class='light-chocolate' id="phong-meta-tsurface">
               <meta-picture src='../../../demo/img/VRcollab.png' width='3' length='2' id='meta-picture-on-table'></meta-picture>
@@ -84,6 +84,10 @@
         it('sets the position with absolute top and left', function(){
           expect(J.metaTableAbs.controller.metaObject.group.position.x).to.equal( 1.5 );
           expect(J.metaTableAbs.controller.metaObject.group.position.y).to.equal(-2);
+        });
+        it('sets the angle only when absolute', function(){
+          expect(J.metaTableAbs.controller.metaObject.group.rotation.x).to.equal( 45 * (Math.PI / 180) );
+          // expect(J.metaTableAbs.controller.metaObject.group.position.y).to.equal(-2);
         });
       });
 
