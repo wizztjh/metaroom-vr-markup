@@ -163,11 +163,11 @@ it is a prototype.
     git clone git@github.com:MetaRoomMarkup/MetaRoomMarkup.git
     cd MetaRoomMarkup
     npm install
-    npm install gulp -g
     bower install
 
 Hot update during development
+
     gulp
 
 Run the test
-    # go to localhost:3000/test/index.html after gulp
+    # go to <http://localhost:8000/test/index.html> after gulp
