@@ -1767,7 +1767,7 @@ THREE.Vector3.prototype = {
 		return this;
 
 	},
-
+	
 	subScalar: function ( s ) {
 
 		this.x -= s;
@@ -2408,7 +2408,7 @@ THREE.Vector3.prototype = {
 	},
 
 	setFromMatrixColumn: function ( index, matrix ) {
-
+		
 		var offset = index * 4;
 
 		var me = matrix.elements;
@@ -4589,17 +4589,17 @@ THREE.Matrix4.prototype = {
 	},
 
 	extractBasis: function ( xAxis, yAxis, zAxis ) {
-
+ 
 		var te = this.elements;
-
+ 
 		xAxis.set( te[ 0 ], te[ 1 ], te[ 2 ] );
 		yAxis.set( te[ 4 ], te[ 5 ], te[ 6 ] );
 		zAxis.set( te[ 8 ], te[ 9 ], te[ 10 ] );
-
+ 
 		return this;
-
+ 		
 	},
-
+ 
 	makeBasis: function ( xAxis, yAxis, zAxis ) {
 
 		this.set(
@@ -5750,7 +5750,7 @@ THREE.Ray.prototype = {
 			// in order to always return an intersect point that is in front of the ray.
 			if ( t0 < 0 ) return this.at( t1, optionalTarget );
 
-			// else t0 is in front of the ray, so return the first collision point scaled by t0
+			// else t0 is in front of the ray, so return the first collision point scaled by t0 
 			return this.at( t0, optionalTarget );
 
 		}
@@ -10899,7 +10899,7 @@ THREE.Light = function ( color ) {
 	THREE.Object3D.call( this );
 
 	this.type = 'Light';
-
+	
 	this.color = new THREE.Color( color );
 
 };
@@ -11839,7 +11839,7 @@ THREE.ImageLoader.prototype = {
 			THREE.Cache.add( url, this );
 
 			if ( onLoad ) onLoad( this );
-
+			
 			scope.manager.itemEnd( url );
 
 		}, false );
@@ -14353,7 +14353,7 @@ THREE.MeshFaceMaterial = function ( materials ) {
 	this.uuid = THREE.Math.generateUUID();
 
 	this.type = 'MeshFaceMaterial';
-
+	
 	this.materials = materials instanceof Array ? materials : [];
 
 };
@@ -14813,7 +14813,7 @@ THREE.TextureIdCount = 0;
 THREE.CubeTexture = function ( images, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy ) {
 
 	mapping = mapping !== undefined ? mapping : THREE.CubeReflectionMapping;
-
+	
 	THREE.Texture.call( this, images, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy );
 
 	this.images = images;
@@ -15326,7 +15326,7 @@ THREE.Mesh = function ( geometry, material ) {
 	THREE.Object3D.call( this );
 
 	this.type = 'Mesh';
-
+	
 	this.geometry = geometry !== undefined ? geometry : new THREE.Geometry();
 	this.material = material !== undefined ? material : new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff } );
 
@@ -15818,7 +15818,7 @@ THREE.Skeleton.prototype.pose = function () {
 THREE.Skeleton.prototype.update = ( function () {
 
 	var offsetMatrix = new THREE.Matrix4();
-
+	
 	return function () {
 
 		// flatten bone matrices to array
@@ -15839,7 +15839,7 @@ THREE.Skeleton.prototype.update = ( function () {
 			this.boneTexture.needsUpdate = true;
 
 		}
-
+		
 	};
 
 } )();
@@ -24687,7 +24687,7 @@ THREE.WebGLShader = ( function () {
 
 	return function ( gl, type, string ) {
 
-		var shader = gl.createShader( type );
+		var shader = gl.createShader( type ); 
 
 		gl.shaderSource( shader, string );
 		gl.compileShader( shader );
@@ -26913,7 +26913,7 @@ THREE.FontUtils = {
 
 THREE.FontUtils.generateShapes = function ( text, parameters ) {
 
-	// Parameters
+	// Parameters 
 
 	parameters = parameters || {};
 
@@ -27691,7 +27691,7 @@ THREE.CurvePath = function () {
 
 	this.curves = [];
 	this.bends = [];
-
+	
 	this.autoClose = false; // Automatically closes the path
 };
 
@@ -27716,11 +27716,11 @@ THREE.CurvePath.prototype.closePath = function() {
 	// Add a line curve if start and end of lines are not connected
 	var startPoint = this.curves[0].getPoint(0);
 	var endPoint = this.curves[this.curves.length - 1].getPoint(1);
-
+	
 	if (! startPoint.equals(endPoint)) {
 		this.curves.push( new THREE.LineCurve(endPoint, startPoint) );
 	}
-
+	
 };
 
 // To get accurate point with reference to
@@ -28068,7 +28068,7 @@ THREE.Gyroscope.prototype.updateMatrixWorld = ( function () {
 		}
 
 	};
-
+	
 }() );
 
 // File:src/extras/core/Path.js
@@ -28451,7 +28451,7 @@ THREE.Path.prototype.getPoints = function( divisions, closedPath ) {
 			//console.log(points);
 
 			break;
-
+		  
 		case THREE.PathActions.ELLIPSE:
 
 			var aX = args[ 0 ], aY = args[ 1 ],
@@ -28654,7 +28654,7 @@ THREE.Path.prototype.toShapes = function( isCCW, noHoles ) {
 	holesFirst = isCCW ? ! holesFirst : holesFirst;
 
 	// console.log("Holes first", holesFirst);
-
+	
 	var betterShapeHoles = [];
 	var newShapes = [];
 	var newShapeHoles = [];
@@ -28680,7 +28680,7 @@ THREE.Path.prototype.toShapes = function( isCCW, noHoles ) {
 			newShapes[mainIdx] = { s: new THREE.Shape(), p: tmpPoints };
 			newShapes[mainIdx].s.actions = tmpPath.actions;
 			newShapes[mainIdx].s.curves = tmpPath.curves;
-
+			
 			if ( holesFirst )	mainIdx ++;
 			newShapeHoles[mainIdx] = [];
 
@@ -29536,7 +29536,7 @@ THREE.EllipseCurve.prototype.getPoint = function ( t ) {
 		angle = this.aStartAngle + t * deltaAngle;
 
 	}
-
+	
 	var vector = new THREE.Vector2();
 
 	vector.x = this.aX + this.xRadius * Math.cos( angle );
@@ -31245,14 +31245,14 @@ THREE.ExtrudeGeometry.prototype.addShape = function ( shape, options ) {
 	function getBevelVec( inPt, inPrev, inNext ) {
 
 		var EPSILON = 0.0000000001;
-
+		
 		// computes for inPt the corresponding point inPt' on a new contour
 		//   shiftet by 1 unit (length of normalized vector) to the left
 		// if we walk along contour clockwise, this new contour is outside the old one
 		//
 		// inPt' is the intersection of the two lines parallel to the two
 		//  adjacent edges of inPt at a distance of 1 unit on the left side.
-
+		
 		var v_trans_x, v_trans_y, shrink_by = 1;		// resulting translation vector for inPt
 
 		// good reading for geometry algorithms (here: line-line intersection)
@@ -31260,38 +31260,38 @@ THREE.ExtrudeGeometry.prototype.addShape = function ( shape, options ) {
 
 		var v_prev_x = inPt.x - inPrev.x, v_prev_y = inPt.y - inPrev.y;
 		var v_next_x = inNext.x - inPt.x, v_next_y = inNext.y - inPt.y;
-
+		
 		var v_prev_lensq = ( v_prev_x * v_prev_x + v_prev_y * v_prev_y );
-
+		
 		// check for colinear edges
 		var colinear0 = ( v_prev_x * v_next_y - v_prev_y * v_next_x );
-
+		
 		if ( Math.abs( colinear0 ) > EPSILON ) {		// not colinear
-
+			
 			// length of vectors for normalizing
-
+	
 			var v_prev_len = Math.sqrt( v_prev_lensq );
 			var v_next_len = Math.sqrt( v_next_x * v_next_x + v_next_y * v_next_y );
-
+			
 			// shift adjacent points by unit vectors to the left
-
+	
 			var ptPrevShift_x = ( inPrev.x - v_prev_y / v_prev_len );
 			var ptPrevShift_y = ( inPrev.y + v_prev_x / v_prev_len );
-
+			
 			var ptNextShift_x = ( inNext.x - v_next_y / v_next_len );
 			var ptNextShift_y = ( inNext.y + v_next_x / v_next_len );
-
+	
 			// scaling factor for v_prev to intersection point
-
+	
 			var sf = (  ( ptNextShift_x - ptPrevShift_x ) * v_next_y -
 						( ptNextShift_y - ptPrevShift_y ) * v_next_x    ) /
 					  ( v_prev_x * v_next_y - v_prev_y * v_next_x );
-
+	
 			// vector from inPt to intersection point
-
+	
 			v_trans_x = ( ptPrevShift_x + v_prev_x * sf - inPt.x );
 			v_trans_y = ( ptPrevShift_y + v_prev_y * sf - inPt.y );
-
+	
 			// Don't normalize!, otherwise sharp corners become ugly
 			//  but prevent crazy spikes
 			var v_trans_lensq = ( v_trans_x * v_trans_x + v_trans_y * v_trans_y )
@@ -31300,7 +31300,7 @@ THREE.ExtrudeGeometry.prototype.addShape = function ( shape, options ) {
 			} else {
 				shrink_by = Math.sqrt( v_trans_lensq / 2 );
 			}
-
+			
 		} else {		// handle special case of colinear edges
 
 			var direction_eq = false;		// assumes: opposite
@@ -31864,7 +31864,7 @@ THREE.ShapeGeometry.prototype.addShape = function ( shape, options ) {
  * @author bhouston / http://exocortex.com
  */
 
-// points - to create a closed torus, one must use a set of points
+// points - to create a closed torus, one must use a set of points 
 //    like so: [ a, b, c, d, a ], see first is the same as last.
 // segments - the number of circumference segments to create
 // phiStart - the starting radian
@@ -32198,7 +32198,7 @@ THREE.SphereGeometry = function ( radius, widthSegments, heightSegments, phiStar
 		phiStart: phiStart,
 		phiLength: phiLength,
 		thetaStart: thetaStart,
-		thetaLength: thetaLength
+		thetaLength: thetaLength 
 	};
 
 	radius = radius || 50;
@@ -32472,7 +32472,7 @@ THREE.TorusKnotGeometry = function ( radius, tube, radialSegments, tubularSegmen
 	p = p || 2;
 	q = q || 3;
 	heightScale = heightScale || 1;
-
+	
 	var grid = new Array( radialSegments );
 	var tang = new THREE.Vector3();
 	var n = new THREE.Vector3();
@@ -33734,7 +33734,7 @@ THREE.CameraHelper.prototype.constructor = THREE.CameraHelper;
 THREE.CameraHelper.prototype.update = function () {
 
 	var geometry, pointMap;
-
+	
 	var vector = new THREE.Vector3();
 	var camera = new THREE.Camera();
 
@@ -39266,7 +39266,7 @@ THREE.VREffect = function ( renderer, done ) {
 						self.leftEyeFOV = vrHMD.getRecommendedEyeFieldOfView( "left" );
 						self.rightEyeFOV = vrHMD.getRecommendedEyeFieldOfView( "right" );
 					}
-
+					
 					break; // We keep the first we encounter
 				}
 			}
@@ -40164,9 +40164,9 @@ THREE.DDSLoader.parse = function ( buffer, loadMipmaps ) {
 
 		default:
 
-			if ( header[off_RGBBitCount] == 32
+			if ( header[off_RGBBitCount] == 32 
 				&& header[off_RBitMask]&0xff0000
-				&& header[off_GBitMask]&0xff00
+				&& header[off_GBitMask]&0xff00 
 				&& header[off_BBitMask]&0xff
 				&& header[off_ABitMask]&0xff000000  ) {
 				isRGBAUncompressed = true;
@@ -40213,7 +40213,7 @@ THREE.DDSLoader.parse = function ( buffer, loadMipmaps ) {
 				var dataLength = Math.max( 4, width ) / 4 * Math.max( 4, height ) / 4 * blockBytes;
 				var byteArray = new Uint8Array( buffer, dataOffset, dataLength );
 			}
-
+			
 			var mipmap = { "data": byteArray, "width": width, "height": height };
 			dds.mipmaps.push( mipmap );
 
@@ -45538,15 +45538,15 @@ function urix(aPath) {
 module.exports = urix
 
 },{"path":2}],27:[function(require,module,exports){
-'use strict';
+"use strict";
 
-Object.defineProperty(exports, '__esModule', {
+Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var GameObject = (function () {
   function GameObject() {
@@ -45567,7 +45567,7 @@ var GameObject = (function () {
     this.renderer = new THREE.WebGLRenderer({ antialias: false });
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
-    this.renderer.domElement.id = 'hpml-webgl-canvas';
+    this.renderer.domElement.id = "hpml-webgl-canvas";
     this.renderer.shadowMapEnabled = true;
     this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
 
@@ -45630,17 +45630,34 @@ var GameObject = (function () {
       var time = performance.now();
       var delta = (time - self.prevTime) / 1000;
 
+      self.camera.rotation.reorder("YXZ");
+      var angle = self.camera.rotation.y;
+      self.camera.rotation.reorder("XYZ");
+
       velocity.x -= velocity.x * 10.0 * delta;
       velocity.z -= velocity.z * 10.0 * delta;
 
-      velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+      if (self.moveForward) {
+        velocity.z -= Math.cos(angle) * 100.0 * delta;
+        velocity.x -= Math.sin(angle) * 100.0 * delta;
+      }
+      if (self.moveBackward) {
+        velocity.z += Math.cos(angle) * 100.0 * delta;
+        velocity.x += Math.sin(angle) * 100.0 * delta;
+      }
 
-      if (self.moveForward) velocity.z -= 400.0 * delta;
-      if (self.moveBackward) velocity.z += 400.0 * delta;
+      if (self.moveLeft) {
+        var leftAngle = angle - 90 * (Math.PI / 180);
+        velocity.z += Math.cos(leftAngle) * 100.0 * delta;
+        velocity.x += Math.sin(leftAngle) * 100.0 * delta;
+      }
+      if (self.moveRight) {
+        var rightAngle = angle + 90 * (Math.PI / 180);
+        velocity.z += Math.cos(rightAngle) * 100.0 * delta;
+        velocity.x += Math.sin(rightAngle) * 100.0 * delta;
+      }
 
-      if (self.moveLeft) velocity.x -= 400.0 * delta;
-      if (self.moveRight) velocity.x += 400.0 * delta;
-
+      // console.log(velocity.x, velocity.y, velocity.z)
       self.dollyCam.translateX(velocity.x * delta);
       self.dollyCam.translateZ(velocity.z * delta);
 
@@ -45720,48 +45737,48 @@ var GameObject = (function () {
       }
     };
 
-    window.addEventListener('resize', this.onWindowResize.bind(this), false);
-    document.addEventListener('keydown', onKeyDown, false);
-    document.addEventListener('keyup', onKeyUp, false);
+    window.addEventListener("resize", this.onWindowResize.bind(this), false);
+    document.addEventListener("keydown", onKeyDown, false);
+    document.addEventListener("keyup", onKeyUp, false);
   }
 
   _createClass(GameObject, [{
-    key: 'onWindowResize',
+    key: "onWindowResize",
     value: function onWindowResize() {
       this.camera.aspect = this.getWidth() / this.getHeight();
       this.camera.updateProjectionMatrix();
       this.effect.setSize(this.getWidth(), this.getHeight());
     }
   }, {
-    key: 'getWidth',
+    key: "getWidth",
     value: function getWidth() {
       return window.innerWidth;
     }
   }, {
-    key: 'getHeight',
+    key: "getHeight",
     value: function getHeight() {
       return window.innerHeight;
     }
   }, {
-    key: 'add',
+    key: "add",
     value: function add(metaObject) {
       // TODO: write spec for this
       this.scene.add(metaObject.group);
       this.metaObjects.set(metaObject.group.uuid, metaObject);
     }
   }, {
-    key: 'remove',
+    key: "remove",
     value: function remove(metaObject) {
       this.scene.remove(metaObject.group);
-      this.metaObjects['delete'](metaObject.group.uuid);
+      this.metaObjects["delete"](metaObject.group.uuid);
     }
   }]);
 
   return GameObject;
 })();
 
-exports['default'] = GameObject;
-module.exports = exports['default'];
+exports["default"] = GameObject;
+module.exports = exports["default"];
 
 },{}],28:[function(require,module,exports){
 'use strict';
@@ -46081,7 +46098,7 @@ var MetaComponentController = (function (_MetaBaseController) {
           return;
         }
         if (child.controller.hasOwnProperty("metaStyle")) {
-          if (child.controller.metaStyle['position'] === 'absolute') {
+          if (child.controller.metaStyle["position"] === "absolute") {
             return;
           }
         }
@@ -46480,7 +46497,7 @@ var MetaStyle = (function () {
   }, {
     key: "position",
     set: function set(type) {
-      this.metaStyle['position'] = type;
+      this.metaStyle["position"] = type;
       this.controller.updateMetaObject();
       return type;
     },
@@ -47153,7 +47170,7 @@ var MetaWall = (function (_MRM$MetaComponent) {
 
 document.registerElement("meta-wall", MetaWall);
 
-},{}]},{},[1])</script>
+},{}]},{},[1])</script>  
 <template id="meta-floor">
 </template>
 
@@ -47360,10 +47377,10 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
       mesh.scale.x = this.properties.width;
       mesh.scale.y = this.properties.length;
 
-      if (this.metaStyle.metaStyle["position"] === 'absolute') {
+      if (this.metaStyle.metaStyle['position'] === 'absolute') {
         var group = this.metaObject.group;
-        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
-        group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle['left'] || 0) + this.properties.width / 2;
+        group.position.y = this.parent.properties.length / 2 - (this.metaStyle['top'] || 0) - this.properties.length / 2;
         if (this.metaStyle.metaStyle['rotate-x']) {
           group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
         } else if (this.metaStyle.metaStyle['rotate-y']) {
@@ -47542,10 +47559,10 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
 
       mesh.scale.x = this.computedProperties.width;
       mesh.scale.y = this.computedProperties.length;
-      if (this.metaStyle.metaStyle["position"] === 'absolute') {
+      if (this.metaStyle.metaStyle['position'] === 'absolute') {
         var group = this.metaObject.group;
-        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
-        group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle['left'] || 0) + this.properties.width / 2;
+        group.position.y = this.parent.properties.length / 2 - (this.metaStyle['top'] || 0) - this.properties.length / 2;
         if (this.metaStyle.metaStyle['rotate-x']) {
           group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
         } else if (this.metaStyle.metaStyle['rotate-y']) {
@@ -47733,10 +47750,10 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
       if (!this.properties.geometrySrc) {
         return;
       }
-      if (this.metaStyle.metaStyle["position"] === 'absolute') {
+      if (this.metaStyle.metaStyle['position'] === 'absolute') {
         var group = this.metaObject.group;
-        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
-        group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle['left'] || 0) + this.properties.width / 2;
+        group.position.y = this.parent.properties.length / 2 - (this.metaStyle['top'] || 0) - this.properties.length / 2;
         if (this.metaStyle.metaStyle['rotate-x']) {
           group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
         } else if (this.metaStyle.metaStyle['rotate-y']) {
@@ -47894,10 +47911,10 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
       var mesh = this.metaObject.mesh;
       mesh.scale.x = this.properties.width;
       mesh.scale.y = this.properties.length;
-      if (this.metaStyle.metaStyle["position"] === 'absolute') {
+      if (this.metaStyle.metaStyle['position'] === 'absolute') {
         var group = this.metaObject.group;
-        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
-        group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
+        group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle['left'] || 0) + this.properties.width / 2;
+        group.position.y = this.parent.properties.length / 2 - (this.metaStyle['top'] || 0) - this.properties.length / 2;
         if (this.metaStyle.metaStyle['rotate-x']) {
           group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
         } else if (this.metaStyle.metaStyle['rotate-y']) {
@@ -48055,25 +48072,25 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
     value: function updateMetaObject() {
       this.metaObject.group.position.z = this.properties.height / 2 || 0.5;
       var geometry = this.metaObject.mesh.geometry,
-          tbottomPaddingTop = this.metaStyle['tbottom-padding-top'] || this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
-          tbottomPaddingBottom = this.metaStyle['tbottom-padding-bottom'] || this.metaStyle['tbottom-padding'] || geometry.parameters.tbottomPadding || 0,
-          tsurfaceThickness = this.metaStyle['thickness'] || 0.03,
-          tbottomThickness = this.metaStyle['thickness'] || 0.03,
+          tbottomPaddingTop = this.metaStyle["tbottom-padding-top"] || this.metaStyle["tbottom-padding"] || geometry.parameters.tbottomPadding || 0,
+          tbottomPaddingBottom = this.metaStyle["tbottom-padding-bottom"] || this.metaStyle["tbottom-padding"] || geometry.parameters.tbottomPadding || 0,
+          tsurfaceThickness = this.metaStyle["thickness"] || 0.03,
+          tbottomThickness = this.metaStyle["thickness"] || 0.03,
           width = this.properties.width || this.computedProperties.width || 1,
           length = this.properties.length || this.computedProperties.length || 1,
           height = this.properties.height || this.computedProperties.height || 1;
 
       geometry.update(width, height, length, tsurfaceThickness, tbottomThickness, tbottomPaddingTop, tbottomPaddingBottom);
-      if (this.metaStyle.metaStyle["position"] === 'absolute') {
+      if (this.metaStyle.metaStyle["position"] === "absolute") {
         var group = this.metaObject.group;
         group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
         group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
-        if (this.metaStyle.metaStyle['rotate-x']) {
-          group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
-        } else if (this.metaStyle.metaStyle['rotate-y']) {
-          group.rotation.y = this.metaStyle.metaStyle['rotate-y'] * (Math.PI / 180);
-        } else if (this.metaStyle.metaStyle['rotate-z']) {
-          group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
+        if (this.metaStyle.metaStyle["rotate-x"]) {
+          group.rotation.x = this.metaStyle.metaStyle["rotate-x"] * (Math.PI / 180);
+        } else if (this.metaStyle.metaStyle["rotate-y"]) {
+          group.rotation.y = this.metaStyle.metaStyle["rotate-y"] * (Math.PI / 180);
+        } else if (this.metaStyle.metaStyle["rotate-z"]) {
+          group.rotation.z = this.metaStyle.metaStyle["rotate-z"] * (Math.PI / 180);
         }
       }
     }
@@ -48506,7 +48523,7 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
           return;
         }
         if (child.controller.hasOwnProperty("metaStyle")) {
-          if (child.controller.metaStyle['position'] === 'absolute') {
+          if (child.controller.metaStyle["position"] === "absolute") {
             return;
           }
         }

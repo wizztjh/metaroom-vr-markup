@@ -78,17 +78,34 @@ export default class GameObject{
       var time = performance.now();
       var delta = ( time - self.prevTime ) / 1000;
 
+      self.camera.rotation.reorder("YXZ")
+      var angle = self.camera.rotation.y;
+      self.camera.rotation.reorder("XYZ")
+
       velocity.x -= velocity.x * 10.0 * delta;
       velocity.z -= velocity.z * 10.0 * delta;
 
-      velocity.y -= 9.8 * 100.0 * delta; // 100.0 = mass
+      if ( self.moveForward ) {
+        velocity.z -= Math.cos(angle)*100.0 * delta;
+        velocity.x -= Math.sin(angle)*100.0 * delta;
+      }
+      if ( self.moveBackward ) {
+        velocity.z += Math.cos(angle)*100.0 * delta;
+        velocity.x += Math.sin(angle)*100.0 * delta;
+      }
 
-      if ( self.moveForward ) velocity.z -= 400.0 * delta;
-      if ( self.moveBackward ) velocity.z += 400.0 * delta;
+      if ( self.moveLeft ) {
+        var leftAngle = angle - 90 * (Math.PI/180)
+        velocity.z += Math.cos(leftAngle)*100.0 * delta;
+        velocity.x += Math.sin(leftAngle)*100.0 * delta;
+      }
+      if ( self.moveRight ) {
+        var rightAngle = angle + 90 * (Math.PI/180)
+        velocity.z += Math.cos(rightAngle)*100.0 * delta;
+        velocity.x += Math.sin(rightAngle)*100.0 * delta;
+      }
 
-      if ( self.moveLeft ) velocity.x -= 400.0 * delta;
-      if ( self.moveRight ) velocity.x += 400.0 * delta;
-
+      // console.log(velocity.x, velocity.y, velocity.z)
       self.dollyCam.translateX( velocity.x * delta );
       self.dollyCam.translateZ( velocity.z * delta );
 
