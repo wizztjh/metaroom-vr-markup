@@ -46526,6 +46526,28 @@ var MetaStyle = (function () {
       return this.metaStyle["left"];
     }
   }, {
+    key: "material-texture",
+    set: function set(textureSrc) {
+      var mesh = this.controller.metaObject.mesh;
+      if (mesh) {
+        var texture = THREE.ImageUtils.loadTexture(textureSrc, undefined, function () {
+          var width = texture.image.width,
+              height = texture.image.height;
+          texture.needsUpdate = true;
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.RepeatWrapping;
+          texture.repeat.set(Math.ceil(width / 100), Math.ceil(width / 100));
+          mesh.material.map = texture;
+          mesh.material.needsUpdate = true;
+        });
+        this.metaStyle["material-texture"] = textureSrc;
+        return mesh.material;
+      }
+    },
+    get: function get() {
+      return this.metaStyle["material-texture"];
+    }
+  }, {
     key: "material-type",
     set: function set(type) {
       var mesh = this.controller.metaObject.mesh;
