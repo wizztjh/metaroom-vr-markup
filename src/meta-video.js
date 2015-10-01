@@ -1,4 +1,4 @@
-class MetaPictureController extends MRM.MetaComponentController {
+class MetaVideoController extends MRM.MetaComponentController {
   constructor(dom){
     super(dom)
     this.setupComponent();
@@ -18,8 +18,6 @@ class MetaPictureController extends MRM.MetaComponentController {
         }
       })
     });
-    this.metaObject.mesh.position.set(0,0,0.2)
-
     this.updateMetaObject()
   }
 
@@ -70,7 +68,7 @@ class MetaPictureController extends MRM.MetaComponentController {
   }
 
   get tagName() {
-    return "meta-picture"
+    return "meta-video"
   }
 
   get eventActionSettings(){
@@ -84,17 +82,25 @@ class MetaPictureController extends MRM.MetaComponentController {
   }
 
   createMetaObject(){
-    var planeLength = 1;
-    var planeWidth = 1;
-    THREE.ImageUtils.crossOrigin = 'Anonymous';
 
-    var texture = THREE.ImageUtils.loadTexture(
-      this.properties.src
-    );
+    var video	= document.createElement('video');
+  	video.width	= 320;
+  	video.height	= 240;
+  	video.autoplay	= true;
+  	video.loop	= false;
+  	video.src	= this.properties.src;
 
-    var geometry = new THREE.PlaneGeometry(planeWidth, planeLength,1,1);
+    this.videoElement = video;
+
+  	var videoTexture = new THREE.VideoTexture( video );
+  	videoTexture.minFilter = THREE.LinearFilter;
+  	videoTexture.magFilter = THREE.LinearFilter;
+
+    videoTexture.needsUpdate = true
+
+    var geometry = new THREE.PlaneGeometry(1,1,1,1);
     var material = new THREE.MeshBasicMaterial({
-      map: texture,
+      map: videoTexture,
       color: 0x333333,
       side: THREE.DoubleSide
     });
@@ -117,6 +123,7 @@ class MetaPictureController extends MRM.MetaComponentController {
       var group = this.metaObject.group;
       group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
       group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
+      group.position.z = 1;
       if(this.metaStyle.metaStyle['rotate-x']){
         group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
       }else if(this.metaStyle.metaStyle['rotate-y']){
@@ -158,11 +165,11 @@ class MetaPictureController extends MRM.MetaComponentController {
   }
 }
 
-class MetaPicture extends MRM.MetaComponent {
+class MetaVideo extends MRM.MetaComponent {
   createdCallback() {
-    this.controller = new MetaPictureController(this);
+    this.controller = new MetaVideoController(this);
     super.createdCallback();
   }
 }
 
-document.registerElement('meta-picture', MetaPicture);
+document.registerElement('meta-video', MetaVideo);

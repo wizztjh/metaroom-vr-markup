@@ -6,9 +6,10 @@ class MetaVerseController extends MRM.MetaBaseController {
   constructor(dom){
     super()
     this.dom = dom;
-    this.gameObject = new MRM.GameObject();
+    this.gameObject = new MRM.GameObject(this);
     this.globalMetaStyle = {}
     this.ready = false;
+    this.videos = [];
 
     this.setupComponent();
   }
@@ -48,7 +49,7 @@ class MetaVerseController extends MRM.MetaBaseController {
   }
 
   getAllMetaChildren(){
-    return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface, meta-tbottom, meta-item");
+    return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface, meta-tbottom, meta-item, meta-video");
   }
 
   triggerMetaReady(){
@@ -106,7 +107,7 @@ class MetaVerseController extends MRM.MetaBaseController {
       })
     });
 
-    [].forEach.call(metaChildren, function(metaTag){
+    [].forEach.call(metaChildren, (metaTag)=>{
       if(metaTag.controller) {
         if(metaTag.controller.metaStyle.applyMetaStyleAttribute){
           metaTag.controller.metaStyle.applyMetaStyleAttribute();
@@ -114,10 +115,13 @@ class MetaVerseController extends MRM.MetaBaseController {
       }
     });
 
-    [].forEach.call(metaChildren, function(metaTag){
+    [].forEach.call(metaChildren, (metaTag)=>{
       if(metaTag.controller) {
         if(metaTag.controller.metaStyle.applyMetaStyleAttribute){
           metaTag.controller.updateMetaObject();
+        }
+        if(metaTag.controller.tagName === 'meta-video'){
+          this.videos.push(metaTag);
         }
       }
     });
@@ -126,6 +130,15 @@ class MetaVerseController extends MRM.MetaBaseController {
   attachMetaObject(targetController){
     targetController.parent = this
     this.gameObject.add(targetController.metaObject);
+  }
+
+  needsUpdate(){
+    _.forEach(this.videos, (video) => {
+      if(video.controller){
+        if( video.controller.videoElement.readyState !== video.controller.videoElement.HAVE_ENOUGH_DATA )	return;
+        video.controller.metaObject.mesh.material.needsUpdate = true;
+      }
+    })
   }
 
 }

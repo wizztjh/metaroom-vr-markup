@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
+</head>
+<body>
+
+  <div id='fixture'>
+    <meta-verse id="meta-verse">
+      <meta-room width='10' height='10' length='10' id='main-meta-room'>
+        <meta-wall align='left' id='main-meta-wall'>
+          <meta-video width='3' height='4' src='fixtures/ball.png' id='meta-video-on-wall'></meta-video>
+
+          <meta-board width='3' length='5' id='main-meta-board'>
+            <meta-video width='3' meta-style='frame-width: 0.3' length='4' src='fixtures/ball.png' id='main-meta-video'></meta-video>
+          </meta-board>
+
+        </meta-wall>
+      </meta-room>
+    </meta-verse>
+  </div>
+
+  <script>
+    describe('meta-video', function() {
+      beforeEach(function(){
+        jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
+        jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
+        jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
+        jlet('metaBoard', function(){ return document.querySelector('#main-meta-board')});
+        jlet('metaVideo', function(){ return document.querySelector('#main-meta-video')});
+        jlet('metaVideoMesh', function(){ return J.metaVideo.controller.metaObject.mesh});
+      });
+
+      describe("when initilize", function(){
+        shouldBehaveLikeA['MetaObject that scales']('metaVideoMesh', {x: 2.4, y: 3.4});
+        shouldBehaveLikeA['Plane Adding MetaTag']('metaVideo', 'metaBoard');
+
+        it('updates the texture based on src', function(){
+          expect(J.metaVideo.controller.videoElement.getAttribute('src')).to.equal("fixtures/ball.png");
+        });
+
+        it('adds another mesh in group when frame-width is included in meta-style', function(){
+          expect(J.metaVideo.controller.metaObject.group.children.length).to.equal(2);
+        });
+
+        describe("when the meta-video is on the wall", function(){
+          beforeEach(function(){
+            jlet('metaVideo', function(){ return document.querySelector('#meta-video-on-wall')});
+          });
+          shouldBehaveLikeA['Plane Adding MetaTag']('metaVideo', 'metaWall');
+        });
+      });
+
+      shouldBehaveLikeA["Removeable MetaObject"]('metaVideo', 'metaBoard');
+    });
+  </script>
+</body>
+</html>
