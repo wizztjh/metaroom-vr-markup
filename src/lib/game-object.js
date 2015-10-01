@@ -117,7 +117,9 @@ export default class GameObject{
 
       requestAnimationFrame(animate);
       self.prevTime = time;
-      self.metaVerseController.needsUpdate();
+      if(self.metaVerseController){
+        self.metaVerseController.needsUpdate();
+      }
     }
 
     animate();

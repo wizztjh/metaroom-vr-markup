@@ -91,7 +91,6 @@ class MetaPictureController extends MRM.MetaComponentController {
     var texture = THREE.ImageUtils.loadTexture(
       this.properties.src
     );
-    texture.needsUpdate = true
 
     var geometry = new THREE.PlaneGeometry(planeWidth, planeLength,1,1);
     var material = new THREE.MeshBasicMaterial({
