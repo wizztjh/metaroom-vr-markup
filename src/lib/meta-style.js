@@ -75,8 +75,9 @@ export default class MetaStyle {
     var mesh = this.controller.metaObject.mesh
     if (mesh) {
       var geometry = mesh.geometry
-
-      mesh.geometry.update(geometry.width, geometry.height, geometry.depth, Number(thickness), Number(thickness), geometry.tbottomPaddingTop, geometry.tbottomPaddingTop)
+      if(this.controller.tagName === 'meta-table'){
+        mesh.geometry.update(geometry.width, geometry.height, geometry.depth, Number(thickness), Number(thickness), geometry.tbottomPaddingTop, geometry.tbottomPaddingTop)
+      }
       this.metaStyle["thickness"] = Number(thickness);
     }
     return Number(thickness);

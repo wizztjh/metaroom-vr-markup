@@ -64,20 +64,20 @@ class MetaWallController extends MRM.MetaBaseWallController{
     switch(this.properties.align) {
       case 'left':
       case 'right':
-      mesh.scale.set(this.properties.roomLength, this.properties.roomHeight , 1);
+      mesh.scale.set(this.properties.roomLength, this.properties.roomHeight , this.metaStyle["thickness"] || 0.25);
       this.properties.width = this.properties.roomLength
       this.properties.length = this.properties.roomHeight
       break;
 
       case 'ceiling':
-      mesh.scale.set(this.properties.roomWidth, this.properties.roomLength , 1);
+      mesh.scale.set(this.properties.roomWidth, this.properties.roomLength , this.metaStyle["thickness"] || 0.25);
       this.properties.width = this.properties.roomWidth
       this.properties.length = this.properties.roomLength
       break;
 
       case 'front':
       case 'back':
-      mesh.scale.set(this.properties.roomWidth, this.properties.roomHeight , 1);
+      mesh.scale.set(this.properties.roomWidth, this.properties.roomHeight , this.metaStyle["thickness"] || 0.25);
       this.properties.width = this.properties.roomWidth
       this.properties.length = this.properties.roomHeight
       break;
@@ -89,17 +89,17 @@ class MetaWallController extends MRM.MetaBaseWallController{
         group.rotation.x = 0
         group.rotation.y = 90 * (Math.PI/180);
         group.rotation.z = 0
-        group.position.set(-(this.properties.roomWidth/2), this.properties.roomHeight/2, 0);
+        group.position.set(-(this.properties.roomWidth/2) - (this.metaStyle['thickness']/2 || 0.125), this.properties.roomHeight/2, 0);
         break;
       case 'front':
-        group.position.set(0, (this.properties.roomHeight/2), -(this.properties.roomLength/2));
+        group.position.set(0, (this.properties.roomHeight/2), -(this.properties.roomLength/2) - (this.metaStyle['thickness']/2 || 0.125));
         group.rotation.x = 0
         group.rotation.y = 0
         group.rotation.z = 0
         break;
         break;
       case 'back':
-        group.position.set(0, (this.properties.roomHeight/2), this.properties.roomLength/2);
+        group.position.set(0, (this.properties.roomHeight/2), this.properties.roomLength/2 + (this.metaStyle['thickness']/2 || 0.125));
         group.rotation.x = 0
         group.rotation.y = 180 * (Math.PI/180);
         group.rotation.z = 0
@@ -115,7 +115,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
         group.rotation.x = 0
         group.rotation.y = 270 * (Math.PI/180);
         group.rotation.z = 0
-        group.position.set(this.properties.roomWidth/2, this.properties.roomHeight/2, 0);
+        group.position.set(this.properties.roomWidth/2 + (this.metaStyle['thickness']/2 || 0.125), this.properties.roomHeight/2, 0);
         break;
     }
     this.updateChildrenDisplayInline();
