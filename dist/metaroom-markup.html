@@ -46528,9 +46528,39 @@ var MetaStyle = (function () {
   }, {
     key: "material-texture",
     set: function set(textureSrc) {
+      var _this2 = this;
+
       var mesh = this.controller.metaObject.mesh;
       if (mesh) {
         var texture = THREE.ImageUtils.loadTexture(textureSrc, undefined, function () {
+          if (_this2.metaStyle["material-texture-repeat"] === 'repeat') {
+            var width = texture.image.width,
+                height = texture.image.height;
+            texture.needsUpdate = true;
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(Math.ceil(width / 100), Math.ceil(width / 100));
+            mesh.material.map = texture;
+            mesh.material.needsUpdate = true;
+          } else {
+            mesh.material.map = texture;
+            mesh.material.needsUpdate = true;
+          }
+        });
+        this.metaStyle["material-texture"] = textureSrc;
+        return mesh.material;
+      }
+    },
+    get: function get() {
+      return this.metaStyle["material-texture"];
+    }
+  }, {
+    key: "material-texture-repeat",
+    set: function set(type) {
+      var mesh = this.controller.metaObject.mesh;
+      if (mesh) {
+        var texture = mesh.material.map;
+        if (texture) {
           var width = texture.image.width,
               height = texture.image.height;
           texture.needsUpdate = true;
@@ -46539,13 +46569,13 @@ var MetaStyle = (function () {
           texture.repeat.set(Math.ceil(width / 100), Math.ceil(width / 100));
           mesh.material.map = texture;
           mesh.material.needsUpdate = true;
-        });
-        this.metaStyle["material-texture"] = textureSrc;
-        return mesh.material;
+        }
+        this.metaStyle["material-texture-repeat"] = type;
       }
+      return type;
     },
     get: function get() {
-      return this.metaStyle["material-texture"];
+      return this.metaStyle["material-texture-repeat"];
     }
   }, {
     key: "material-type",
