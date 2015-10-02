@@ -88,7 +88,9 @@ class MetaTextController extends MRM.MetaComponentController {
         group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
       }
     }
-    group.position.z = this.parent.metaStyle['thickness']/2 || 0;
+    if(this.parent){
+      group.position.z = this.parent.metaStyle['thickness']/2 || 0;
+    }
   }
 }
 
