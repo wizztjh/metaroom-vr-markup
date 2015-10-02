@@ -90,7 +90,7 @@ export default class MetaStyle {
   set ["frame-width"](frameWidth) {
     var controller = this.controller;
     if (controller && typeof controller.updateFrame === 'function') {
-      controller.updateFrame(frameWidth);
+      controller.updateMetaObject();
       this.metaStyle["frame-width"] = Number(frameWidth);
     }
     return Number(frameWidth);
@@ -131,7 +131,8 @@ export default class MetaStyle {
   set ["material-texture"](textureSrc) {
     var mesh = this.controller.metaObject.mesh
     if (mesh) {
-      var texture = THREE.ImageUtils.loadTexture( textureSrc, undefined, () =>{
+      var texture = THREE.ImageUtils.loadTexture( textureSrc, undefined, (tex) =>{
+        texture = tex;
         if(this.metaStyle["material-texture-repeat"] === 'repeat'){
           var width = texture.image.width, height = texture.image.height;
           texture.needsUpdate = true;

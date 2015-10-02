@@ -109,7 +109,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
         group.rotation.y = 0
         group.rotation.z = 0
 
-        group.position.set(0, (this.properties.roomHeight), 0);
+        group.position.set(0, (this.properties.roomHeight) + (this.metaStyle['thickness']/2 || 0.125), 0);
         break;
       case 'right':
         group.rotation.x = 0
