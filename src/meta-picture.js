@@ -110,11 +110,9 @@ class MetaPictureController extends MRM.MetaComponentController {
 
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
+    var group = this.metaObject.group;
 
-    mesh.scale.x = this.computedProperties.width;
-    mesh.scale.y = this.computedProperties.length;
     if(this.metaStyle.metaStyle["position"] === 'absolute'){
-      var group = this.metaObject.group;
       group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
       group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
       if(this.metaStyle.metaStyle['rotate-x']){
@@ -125,6 +123,14 @@ class MetaPictureController extends MRM.MetaComponentController {
         group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
       }
     }
+    if(this.parent){
+      group.position.z = this.parent.metaStyle['thickness']/2 || 0;
+    }
+    if(this.metaStyle.metaStyle["frame-width"]){
+      this.updateFrame(this.metaStyle.metaStyle["frame-width"]);
+    }
+    mesh.scale.x = this.computedProperties.width;
+    mesh.scale.y = this.computedProperties.length;
   }
 
   updateFrame(frameWidth, frameThickness){
@@ -153,7 +159,9 @@ class MetaPictureController extends MRM.MetaComponentController {
     mesh.position.set( -this.properties.width / 2, -this.properties.length / 2, 0);
     this.computedProperties.width = width - (2 * frameWidth);
     this.computedProperties.length = length - (2 * frameWidth);
-    this.updateMetaObject();
+    if(this.metaObject.group.children.length > 1){
+      this.metaObject.group.children.pop();
+    }
     this.metaObject.group.add(mesh);
   }
 }

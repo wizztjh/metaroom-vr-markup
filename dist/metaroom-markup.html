@@ -45909,7 +45909,7 @@ var MetaBaseWallController = (function (_MetaComponentController) {
       var planeHeight = 1;
       var planeWidth = 1;
 
-      var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight, 1, 1);
+      var geometry = new THREE.BoxGeometry(planeWidth, planeHeight, 1);
       var material = new THREE.MeshPhongMaterial({
         color: 0xffffff,
         side: THREE.DoubleSide
@@ -46475,8 +46475,9 @@ var MetaStyle = (function () {
       var mesh = this.controller.metaObject.mesh;
       if (mesh) {
         var geometry = mesh.geometry;
-
-        mesh.geometry.update(geometry.width, geometry.height, geometry.depth, Number(thickness), Number(thickness), geometry.tbottomPaddingTop, geometry.tbottomPaddingTop);
+        if (this.controller.tagName === 'meta-table') {
+          mesh.geometry.update(geometry.width, geometry.height, geometry.depth, Number(thickness), Number(thickness), geometry.tbottomPaddingTop, geometry.tbottomPaddingTop);
+        }
         this.metaStyle["thickness"] = Number(thickness);
       }
       return Number(thickness);
@@ -46489,7 +46490,7 @@ var MetaStyle = (function () {
     set: function set(frameWidth) {
       var controller = this.controller;
       if (controller && typeof controller.updateFrame === 'function') {
-        controller.updateFrame(frameWidth);
+        controller.updateMetaObject();
         this.metaStyle["frame-width"] = Number(frameWidth);
       }
       return Number(frameWidth);
@@ -46532,7 +46533,8 @@ var MetaStyle = (function () {
 
       var mesh = this.controller.metaObject.mesh;
       if (mesh) {
-        var texture = THREE.ImageUtils.loadTexture(textureSrc, undefined, function () {
+        var texture = THREE.ImageUtils.loadTexture(textureSrc, undefined, function (tex) {
+          texture = tex;
           if (_this2.metaStyle["material-texture-repeat"] === 'repeat') {
             var width = texture.image.width,
                 height = texture.image.height;
@@ -47077,20 +47079,20 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
       switch (this.properties.align) {
         case 'left':
         case 'right':
-          mesh.scale.set(this.properties.roomLength, this.properties.roomHeight, 1);
+          mesh.scale.set(this.properties.roomLength, this.properties.roomHeight, this.metaStyle["thickness"] || 0.25);
           this.properties.width = this.properties.roomLength;
           this.properties.length = this.properties.roomHeight;
           break;
 
         case 'ceiling':
-          mesh.scale.set(this.properties.roomWidth, this.properties.roomLength, 1);
+          mesh.scale.set(this.properties.roomWidth, this.properties.roomLength, this.metaStyle["thickness"] || 0.25);
           this.properties.width = this.properties.roomWidth;
           this.properties.length = this.properties.roomLength;
           break;
 
         case 'front':
         case 'back':
-          mesh.scale.set(this.properties.roomWidth, this.properties.roomHeight, 1);
+          mesh.scale.set(this.properties.roomWidth, this.properties.roomHeight, this.metaStyle["thickness"] || 0.25);
           this.properties.width = this.properties.roomWidth;
           this.properties.length = this.properties.roomHeight;
           break;
@@ -47102,17 +47104,17 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
           group.rotation.x = 0;
           group.rotation.y = 90 * (Math.PI / 180);
           group.rotation.z = 0;
-          group.position.set(-(this.properties.roomWidth / 2), this.properties.roomHeight / 2, 0);
+          group.position.set(-(this.properties.roomWidth / 2) - (this.metaStyle['thickness'] / 2 || 0.125), this.properties.roomHeight / 2, 0);
           break;
         case 'front':
-          group.position.set(0, this.properties.roomHeight / 2, -(this.properties.roomLength / 2));
+          group.position.set(0, this.properties.roomHeight / 2, -(this.properties.roomLength / 2) - (this.metaStyle['thickness'] / 2 || 0.125));
           group.rotation.x = 0;
           group.rotation.y = 0;
           group.rotation.z = 0;
           break;
           break;
         case 'back':
-          group.position.set(0, this.properties.roomHeight / 2, this.properties.roomLength / 2);
+          group.position.set(0, this.properties.roomHeight / 2, this.properties.roomLength / 2 + (this.metaStyle['thickness'] / 2 || 0.125));
           group.rotation.x = 0;
           group.rotation.y = 180 * (Math.PI / 180);
           group.rotation.z = 0;
@@ -47122,13 +47124,13 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
           group.rotation.y = 0;
           group.rotation.z = 0;
 
-          group.position.set(0, this.properties.roomHeight, 0);
+          group.position.set(0, this.properties.roomHeight + (this.metaStyle['thickness'] / 2 || 0.125), 0);
           break;
         case 'right':
           group.rotation.x = 0;
           group.rotation.y = 270 * (Math.PI / 180);
           group.rotation.z = 0;
-          group.position.set(this.properties.roomWidth / 2, this.properties.roomHeight / 2, 0);
+          group.position.set(this.properties.roomWidth / 2 + (this.metaStyle['thickness'] / 2 || 0.125), this.properties.roomHeight / 2, 0);
           break;
       }
       this.updateChildrenDisplayInline();
@@ -47280,7 +47282,7 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
       this.properties.length = this.properties.roomLength;
 
       group.rotation.x = 270 * (Math.PI / 180);
-      group.position.set(0, 0, 0);
+      group.position.set(0, 0 - (this.metaStyle['thickness'] / 2 || 0.125), 0);
       mesh.scale.set(this.properties.roomWidth, this.properties.roomLength, 1);
 
       this.updateChildrenDisplayInline();
@@ -47459,7 +47461,9 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
           group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
         }
       }
-
+      if (this.parent) {
+        group.position.z = this.parent.metaStyle['thickness'] / 2 || 0;
+      }
       this.updateChildrenDisplayInline();
     }
   }, {
@@ -47625,11 +47629,9 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
     key: 'updateMetaObject',
     value: function updateMetaObject() {
       var mesh = this.metaObject.mesh;
+      var group = this.metaObject.group;
 
-      mesh.scale.x = this.computedProperties.width;
-      mesh.scale.y = this.computedProperties.length;
       if (this.metaStyle.metaStyle["position"] === 'absolute') {
-        var group = this.metaObject.group;
         group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
         group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
         if (this.metaStyle.metaStyle['rotate-x']) {
@@ -47640,6 +47642,14 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
           group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
         }
       }
+      if (this.parent) {
+        group.position.z = this.parent.metaStyle['thickness'] / 2 || 0;
+      }
+      if (this.metaStyle.metaStyle["frame-width"]) {
+        this.updateFrame(this.metaStyle.metaStyle["frame-width"]);
+      }
+      mesh.scale.x = this.computedProperties.width;
+      mesh.scale.y = this.computedProperties.length;
     }
   }, {
     key: 'updateFrame',
@@ -47669,7 +47679,9 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
       mesh.position.set(-this.properties.width / 2, -this.properties.length / 2, 0);
       this.computedProperties.width = width - 2 * frameWidth;
       this.computedProperties.length = length - 2 * frameWidth;
-      this.updateMetaObject();
+      if (this.metaObject.group.children.length > 1) {
+        this.metaObject.group.children.pop();
+      }
       this.metaObject.group.add(mesh);
     }
   }, {
@@ -47849,14 +47861,13 @@ var MetaVideoController = (function (_MRM$MetaComponentController) {
     key: 'updateMetaObject',
     value: function updateMetaObject() {
       var mesh = this.metaObject.mesh;
+      var group = this.metaObject.group;
 
       mesh.scale.x = this.computedProperties.width;
       mesh.scale.y = this.computedProperties.length;
       if (this.metaStyle.metaStyle["position"] === 'absolute') {
-        var group = this.metaObject.group;
         group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
         group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
-        group.position.z = 1;
         if (this.metaStyle.metaStyle['rotate-x']) {
           group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
         } else if (this.metaStyle.metaStyle['rotate-y']) {
@@ -47865,6 +47876,7 @@ var MetaVideoController = (function (_MRM$MetaComponentController) {
           group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
         }
       }
+      group.position.z = this.parent.metaStyle['thickness'] / 2 || 0.25;
     }
   }, {
     key: 'updateFrame',
@@ -48203,10 +48215,11 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
     key: 'updateMetaObject',
     value: function updateMetaObject() {
       var mesh = this.metaObject.mesh;
+      var group = this.metaObject.group;
+
       mesh.scale.x = this.properties.width;
       mesh.scale.y = this.properties.length;
       if (this.metaStyle.metaStyle["position"] === 'absolute') {
-        var group = this.metaObject.group;
         group.position.x = -(this.parent.properties.width / 2) + (this.metaStyle["left"] || 0) + this.properties.width / 2;
         group.position.y = this.parent.properties.length / 2 - (this.metaStyle["top"] || 0) - this.properties.length / 2;
         if (this.metaStyle.metaStyle['rotate-x']) {
@@ -48216,6 +48229,9 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
         } else if (this.metaStyle.metaStyle['rotate-z']) {
           group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
         }
+      }
+      if (this.parent) {
+        group.position.z = this.parent.metaStyle['thickness'] / 2 || 0;
       }
     }
   }, {

@@ -116,14 +116,13 @@ class MetaVideoController extends MRM.MetaComponentController {
 
   updateMetaObject(){
     var mesh = this.metaObject.mesh;
+    var group = this.metaObject.group;
 
     mesh.scale.x = this.computedProperties.width;
     mesh.scale.y = this.computedProperties.length;
     if(this.metaStyle.metaStyle["position"] === 'absolute'){
-      var group = this.metaObject.group;
       group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
       group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
-      group.position.z = 1;
       if(this.metaStyle.metaStyle['rotate-x']){
         group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
       }else if(this.metaStyle.metaStyle['rotate-y']){
@@ -132,6 +131,7 @@ class MetaVideoController extends MRM.MetaComponentController {
         group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
       }
     }
+    group.position.z = this.parent.metaStyle['thickness']/2 || 0.25;
   }
 
   updateFrame(frameWidth, frameThickness){

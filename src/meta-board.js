@@ -67,7 +67,9 @@ class MetaBoardController extends MRM.MetaComponentController {
         group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
       }
     }
-
+    if(this.parent){
+      group.position.z = this.parent.metaStyle['thickness']/2 || 0;
+    }
     this.updateChildrenDisplayInline();
   }
 

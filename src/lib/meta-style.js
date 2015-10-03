@@ -75,8 +75,9 @@ export default class MetaStyle {
     var mesh = this.controller.metaObject.mesh
     if (mesh) {
       var geometry = mesh.geometry
-
-      mesh.geometry.update(geometry.width, geometry.height, geometry.depth, Number(thickness), Number(thickness), geometry.tbottomPaddingTop, geometry.tbottomPaddingTop)
+      if(this.controller.tagName === 'meta-table'){
+        mesh.geometry.update(geometry.width, geometry.height, geometry.depth, Number(thickness), Number(thickness), geometry.tbottomPaddingTop, geometry.tbottomPaddingTop)
+      }
       this.metaStyle["thickness"] = Number(thickness);
     }
     return Number(thickness);
@@ -89,7 +90,7 @@ export default class MetaStyle {
   set ["frame-width"](frameWidth) {
     var controller = this.controller;
     if (controller && typeof controller.updateFrame === 'function') {
-      controller.updateFrame(frameWidth);
+      controller.updateMetaObject();
       this.metaStyle["frame-width"] = Number(frameWidth);
     }
     return Number(frameWidth);
@@ -130,7 +131,8 @@ export default class MetaStyle {
   set ["material-texture"](textureSrc) {
     var mesh = this.controller.metaObject.mesh
     if (mesh) {
-      var texture = THREE.ImageUtils.loadTexture( textureSrc, undefined, () =>{
+      var texture = THREE.ImageUtils.loadTexture( textureSrc, undefined, (tex) =>{
+        texture = tex;
         if(this.metaStyle["material-texture-repeat"] === 'repeat'){
           var width = texture.image.width, height = texture.image.height;
           texture.needsUpdate = true;
