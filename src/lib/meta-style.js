@@ -127,6 +127,54 @@ export default class MetaStyle {
     return this.metaStyle["left"];
   }
 
+  set ["material-texture"](textureSrc) {
+    var mesh = this.controller.metaObject.mesh
+    if (mesh) {
+      var texture = THREE.ImageUtils.loadTexture( textureSrc, undefined, () =>{
+        if(this.metaStyle["material-texture-repeat"] === 'repeat'){
+          var width = texture.image.width, height = texture.image.height;
+          texture.needsUpdate = true;
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.RepeatWrapping;
+          texture.repeat.set( Math.ceil(width/100), Math.ceil(width/100) );
+          mesh.material.map = texture;
+          mesh.material.needsUpdate = true;
+        }else{
+          mesh.material.map = texture;
+          mesh.material.needsUpdate = true;
+        }
+      });
+      this.metaStyle["material-texture"] = textureSrc;
+      return mesh.material;
+    }
+  }
+
+  get ["material-texture"]() {
+    return this.metaStyle["material-texture"];
+  }
+
+  set ["material-texture-repeat"](type){
+    var mesh = this.controller.metaObject.mesh
+    if (mesh) {
+      var texture = mesh.material.map;
+      if(texture){
+        var width = texture.image.width, height = texture.image.height;
+        texture.needsUpdate = true;
+        texture.wrapS = THREE.RepeatWrapping;
+        texture.wrapT = THREE.RepeatWrapping;
+        texture.repeat.set( Math.ceil(width/100), Math.ceil(width/100) );
+        mesh.material.map = texture;
+        mesh.material.needsUpdate = true;
+      }
+      this.metaStyle["material-texture-repeat"] = type;
+    }
+    return type;
+  }
+
+  get ["material-texture-repeat"](){
+    return this.metaStyle["material-texture-repeat"];
+  }
+
   set ["material-type"](type) {
     var mesh = this.controller.metaObject.mesh
     if (mesh) {
