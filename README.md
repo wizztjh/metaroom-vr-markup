@@ -19,84 +19,36 @@ MetaRoomMarkup applies the HTML/CSS way of positioning and styling to a 3D objec
 
 ## Why MetaRoom Markup?
 
-- **Dynamic scaling** base on children
+#### Dynamic scaling base on children's dimension
 ![alt tag](demo/img/dynamic-table.gif)
 
-- **Styleable 3d objects**
+#### Styleable 3d objects
 ![alt tag](demo/img/tbottom-padding-mixed.gif)
 
-- **Display inline positioning**
+#### Display inline positioning
 ![alt tag](demo/img/display-inline.gif)
 
-## Features
-- **Smaller size**: Defines common 3D object with style instead of vertexes.
-- **Display Inline**: Brings display inline to 3D VR
-- **Extend**: With Web component, new meta component can be created, such as meta-elevator
+### Sandbox
+A quick sandbox to test out
 
-[Demo](http://vrcollab.com/VRcollab/)
-
-![alt tag](demo/img/room.png)
-
-### How metaroom-markup would look like
-
-``` html
-
-<meta-verse skybox=''>
-  <meta-room width='10' height='30' length='10'>
-    <meta-wall align='left'>
-      <meta-picture src='VRcollab.png'></meta-picture>
-    </meta-wall>
-
-    <meta-floor>
-      <meta-table>
-        <meta-tsurface>
-          <meta-item src='cashier.obj' title='cashier' onLook='pay()'></meta-item>
-          <meta-item src='cashier.obj' title='cashier' onLook='pay()'></meta-item>
-          <meta-item src='cashier.obj' title='cashier' onLook='pay()'></meta-item>
-        </meta-tsurface>
-
-        <meta-tside align='front'>
-          <meta-text>
-            Cashier
-          </meta-text>
-        <meta-tside>
-
-      </meta-table>
-
-      <meta-rack height='10' >
-        <meta-tsurface>
-          <meta-item src='red-shoe.obj' title='red shoe' onLook='addToCart()'></meta-item>
-        </meta-tsurface>
-
-        <meta-tsurface>
-          <meta-item src='blue-shoe.obj' title='red shoe' onLook='addToCart()'></meta-item>
-        </meta-tsurface>
-      </meta-rack>
-
-      <meta-table>
-        <meta-tside>Contact US</meta-tside>
-        <meta-tbottom>
-          <meta-item src='phone.obj' alt='call us by +6598144461' pickup='true'></meta-item>
-        </meta-tbottom>
-      </meta-table>
-
-      <meta-table>
-        <meta-tside>Achievements</meta-tside>
-        <meta-tsurface>
-          <meta-item src='best-game-ever-trophy.obj' alt='this is a trophy won by us on 2013' pickup='true'></meta-item>
-        </meta-tsurface>
-      </meta-table>
-    </meta-floor>
-
-  </meta-room>
-</meta-verse>
-```
+[Sandbox](http://vrcollab.com/VRcollab/)
 ## Markup Language Reference
 
-### Meta Tags
-MetaRoom markup tags
+## `<meta-verse>`
+create a
 
-## meta-room
+## `<meta-style>`
+Meta style will be like style sheet.
+
+``` html
+<meta-style>
+  .nice-tabe {
+
+  }
+</meta-style>
+```
+
+## `<meta-room>`
 creates a structure of the room
 
 ##### Attributes
@@ -104,35 +56,63 @@ creates a structure of the room
 - `height` type: number. default 1
 - `depth` type: number. default 1
 
-## meta-wall
+## `<meta-wall>`
 creates a wall in the meta-room
 
 ##### Attributes
 - `align` change the alignment of wall. Default is front. Can be left, right, ceiling, front and back.
 
-##### meta-style
+##### Meta style
 - `material-color` css color code
 
-## meta-floor
+##### Example
+
+``` html
+<meta-room>
+  <meta-wall meta-style='material-color: red' align='left'></meta-wall>
+  <meta-wall align='right'></meta-wall>
+  <meta-wall align='front'></meta-wall>
+  <meta-wall align='back'></meta-wall>
+  <meta-wall align='ceiling'></meta-wall>
+</meta-room>
+```
+
+## `<meta-floor>`
 creates a floor in the meta-room
 
 ##### meta-style
 - `material-color` css color code
 
-## meta-table
+##### Example
+
+``` html
+<meta-room>
+  <meta-floor meta-style='material-color: #333333'></meta-floor>
+</meta-room>
+```
+
+## `<meta-table>`
 creates a table structure
 
 ##### meta-style
 - `material-color` css color code
 - `tbottom-padding`
 
-## meta-tsurface
+``` html
+<meta-floor>
+  <meta-table meta-style='material-color: red;'>
+    <meta-tsurface></meta-tsurface>
+  </meta-table>
+</meta-floor>
+```
+
+## `<meta-tsurface>`
 creates a table surface
 
 ##### meta-style
 - `material-color` css color code
 
-## meta-tbottom
+## `<meta-tbottom>`
 creates a table side
 
 ##### Attributes
@@ -141,9 +121,11 @@ creates a table side
 ##### meta-style
 - `material-color` css color code
 
-
-### disclaimer
+### Disclaimer
 it is a prototype.
+
+### Any meta-tags that you want?
+Open a github issue
 
 ### Roadmap
 
