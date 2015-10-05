@@ -1,5 +1,7 @@
 # MetaRoomMarkup (Alpha stage, V0)
 
+[![Join the chat at https://gitter.im/MetaRoomMarkup/MetaRoomMarkup](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/MetaRoomMarkup/MetaRoomMarkup?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 [What is MetaRoom Markup](http://vrcollab.com/2015/08/10/what-is-metaroom-markup.html)
 
 MetaRoomMarkup applies the HTML/CSS way of positioning and styling to a 3D object.
