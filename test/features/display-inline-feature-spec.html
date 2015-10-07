@@ -41,13 +41,14 @@
             <meta-tbottom>
             </meta-tbottom>
           </meta-table>
-
           <meta-table width='3' height='3' length='3' id='second-meta-table'>
             <meta-tsurface>
             </meta-tsurface>
           </meta-table>
-
-
+          <meta-pillar id='main-meta-pillar' width='0.5' length='2' face='right'>
+          <meta-picture id='meta-picture-on-pillar' src='img/VRcollab.png' width='3' length='2'></meta-picture>
+            <meta-picture id='second-picture-on-pillar' src='img/VRcollab.png' width='3' length='2'></meta-picture>
+          </meta-pillar>
         </meta-floor>
 
       </meta-room>
@@ -263,6 +264,25 @@
           expect(J.secondMetaPicture.controller.metaObject.group.position.y).to.equal(0);
           expect(J.thirdMetaPicture.controller.metaObject.group.position.x).to.equal(1.5);
           expect(J.thirdMetaPicture.controller.metaObject.group.position.y).to.equal(0);
+        });
+      });
+
+      describe('meta-pillar contains meta-items', function(){
+        beforeEach(function(){
+          J.metaVerse.innerHTML = '<meta-room width="30" height="15" length="20"><meta-floor id="main-meta-floor">'+
+          '<meta-pillar id="main-meta-pillar" width="0.5" length="2" face="right">'+
+          '<meta-picture id="meta-picture-on-pillar" src="img/VRcollab.png" width="3" length="2"></meta-picture>'+
+            "<meta-picture id='second-picture-on-pillar' src='img/VRcollab.png' width='3' length='2'></meta-picture>"+
+          '</meta-pillar></meta-floor></meta-room>';
+          jlet('firstMetaPicture', function(){ return document.querySelector('#meta-picture-on-pillar')});
+          jlet('secondMetaPicture', function(){ return document.querySelector('#second-picture-on-pillar')});
+          jlet('metaPillar', function(){ return document.querySelector('#main-meta-pillar')});
+        });
+        it('aligns the meta-items on pillar in display inline', function(){
+          expect(J.firstMetaPicture.controller.metaObject.group.position.y).to.equal(0.5);
+          expect(J.firstMetaPicture.controller.metaObject.group.position.z).to.equal(6.5);
+          expect(J.secondMetaPicture.controller.metaObject.group.position.y).to.equal(0.5);
+          expect(J.secondMetaPicture.controller.metaObject.group.position.z).to.equal(4.5);
         });
       });
     });

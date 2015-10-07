@@ -84,7 +84,7 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
 
   updateMetaObject(){
     this.metaObject.group.position.z = this.properties.tableHeight / 2;
-    this.updateTableChildrenDisplayInline();
+    this.updateChildrenDisplayInline();
   }
 
   updateTableChildrenDisplayInline(){
