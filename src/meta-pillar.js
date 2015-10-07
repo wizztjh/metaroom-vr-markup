@@ -204,7 +204,7 @@ class MetaPillarController extends MRM.MetaComponentController{
         childGroup.rotation.y = rotateY;
         childGroup.rotation.z = rotateZ;
       }
-    })
+    });
   }
 }
 

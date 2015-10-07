@@ -47759,7 +47759,7 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
         }
       }
       if (this.parent) {
-        group.position.z = this.parent.metaStyle['thickness'] / 2 || 0;
+        group.position.z = this.parent.metaStyle['thickness'] / 2 || group.position.z;
       }
       this.updateChildrenDisplayInline();
     }
@@ -48006,7 +48006,7 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
         }
       }
       if (this.parent) {
-        group.position.z = this.parent.metaStyle['thickness'] / 2 || 0;
+        group.position.z = this.parent.metaStyle['thickness'] / 2 || group.position.z;
       }
       if (this.metaStyle.metaStyle["frame-width"]) {
         this.updateFrame(this.metaStyle.metaStyle["frame-width"]);
@@ -48170,6 +48170,7 @@ var MetaVideoController = (function (_MRM$MetaComponentController) {
     this.parent = dom.parentElement.controller;
 
     this.metaObject = this.createMetaObject();
+    this.metaObject.mesh.position.set(0, 0, 0.2);
     this.computedProperties = {};
     this.computedPropertiesKey.forEach(function (key) {
       var settings = _this.computedPropertiesSettings[key];
@@ -48239,7 +48240,7 @@ var MetaVideoController = (function (_MRM$MetaComponentController) {
           group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
         }
       }
-      group.position.z = this.parent.metaStyle['thickness'] / 2 || 0.25;
+      group.position.z = this.parent.metaStyle['thickness'] / 2 || group.position.z;
     }
   }, {
     key: 'updateFrame',
@@ -48594,7 +48595,7 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
         }
       }
       if (this.parent) {
-        group.position.z = this.parent.metaStyle['thickness'] / 2 || 0;
+        group.position.z = this.parent.metaStyle['thickness'] / 2 || group.position.z;
       }
     }
   }, {

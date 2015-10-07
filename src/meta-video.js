@@ -4,7 +4,8 @@ class MetaVideoController extends MRM.MetaComponentController {
     this.setupComponent();
     this.parent = dom.parentElement.controller;
 
-    this.metaObject = this.createMetaObject()
+    this.metaObject = this.createMetaObject();
+    this.metaObject.mesh.position.set(0,0,0.2);
     this.computedProperties = {};
     this.computedPropertiesKey.forEach((key) => {
       var settings = this.computedPropertiesSettings[key];
@@ -131,7 +132,7 @@ class MetaVideoController extends MRM.MetaComponentController {
         group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
       }
     }
-    group.position.z = this.parent.metaStyle['thickness']/2 || 0.25;
+    group.position.z = this.parent.metaStyle['thickness']/2 || group.position.z;
   }
 
   updateFrame(frameWidth, frameThickness){
