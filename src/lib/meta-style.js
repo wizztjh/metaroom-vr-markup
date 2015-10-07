@@ -223,6 +223,15 @@ export default class MetaStyle {
     return this.metaStyle["rotate-z"];
   }
 
+  set ["skybox-texture"](file) {
+    this.metaStyle["skybox-texture"] = (file);
+    return file;
+  }
+
+  get ["skybox-texture"]() {
+    return this.metaStyle["skybox-texture"];
+  }
+
   clear(){
     //TODO: need to set everything back to default
     this.metaStyle = {}

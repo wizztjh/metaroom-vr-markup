@@ -46633,6 +46633,15 @@ var MetaStyle = (function () {
     get: function get() {
       return this.metaStyle["rotate-z"];
     }
+  }, {
+    key: "skybox-texture",
+    set: function set(file) {
+      this.metaStyle["skybox-texture"] = file;
+      return file;
+    },
+    get: function get() {
+      return this.metaStyle["skybox-texture"];
+    }
   }]);
 
   return MetaStyle;
@@ -46679,14 +46688,42 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
     _get(Object.getPrototypeOf(MetaVerseController.prototype), "constructor", this).call(this);
     this.dom = dom;
     this.gameObject = new MRM.GameObject(this);
+    this.parent = null;
+    this.metaStyle = new MRM.MetaStyle(this);
+    this.metaObject = this.createMetaObject();
     this.globalMetaStyle = {};
     this.ready = false;
     this.videos = [];
 
     this.setupComponent();
+    this.attachMetaObject(this);
   }
 
   _createClass(MetaVerseController, [{
+    key: "createMetaObject",
+    value: function createMetaObject() {
+      var mesh,
+          group,
+          src = "";
+
+      if (this.metaStyle.hasOwnProperty("skybox-texture")) {
+        src = this.metaStyle['skybox-texture'];
+      }
+
+      var geometry = new THREE.SphereGeometry(5000, 32, 32);
+      var material = new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture(src),
+        side: THREE.BackSide
+      });
+      mesh = new THREE.Mesh(geometry, material);
+      group = new THREE.Group();
+      group.add(mesh);
+      return {
+        mesh: mesh,
+        group: group
+      };
+    }
+  }, {
     key: "setupComponent",
     value: function setupComponent() {
       var template = owner.querySelector("#meta-verse").content.cloneNode(true);
@@ -46772,7 +46809,7 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
 
       // NOTE: we sort and reverse because we want to prioritize id -> class -> meta tag
       Object.keys(globalMetaStyle).sort().reverse().forEach(function (selector) {
-        [].forEach.call(_this2.dom.querySelectorAll(selector), function (metaComponent) {
+        [].forEach.call(document.querySelectorAll(selector), function (metaComponent) {
           var metaStyleProperties = globalMetaStyle[selector];
 
           Object.keys(metaStyleProperties).forEach(function (property) {
@@ -46799,6 +46836,19 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
           }
         }
       });
+      this.metaStyle.applyMetaStyleAttribute();
+      this.updateMetaObject();
+    }
+  }, {
+    key: "updateMetaObject",
+    value: function updateMetaObject() {
+      var src;
+      if (this.metaStyle.metaStyle.hasOwnProperty("skybox-texture")) {
+        src = this.metaStyle.metaStyle['skybox-texture'];
+      }
+
+      var texture = THREE.ImageUtils.loadTexture(src);
+      this.metaObject.mesh.material.map = texture;
     }
   }, {
     key: "attachMetaObject",
