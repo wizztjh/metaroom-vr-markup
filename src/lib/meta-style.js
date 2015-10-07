@@ -134,11 +134,18 @@ export default class MetaStyle {
       var texture = THREE.ImageUtils.loadTexture( textureSrc, undefined, (tex) =>{
         texture = tex;
         if(this.metaStyle["material-texture-repeat"] === 'repeat'){
-          var width = texture.image.width, height = texture.image.height;
+          var imageWidth = texture.image.width, imageHeight = texture.image.height,
+            width = this.controller.properties.width * 5 / imageWidth, height = this.controller.properties.length * 5 / imageHeight;
           texture.needsUpdate = true;
           texture.wrapS = THREE.RepeatWrapping;
           texture.wrapT = THREE.RepeatWrapping;
-          texture.repeat.set( Math.ceil(width/100), Math.ceil(width/100) );
+          if(width < 1){
+            width = this.controller.properties.width;
+          }
+          if(height < 1){
+            height = this.controller.properties.length;
+          }
+          texture.repeat.set( width, height );
           mesh.material.map = texture;
           mesh.material.needsUpdate = true;
         }else{

@@ -19,21 +19,21 @@ class MetaFloorController extends MRM.MetaBaseWallController{
 
   get propertiesSettings(){
     return {
-      width: { type: Number, default: 1 },
-      length: { type: Number, default: 1 },
+      width: { type: Number, default: 1, attrName: 'width' },
+      length: { type: Number, default: 1, attrName: 'length' },
       roomWidth: {
         type: Number,
-        default: 1,
+        default: 0,
         onChange: "updateMetaObject"
       },
       roomHeight: {
         type: Number,
-        default: 1,
+        default: 0,
         onChange: "updateMetaObject"
       },
       roomLength: {
         type: Number,
-        default: 1,
+        default: 0,
         onChange: "updateMetaObject"
       }
     };
@@ -58,12 +58,12 @@ class MetaFloorController extends MRM.MetaBaseWallController{
   updateMetaObject() {
     var mesh = this.metaObject.mesh;
     var group = this.metaObject.group;
-    this.properties.width = this.properties.roomWidth;
-    this.properties.length = this.properties.roomLength;
+    this.properties.width = (this.properties.roomWidth !== 0) ? this.properties.roomWidth : this.properties.width;
+    this.properties.length = (this.properties.roomLength !== 0) ? this.properties.roomLength : this.properties.length;
 
     group.rotation.x = 270 * (Math.PI/180);
     group.position.set(0, 0 - (this.metaStyle['thickness']/2 || 0.125), 0);
-    mesh.scale.set(this.properties.roomWidth, this.properties.roomLength , 1);
+    mesh.scale.set(this.properties.width, this.properties.length , 1);
 
     this.updateChildrenDisplayInline();
   }
