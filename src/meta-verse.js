@@ -23,7 +23,7 @@ class MetaVerseController extends MRM.MetaBaseController {
   }
 
   get metaChildrenNames(){
-    return ["meta-style", "meta-room"]
+    return ["meta-style", "meta-room", "meta-floor"]
   }
 
   createMetaObject(){
