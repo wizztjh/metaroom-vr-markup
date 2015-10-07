@@ -89,7 +89,7 @@ class MetaTextController extends MRM.MetaComponentController {
       }
     }
     if(this.parent){
-      group.position.z = this.parent.metaStyle['thickness']/2 || 0;
+      group.position.z = this.parent.metaStyle['thickness']/2 || group.position.z;
     }
   }
 }

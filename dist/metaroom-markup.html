@@ -45572,7 +45572,6 @@ var GameObject = (function () {
     this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
 
     this.scene = new THREE.Scene();
-    this.scene.fog = new THREE.FogExp2(0xffff99, 0.0095);
 
     var hemiLightWhite = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.9);
     this.hemiLightWhite = hemiLightWhite;
@@ -45926,6 +45925,72 @@ var MetaBaseWallController = (function (_MetaComponentController) {
         group: group
       };
     }
+  }, {
+    key: "updateWallChildrenDisplayInline",
+    value: function updateWallChildrenDisplayInline() {
+      // TODO: change the board to parent to make it generic
+      var parent = this;
+      // TODO: only select the direct child
+      // TODO: refactore this mess
+      var children = this.getMetaChildren();
+      var lines = [];
+      var currentLine = 0;
+      var currentLineWidth = 0;
+      var childLength, childWidth;
+
+      [].forEach.call(children, function (child, index) {
+
+        if (!child.controller) {
+          return;
+        }
+        if (child.controller.hasOwnProperty("metaStyle")) {
+          if (child.controller.metaStyle['position'] === 'absolute') {
+            return;
+          }
+        }
+        childWidth = Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) : child.controller.computedProperties.width;
+        childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
+        if (currentLineWidth + Number(childWidth) <= parent.properties.width) {} else {
+          currentLine += 1;
+          currentLineWidth = 0;
+        }
+        currentLineWidth += Number(childWidth);
+        lines[currentLine] = lines[currentLine] || [];
+        lines[currentLine].push(child);
+      });
+
+      var biggestLengthForEachLine = [];
+      lines.forEach(function (line, lineIndex) {
+        var biggestLength = 0,
+            baseLineY,
+            nextComponentX = -(Number(parent.properties.width) / 2);
+        line.forEach(function (child, childIndex) {
+          childWidth = Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) : child.controller.computedProperties.width;
+          childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
+          nextComponentX += Number(childWidth) / 2;
+
+          var group = child.controller.metaObject.group;
+          group.position.x = nextComponentX;
+          nextComponentX += childWidth / 2;
+
+          if (childLength > biggestLength) {
+            biggestLength = Number(childLength);
+          }
+        });
+
+        biggestLengthForEachLine.push(biggestLength);
+
+        baseLineY = Number(parent.properties.length) / 2 - biggestLengthForEachLine.reduce(function (previousValue, currentValue) {
+          return previousValue += currentValue;
+        });
+
+        line.forEach(function (child, childIndex) {
+          var group = child.controller.metaObject.group;
+          childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
+          group.position.y = baseLineY + childLength / 2;
+        });
+      });
+    }
   }]);
 
   return MetaBaseWallController;
@@ -46085,68 +46150,19 @@ var MetaComponentController = (function (_MetaBaseController) {
   }, {
     key: "updateChildrenDisplayInline",
     value: function updateChildrenDisplayInline() {
-      // TODO: change the board to parent to make it generic
-      var parent = this;
-      // TODO: only select the direct child
-      // TODO: refactore this mess
-      var children = this.getMetaChildren();
-      var lines = [];
-      var currentLine = 0;
-      var currentLineWidth = 0;
-      var childLength, childWidth;
-
-      [].forEach.call(children, function (child, index) {
-
-        if (!child.controller) {
-          return;
-        }
-        if (child.controller.hasOwnProperty("metaStyle")) {
-          if (child.controller.metaStyle['position'] === 'absolute') {
-            return;
-          }
-        }
-        childWidth = Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) : child.controller.computedProperties.width;
-        childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
-        if (currentLineWidth + Number(childWidth) <= parent.properties.width) {} else {
-          currentLine += 1;
-          currentLineWidth = 0;
-        }
-        currentLineWidth += Number(childWidth);
-        lines[currentLine] = lines[currentLine] || [];
-        lines[currentLine].push(child);
-      });
-
-      var biggestLengthForEachLine = [];
-      lines.forEach(function (line, lineIndex) {
-        var biggestLength = 0,
-            baseLineY,
-            nextComponentX = -(Number(parent.properties.width) / 2);
-        line.forEach(function (child, childIndex) {
-          childWidth = Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) : child.controller.computedProperties.width;
-          childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
-          nextComponentX += Number(childWidth) / 2;
-
-          var group = child.controller.metaObject.group;
-          group.position.x = nextComponentX;
-          nextComponentX += childWidth / 2;
-
-          if (childLength > biggestLength) {
-            biggestLength = Number(childLength);
-          }
-        });
-
-        biggestLengthForEachLine.push(biggestLength);
-
-        baseLineY = Number(parent.properties.length) / 2 - biggestLengthForEachLine.reduce(function (previousValue, currentValue) {
-          return previousValue += currentValue;
-        });
-
-        line.forEach(function (child, childIndex) {
-          var group = child.controller.metaObject.group;
-          childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
-          group.position.y = baseLineY + childLength / 2;
-        });
-      });
+      if (this.tagName === 'meta-board') {
+        return this.updateBoardChildrenDisplayInline();
+      } else if (this.tagName === 'meta-wall') {
+        return this.updateWallChildrenDisplayInline();
+      } else if (this.tagName === 'meta-tsurface') {
+        return this.updateTableChildrenDisplayInline();
+      } else if (this.tagName === 'meta-pillar') {
+        return this.updatePillarChildrenDisplayInline();
+      } else if (this.tagName === 'meta-floor') {
+        return this.updateWallChildrenDisplayInline();
+      } else {
+        return null;
+      }
     }
   }, {
     key: "metaAttachedActions",
@@ -46296,11 +46312,7 @@ var MetaComponent = (function (_MetaBase) {
         _.forEach(e.detail.actions, function (value, action) {
           if (typeof _this.controller[action] === 'function') {
             var event;
-            if (_this.controller.tagName === 'meta-tsurface' && action === 'updateChildrenDisplayInline') {
-              event = _this.controller['updateTableChildrenDisplayInline'](targetController);
-            } else {
-              event = _this.controller[action](targetController);
-            }
+            event = _this.controller[action](targetController);
             if (event) {
               _this.dispatchEvent(event);
             }
@@ -46319,11 +46331,7 @@ var MetaComponent = (function (_MetaBase) {
         _.forEach(e.detail.actions, function (value, action) {
           if (typeof _this2.controller[action] === 'function') {
             var event;
-            if (_this2.controller.tagName === 'meta-tsurface' && action === 'updateChildrenDisplayInline') {
-              event = _this2.controller['updateTableChildrenDisplayInline'](targetController, e.detail.oldValue, e.detail.newValue);
-            } else {
-              event = _this2.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
-            }
+            event = _this2.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
             if (event) {
               _this2.dispatchEvent(event);
             }
@@ -46625,6 +46633,15 @@ var MetaStyle = (function () {
     get: function get() {
       return this.metaStyle["rotate-z"];
     }
+  }, {
+    key: "skybox-texture",
+    set: function set(file) {
+      this.metaStyle["skybox-texture"] = file;
+      return file;
+    },
+    get: function get() {
+      return this.metaStyle["skybox-texture"];
+    }
   }]);
 
   return MetaStyle;
@@ -46671,14 +46688,42 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
     _get(Object.getPrototypeOf(MetaVerseController.prototype), "constructor", this).call(this);
     this.dom = dom;
     this.gameObject = new MRM.GameObject(this);
+    this.parent = null;
+    this.metaStyle = new MRM.MetaStyle(this);
+    this.metaObject = this.createMetaObject();
     this.globalMetaStyle = {};
     this.ready = false;
     this.videos = [];
 
     this.setupComponent();
+    this.attachMetaObject(this);
   }
 
   _createClass(MetaVerseController, [{
+    key: "createMetaObject",
+    value: function createMetaObject() {
+      var mesh,
+          group,
+          src = "";
+
+      if (this.metaStyle.hasOwnProperty("skybox-texture")) {
+        src = this.metaStyle['skybox-texture'];
+      }
+
+      var geometry = new THREE.SphereGeometry(5000, 32, 32);
+      var material = new THREE.MeshBasicMaterial({
+        map: THREE.ImageUtils.loadTexture(src),
+        side: THREE.BackSide
+      });
+      mesh = new THREE.Mesh(geometry, material);
+      group = new THREE.Group();
+      group.add(mesh);
+      return {
+        mesh: mesh,
+        group: group
+      };
+    }
+  }, {
     key: "setupComponent",
     value: function setupComponent() {
       var template = owner.querySelector("#meta-verse").content.cloneNode(true);
@@ -46711,7 +46756,7 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
   }, {
     key: "getAllMetaChildren",
     value: function getAllMetaChildren() {
-      return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface, meta-tbottom, meta-item, meta-video");
+      return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface, meta-tbottom, meta-item, meta-video, meta-pillar");
     }
   }, {
     key: "triggerMetaReady",
@@ -46764,7 +46809,7 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
 
       // NOTE: we sort and reverse because we want to prioritize id -> class -> meta tag
       Object.keys(globalMetaStyle).sort().reverse().forEach(function (selector) {
-        [].forEach.call(_this2.dom.querySelectorAll(selector), function (metaComponent) {
+        [].forEach.call(document.querySelectorAll(selector), function (metaComponent) {
           var metaStyleProperties = globalMetaStyle[selector];
 
           Object.keys(metaStyleProperties).forEach(function (property) {
@@ -46791,6 +46836,19 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
           }
         }
       });
+      this.metaStyle.applyMetaStyleAttribute();
+      this.updateMetaObject();
+    }
+  }, {
+    key: "updateMetaObject",
+    value: function updateMetaObject() {
+      var src;
+      if (this.metaStyle.metaStyle.hasOwnProperty("skybox-texture")) {
+        src = this.metaStyle.metaStyle['skybox-texture'];
+      }
+
+      var texture = THREE.ImageUtils.loadTexture(src);
+      this.metaObject.mesh.material.map = texture;
     }
   }, {
     key: "attachMetaObject",
@@ -47242,7 +47300,294 @@ var MetaWall = (function (_MRM$MetaComponent) {
 
 document.registerElement('meta-wall', MetaWall);
 
-},{}]},{},[1])</script>  
+},{}]},{},[1])</script>
+<template id="meta-pillar">
+</template>
+
+<script>(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+"use strict";
+
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+
+var MetaPillarController = (function (_MRM$MetaComponentController) {
+  _inherits(MetaPillarController, _MRM$MetaComponentController);
+
+  function MetaPillarController(dom) {
+    _classCallCheck(this, MetaPillarController);
+
+    _get(Object.getPrototypeOf(MetaPillarController.prototype), "constructor", this).call(this, dom);
+    this.dom = dom;
+    this.metaObject = this.createMetaObject();
+    this.setupComponent();
+    this.parent = dom.parentElement.controller;
+    this.updateMetaObject();
+  }
+
+  _createClass(MetaPillarController, [{
+    key: "createMetaObject",
+    value: function createMetaObject() {
+      var planeHeight = 1;
+      var planeWidth = 1;
+
+      var geometry = new THREE.BoxGeometry(planeWidth, planeHeight, 1);
+      var material = new THREE.MeshPhongMaterial({
+        color: 0xffffff,
+        side: THREE.DoubleSide
+      });
+
+      var mesh = new THREE.Mesh(geometry, material);
+      mesh.castShadow = false;
+      mesh.receiveShadow = true;
+      var group = new THREE.Group();
+      group.add(mesh);
+
+      return {
+        mesh: mesh,
+        group: group
+      };
+    }
+  }, {
+    key: "updateMetaObject",
+    value: function updateMetaObject() {
+      var mesh = this.metaObject.mesh;
+      var group = this.metaObject.group;
+      if (this.parent && this.parent.parent) {
+        this.properties.height = this.parent.parent.properties.height;
+      }
+      if (this.metaObject.group.children.length > 0) {
+        switch (this.properties.face) {
+          case 'left':
+            this.alignChildrenByFace(90 * (Math.PI / 180), 270 * (Math.PI / 180), 0);
+            break;
+          case 'right':
+            this.alignChildrenByFace(90 * (Math.PI / 180), 90 * (Math.PI / 180), 0);
+            break;
+          case 'back':
+            this.alignChildrenByFace(90 * (Math.PI / 180), 180 * (Math.PI / 180), 0);
+            break;
+          default:
+            this.alignChildrenByFace(90 * (Math.PI / 180), 0, 0);
+        }
+      }
+      mesh.scale.set(this.properties.width, this.properties.length, this.properties.height);
+      group.position.z = this.properties.height / 2;
+      this.updateChildrenDisplayInline();
+    }
+  }, {
+    key: "updatePillarChildrenDisplayInline",
+    value: function updatePillarChildrenDisplayInline() {
+      var width, height, length;
+      switch (this.properties.face) {
+        case 'left':
+          width = 'y';
+          height = 'z';
+          length = 'x';
+          break;
+        case 'right':
+          width = 'y';
+          height = 'z';
+          length = 'x';
+          break;
+        case 'back':
+          width = 'x';
+          height = 'z';
+          length = 'y';
+          break;
+        default:
+          width = 'x';
+          height = 'z';
+          length = 'y';
+      }
+      // TODO: change the board to parent to make it generic
+      var parent = this;
+      // TODO: only select the direct child
+      // TODO: refactore this mess
+      var children = this.getMetaChildren();
+      var lines = [];
+      var currentLine = 0;
+      var currentLineWidth = 0;
+      var childLength, childWidth;
+
+      [].forEach.call(children, function (child, index) {
+
+        if (!child.controller) {
+          return;
+        }
+        if (parent.properties.face === 'left') {
+          child.controller.metaObject.group.position[length] = -parent.properties.width / 2;
+        } else if (parent.properties.face === 'right') {
+          child.controller.metaObject.group.position[length] = parent.properties.width / 2;
+        } else if (parent.properties.face === 'back') {
+          child.controller.metaObject.group.position[length] = parent.properties.length / 2;
+        } else {
+          child.controller.metaObject.group.position[length] = -parent.properties.length / 2;
+        }
+        if (child.controller.hasOwnProperty("metaStyle")) {
+          if (child.controller.metaStyle['position'] === 'absolute') {
+            return;
+          }
+        }
+        childWidth = Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) : child.controller.computedProperties.width;
+        childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
+        if (currentLineWidth + Number(childWidth) <= parent.metaObject.mesh.scale[width]) {} else {
+          currentLine += 1;
+          currentLineWidth = 0;
+        }
+        currentLineWidth += Number(childWidth);
+        lines[currentLine] = lines[currentLine] || [];
+        lines[currentLine].push(child);
+      });
+      var biggestLengthForEachLine = [];
+      lines.forEach(function (line, lineIndex) {
+        if (!line) {
+          return;
+        }
+        var biggestLength = 0,
+            baseLineY,
+            nextComponentX = -(parent.metaObject.mesh.scale[width] / 2);
+        line.forEach(function (child, childIndex) {
+          childWidth = Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) : child.controller.computedProperties.width;
+          childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
+          nextComponentX += Number(childWidth) / 2;
+
+          var group = child.controller.metaObject.group;
+          group.position[width] = nextComponentX;
+          nextComponentX += childWidth / 2;
+
+          if (childLength > biggestLength) {
+            biggestLength = Number(childLength);
+          }
+        });
+
+        biggestLengthForEachLine.push(biggestLength);
+        baseLineY = parent.metaObject.mesh.scale[height] / 2 - biggestLengthForEachLine.reduce(function (previousValue, currentValue) {
+          return previousValue += currentValue;
+        });
+
+        line.forEach(function (child, childIndex) {
+          var group = child.controller.metaObject.group;
+          childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
+          group.position[height] = baseLineY + childLength / 2;
+        });
+      });
+    }
+  }, {
+    key: "alignChildrenByFace",
+    value: function alignChildrenByFace(rotateX, rotateY, rotateZ) {
+      _.forEach(this.metaObject.group.children, function (childGroup) {
+        if (childGroup instanceof THREE.Group) {
+          childGroup.rotation.x = rotateX;
+          childGroup.rotation.y = rotateY;
+          childGroup.rotation.z = rotateZ;
+        }
+      });
+    }
+  }, {
+    key: "tagName",
+    get: function get() {
+      return "meta-pillar";
+    }
+  }, {
+    key: "propertiesSettings",
+    get: function get() {
+      return {
+        face: { type: String, "default": "front", attrName: "face" },
+        width: { type: Number, "default": 1, attrName: "width" },
+        length: { type: Number, "default": 1, attrName: "length" },
+        height: { type: Number, "default": 1, attrName: "height" },
+        roomHeight: {
+          type: Number,
+          "default": 1,
+          onChange: "updateMetaObject"
+        }
+      };
+    }
+  }, {
+    key: "metaAttachedActions",
+    get: function get() {
+      return {
+        "attachMetaObject": true,
+        "updateChildrenDisplayInline": true
+      };
+    }
+  }, {
+    key: "eventActionSettings",
+    get: function get() {
+      return {
+        "width": ["updateChildrenDisplayInline"],
+        "length": ["updateChildrenDisplayInline"],
+        "height": ["updateChildrenDisplayInline"],
+        "meta-style": ['propagateMetaStyle'],
+        "class": ["propagateMetaStyle"],
+        "id": ["propagateMetaStyle"]
+      };
+    }
+  }, {
+    key: "metaChildrenNames",
+    get: function get() {
+      return ["meta-board", "meta-picture", "meta-text", "meta-table", "meta-item", "meta-video"];
+    }
+  }]);
+
+  return MetaPillarController;
+})(MRM.MetaComponentController);
+
+var MetaPillar = (function (_MRM$MetaComponent) {
+  _inherits(MetaPillar, _MRM$MetaComponent);
+
+  function MetaPillar() {
+    _classCallCheck(this, MetaPillar);
+
+    _get(Object.getPrototypeOf(MetaPillar.prototype), "constructor", this).apply(this, arguments);
+  }
+
+  _createClass(MetaPillar, [{
+    key: "createdCallback",
+    value: function createdCallback() {
+      this.controller = new MetaPillarController(this);
+      _get(Object.getPrototypeOf(MetaPillar.prototype), "createdCallback", this).call(this);
+    }
+  }, {
+    key: "metaDetached",
+    value: function metaDetached(e) {
+      var targetController = e.detail.controller;
+
+      if (this.controller.isChildren(targetController.tagName)) {
+        e.stopPropagation();
+        this.controller.metaObject.group.remove(targetController.metaObject.group);
+        this.controller.updateChildrenDisplayInline();
+      }
+    }
+  }, {
+    key: "metaChildAttributeChanged",
+    value: function metaChildAttributeChanged(e) {
+      var targetController = e.detail.controller;
+      var attrName = e.detail.attrName;
+
+      if (this.controller.isChildren(targetController.tagName)) {
+        if (targetController.isAllowedAttribute(attrName)) {
+          if (e.detail.actions.updateChildrenDisplayInline) {
+
+            this.controller.updateChildrenDisplayInline();
+            delete e.detail.actions.updateChildrenDisplayInline;
+          }
+        }
+      }
+    }
+  }]);
+
+  return MetaPillar;
+})(MRM.MetaComponent);
+
+document.registerElement('meta-pillar', MetaPillar);
+
+},{}]},{},[1])</script>
 <template id="meta-floor">
 </template>
 
@@ -47266,6 +47611,7 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
     _get(Object.getPrototypeOf(MetaFloorController.prototype), "constructor", this).call(this, dom);
     this.dom = dom;
     this.metaObject = this.createMetaObject();
+    this.parent = dom.parentElement.controller;
 
     this.metaVerse = null;
     this.setupComponent();
@@ -47326,7 +47672,7 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
   }, {
     key: "metaChildrenNames",
     get: function get() {
-      return ["meta-table", "meta-picture", "meta-text", "meta-board", "meta-item", "meta-video"];
+      return ["meta-table", "meta-picture", "meta-text", "meta-board", "meta-item", "meta-video", "meta-pillar"];
     }
   }, {
     key: "eventActionSettings",
@@ -47462,9 +47808,75 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
         }
       }
       if (this.parent) {
-        group.position.z = this.parent.metaStyle['thickness'] / 2 || 0;
+        group.position.z = this.parent.metaStyle['thickness'] / 2 || group.position.z;
       }
       this.updateChildrenDisplayInline();
+    }
+  }, {
+    key: 'updateBoardChildrenDisplayInline',
+    value: function updateBoardChildrenDisplayInline() {
+      // TODO: change the board to parent to make it generic
+      var parent = this;
+      // TODO: only select the direct child
+      // TODO: refactore this mess
+      var children = this.getMetaChildren();
+      var lines = [];
+      var currentLine = 0;
+      var currentLineWidth = 0;
+      var childLength, childWidth;
+
+      [].forEach.call(children, function (child, index) {
+
+        if (!child.controller) {
+          return;
+        }
+        if (child.controller.hasOwnProperty("metaStyle")) {
+          if (child.controller.metaStyle['position'] === 'absolute') {
+            return;
+          }
+        }
+        childWidth = Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) : child.controller.computedProperties.width;
+        childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
+        if (currentLineWidth + Number(childWidth) <= parent.properties.width) {} else {
+          currentLine += 1;
+          currentLineWidth = 0;
+        }
+        currentLineWidth += Number(childWidth);
+        lines[currentLine] = lines[currentLine] || [];
+        lines[currentLine].push(child);
+      });
+
+      var biggestLengthForEachLine = [];
+      lines.forEach(function (line, lineIndex) {
+        var biggestLength = 0,
+            baseLineY,
+            nextComponentX = -(Number(parent.properties.width) / 2);
+        line.forEach(function (child, childIndex) {
+          childWidth = Number(child.controller.properties.width) !== 0 ? Number(child.controller.properties.width) : child.controller.computedProperties.width;
+          childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
+          nextComponentX += Number(childWidth) / 2;
+
+          var group = child.controller.metaObject.group;
+          group.position.x = nextComponentX;
+          nextComponentX += childWidth / 2;
+
+          if (childLength > biggestLength) {
+            biggestLength = Number(childLength);
+          }
+        });
+
+        biggestLengthForEachLine.push(biggestLength);
+
+        baseLineY = Number(parent.properties.length) / 2 - biggestLengthForEachLine.reduce(function (previousValue, currentValue) {
+          return previousValue += currentValue;
+        });
+
+        line.forEach(function (child, childIndex) {
+          var group = child.controller.metaObject.group;
+          childLength = Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) : child.controller.computedProperties.length;
+          group.position.y = baseLineY + childLength / 2;
+        });
+      });
     }
   }, {
     key: 'propertiesSettings',
@@ -47643,7 +48055,7 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
         }
       }
       if (this.parent) {
-        group.position.z = this.parent.metaStyle['thickness'] / 2 || 0;
+        group.position.z = this.parent.metaStyle['thickness'] / 2 || group.position.z;
       }
       if (this.metaStyle.metaStyle["frame-width"]) {
         this.updateFrame(this.metaStyle.metaStyle["frame-width"]);
@@ -47807,6 +48219,7 @@ var MetaVideoController = (function (_MRM$MetaComponentController) {
     this.parent = dom.parentElement.controller;
 
     this.metaObject = this.createMetaObject();
+    this.metaObject.mesh.position.set(0, 0, 0.2);
     this.computedProperties = {};
     this.computedPropertiesKey.forEach(function (key) {
       var settings = _this.computedPropertiesSettings[key];
@@ -47876,7 +48289,7 @@ var MetaVideoController = (function (_MRM$MetaComponentController) {
           group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
         }
       }
-      group.position.z = this.parent.metaStyle['thickness'] / 2 || 0.25;
+      group.position.z = this.parent.metaStyle['thickness'] / 2 || group.position.z;
     }
   }, {
     key: 'updateFrame',
@@ -48231,7 +48644,7 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
         }
       }
       if (this.parent) {
-        group.position.z = this.parent.metaStyle['thickness'] / 2 || 0;
+        group.position.z = this.parent.metaStyle['thickness'] / 2 || group.position.z;
       }
     }
   }, {
@@ -48700,7 +49113,7 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
     key: "updateMetaObject",
     value: function updateMetaObject() {
       this.metaObject.group.position.z = this.properties.tableHeight / 2;
-      this.updateTableChildrenDisplayInline();
+      this.updateChildrenDisplayInline();
     }
   }, {
     key: "updateTableChildrenDisplayInline",

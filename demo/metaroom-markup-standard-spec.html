@@ -6,7 +6,7 @@
   </head>
 
   <body>
-    <meta-verse>
+    <meta-verse meta-style='skybox-texture: img/panoramaSkybox1.jpg'>
       <meta-style>
         #vrcollab-poster {
           frame-style: solid;
@@ -20,7 +20,7 @@
           material-type: phong;
         }
         meta-verse{
-          skybox-style: sun-sphere;
+          skybox-texture: img/panoramaSkybox3.jpg;
         }
         .pretty-pic{
           material-color: red;
@@ -150,7 +150,6 @@
             <meta-tbottom class='light-chocolate' align='left'></meta-tbottom>
             <meta-tbottom class='light-chocolate' align='right'></meta-tbottom>
           </meta-table>
-
           <meta-table class='light-chocolate' width='5' length='4' height='3' >
 
             <meta-tsurface class='light-chocolate' id="phong-meta-tsurface">
@@ -162,7 +161,10 @@
             <meta-tbottom class='light-chocolate' align='left'></meta-tbottom>
 
           </meta-table>
-
+          <meta-pillar width='0.5' length='2' face='right'>
+            <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
+            <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
+          </meta-pillar>
           <meta-table class='light-chocolate' width='5' length='4' height='4' meta-style='position: absolute; top: 10; left: 15;'>
 
             <meta-tsurface class='light-chocolate' id="phong-meta-tsurface">
@@ -174,7 +176,6 @@
             <meta-tbottom class='light-chocolate' align='left'></meta-tbottom>
 
           </meta-table>
-
         </meta-floor>
 
       </meta-room>

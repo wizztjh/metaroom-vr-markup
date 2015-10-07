@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="../../bower_components/webcomponentsjs/webcomponents.min.js"></script>
+  <script src="../../bower_components/web-component-tester/browser.js"></script>
+  <link rel="import" href="../../dist/metaroom-markup.html">
+
+  <script src='../spec.js'></script>
+</head>
+<body>
+
+  <div id='fixture'>
+    <meta-verse id="meta-verse">
+      <meta-room width='10' height='10' length='10' id='main-meta-room'>
+        <meta-floor id="main-meta-floor">
+        <meta-pillar face='left' width='1' length='1' id='main-meta-pillar'></meta-pillar>
+        </meta-floor>
+      </meta-room>
+    </meta-verse>
+  </div>
+
+  <script>
+    describe('meta-pillar', function() {
+      beforeEach(function(){
+        jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
+        jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
+        jlet('metaFloor', function(){ return document.querySelector('#main-meta-floor')});
+
+        jlet('metaPillar', function(){ return document.querySelector('#main-meta-pillar')});
+        jlet('metaPillarMesh', function(){ return J.metaPillar.controller.metaObject.mesh });
+        jlet('metaPillarGroup', function(){ return J.metaPillar.controller.metaObject.group });
+
+        jlet('metaFloorChildrenUUID', function(){
+          return J.metaFloor.controller.metaObject.group.children.map(function(child){
+            return child.uuid;
+          });
+        });
+
+      });
+
+      describe("when it is added within meta-floor", function(){
+
+        it("adds a group to meta-floor", function(){
+          expect(J.metaFloorChildrenUUID).to.include(J.metaPillar.controller.metaObject.group.uuid);
+        });
+
+        describe("with face=left", function(){
+          it("sets the meta object group to the left of the room", function(){
+            expect(J.metaPillarGroup.position.x, 'x').to.equal(-4.5);
+            expect(J.metaPillarGroup.position.y, 'y').to.equal(4.5);
+            expect(J.metaPillarGroup.position.z, 'z').to.equal(5);
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -3,6 +3,7 @@ class MetaFloorController extends MRM.MetaBaseWallController{
     super(dom);
     this.dom = dom;
     this.metaObject = this.createMetaObject()
+    this.parent = dom.parentElement.controller;
 
     this.metaVerse = null;
     this.setupComponent();
@@ -43,7 +44,7 @@ class MetaFloorController extends MRM.MetaBaseWallController{
   }
 
   get metaChildrenNames(){
-    return ["meta-table", "meta-picture", "meta-text", "meta-board", "meta-item", "meta-video"]
+    return ["meta-table", "meta-picture", "meta-text", "meta-board", "meta-item", "meta-video", "meta-pillar"]
   }
 
   get eventActionSettings(){
