@@ -124,7 +124,7 @@ class MetaPictureController extends MRM.MetaComponentController {
       }
     }
     if(this.parent){
-      group.position.z = this.parent.metaStyle['thickness']/2 || 0;
+      group.position.z = this.parent.metaStyle['thickness']/2 || group.position.z;
     }
     if(this.metaStyle.metaStyle["frame-width"]){
       this.updateFrame(this.metaStyle.metaStyle["frame-width"]);

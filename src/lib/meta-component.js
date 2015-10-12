@@ -67,11 +67,7 @@ export default class MetaComponent extends MetaBase{
       _.forEach(e.detail.actions, (value, action) => {
         if (typeof this.controller[action] === 'function') {
           var event;
-          if(this.controller.tagName === 'meta-tsurface' && action === 'updateChildrenDisplayInline'){
-            event = this.controller['updateTableChildrenDisplayInline'](targetController);
-          }else{
-            event = this.controller[action](targetController);
-          }
+          event = this.controller[action](targetController);
           if(event){
             this.dispatchEvent(event);
           }
@@ -87,11 +83,7 @@ export default class MetaComponent extends MetaBase{
       _.forEach(e.detail.actions, (value, action) => {
         if (typeof this.controller[action] === 'function') {
           var event;
-          if(this.controller.tagName === 'meta-tsurface' && action === 'updateChildrenDisplayInline'){
-            event = this.controller['updateTableChildrenDisplayInline'](targetController, e.detail.oldValue, e.detail.newValue);
-          }else{
-            event = this.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
-          }
+          event = this.controller[action](targetController, e.detail.oldValue, e.detail.newValue);
           if(event){
             this.dispatchEvent(event);
           }

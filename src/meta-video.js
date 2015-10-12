@@ -4,7 +4,8 @@ class MetaVideoController extends MRM.MetaComponentController {
     this.setupComponent();
     this.parent = dom.parentElement.controller;
 
-    this.metaObject = this.createMetaObject()
+    this.metaObject = this.createMetaObject();
+    this.metaObject.mesh.position.set(0,0,0.2);
     this.computedProperties = {};
     this.computedPropertiesKey.forEach((key) => {
       var settings = this.computedPropertiesSettings[key];
@@ -118,8 +119,6 @@ class MetaVideoController extends MRM.MetaComponentController {
     var mesh = this.metaObject.mesh;
     var group = this.metaObject.group;
 
-    mesh.scale.x = this.computedProperties.width;
-    mesh.scale.y = this.computedProperties.length;
     if(this.metaStyle.metaStyle["position"] === 'absolute'){
       group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
       group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
@@ -131,7 +130,14 @@ class MetaVideoController extends MRM.MetaComponentController {
         group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
       }
     }
-    group.position.z = this.parent.metaStyle['thickness']/2 || 0.25;
+    if(this.parent){
+      group.position.z = this.parent.metaStyle['thickness']/2 || group.position.z;
+    }
+    if(this.metaStyle.metaStyle["frame-width"]){
+      this.updateFrame(this.metaStyle.metaStyle["frame-width"]);
+    }
+    mesh.scale.x = this.computedProperties.width;
+    mesh.scale.y = this.computedProperties.length;
   }
 
   updateFrame(frameWidth, frameThickness){
@@ -160,7 +166,9 @@ class MetaVideoController extends MRM.MetaComponentController {
     mesh.position.set( -this.properties.width / 2, -this.properties.length / 2, 0);
     this.computedProperties.width = width - (2 * frameWidth);
     this.computedProperties.length = length - (2 * frameWidth);
-    this.updateMetaObject();
+    if(this.metaObject.group.children.length > 1){
+      this.metaObject.group.children.pop();
+    }
     this.metaObject.group.add(mesh);
   }
 }
