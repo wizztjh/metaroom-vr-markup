@@ -34,10 +34,67 @@ MetaRoomMarkup applies the HTML/CSS way of positioning and styling to a 3D objec
 A quick sandbox to test out
 
 [Sandbox](http://vrcollab.com/VRcollab/)
+
+### Getting Started
+
+``` zsh
+bower install MetaRoomMarkup
+bower install webcomponentsjs
+```
+
+then include MetaRoomMarkup and webcomponentsjs in your html
+
+``` html
+<html>
+  <head>
+    <script src="./bower_components/webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="./bower_components/MetaRoomMarkup/dist/metaroom-markup.html">
+  </head>
+
+  <body>
+    <meta-verse>
+      <meta-style>
+        meta-table{
+          thickness: 0.3;
+          tbottom-padding-top: 0.3;
+          tbottom-padding-bottom: 0.1;
+          material-color: #416fa0;
+        }
+        meta-wall{
+          material-color: #d3d3d3;
+        }
+      </meta-style>
+      <meta-room width='10' height='10' length='20'>
+        <meta-wall align='left'>
+        </meta-wall>
+        <meta-wall align='right'>
+        </meta-wall>
+        <meta-wall align='front' meta-style='material-color: #e7e3e4;'>
+        </meta-wall>
+        <meta-wall align='back'>
+        </meta-wall>
+        <meta-wall align='ceiling'>
+        </meta-wall>
+        <meta-floor>
+          <meta-table width='3' length='3' height='3'>
+            <meta-tsurface>
+            </meta-tsurface>
+            <meta-tbottom align='right'>
+            </meta-tbottom>
+            <meta-tbottom align='left'>
+            </meta-tbottom>
+          </meta-table>
+        </meta-floor>
+      </meta-room>
+    </meta-verse>
+  </body>
+</html>
+```
+
 ## Markup Language Reference
 
 ## `<meta-verse>`
-create a
+create a Metaverse world
 
 ## `<meta-style>`
 Meta style will be like style sheet.
