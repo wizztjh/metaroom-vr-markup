@@ -5,7 +5,9 @@
     "jiahen <wizztjh@gmail.com>"
   ],
   "keywords": [
-    "virtual reality"
+    "virtual reality",
+    "webVR",
+    "VR"
   ],
   "license": "MIT",
   "ignore": [
