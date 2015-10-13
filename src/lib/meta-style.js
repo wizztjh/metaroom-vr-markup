@@ -27,6 +27,15 @@ export default class MetaStyle {
     return this.metaStyle["material-color"];
   }
 
+  set ["vertex-shader"](domId){
+    this.metaStyle["vertex-shader"] = document.getElementById(domId).textContent;
+    return domId;
+  }
+
+  get ["vertex-shader"](){
+    return this.metaStyle["vertex-shader"];
+  }
+
   set ["tbottom-padding"](tbottomPadding) {
     this.controller.metaStyle['tbottom-padding-top'] = tbottomPadding;
     this.controller.metaStyle['tbottom-padding-bottom'] = tbottomPadding;
