@@ -17,7 +17,7 @@
           <meta-picture width='3' height='4' src='fixtures/ball.png' id='meta-picture-on-wall'></meta-picture>
 
           <meta-board width='3' length='5' id='main-meta-board'>
-            <meta-picture width='3' meta-style='frame-width: 0.3' length='4' src='fixtures/ball.png' id='main-meta-picture'></meta-picture>
+            <meta-picture width='3' meta-style='frame-color:blue;frame-width: 0.3' length='4' src='fixtures/ball.png' id='main-meta-picture'></meta-picture>
           </meta-board>
 
         </meta-wall>
@@ -46,6 +46,12 @@
 
         it('adds another mesh in group when frame-width is included in meta-style', function(){
           expect(J.metaPicture.controller.metaObject.group.children.length).to.equal(2);
+        });
+
+        it('adds color to the frame', function(){
+          expect(J.metaPicture.controller.metaObject.group.children[1].material.color.r).to.equal(0);
+          expect(J.metaPicture.controller.metaObject.group.children[1].material.color.g).to.equal(0);
+          expect(J.metaPicture.controller.metaObject.group.children[1].material.color.b).to.equal(1);
         });
 
         describe("when the meta-picture is on the wall", function(){

@@ -109,6 +109,32 @@ export default class MetaStyle {
     return this.metaStyle["frame-width"];
   }
 
+  set ["frame-thickness"](thickness) {
+    var controller = this.controller;
+    if (controller && typeof controller.updateFrame === 'function') {
+      controller.updateMetaObject();
+      this.metaStyle["frame-thickness"] = Number(thickness);
+    }
+    return Number(thickness);
+  }
+
+  get ["frame-thickness"]() {
+    return this.metaStyle["frame-thickness"];
+  }
+
+  set ["frame-color"](color) {
+    var controller = this.controller;
+    if (controller && typeof controller.updateFrame === 'function') {
+      controller.updateMetaObject();
+      this.metaStyle["frame-color"] = color;
+    }
+    return Number(color);
+  }
+
+  get ["frame-color"]() {
+    return this.metaStyle["frame-color"];
+  }
+
   set ["position"](type) {
     this.metaStyle['position'] = type;
     this.controller.updateMetaObject();
