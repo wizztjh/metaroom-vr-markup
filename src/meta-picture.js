@@ -126,7 +126,7 @@ class MetaPictureController extends MRM.MetaComponentController {
     if(this.parent){
       group.position.z = this.parent.metaStyle['thickness']/2 || group.position.z;
     }
-    if(this.metaStyle.metaStyle["frame-width"]){
+    if(this.metaStyle.metaStyle["frame-width"] || this.metaStyle.metaStyle["frame-thickness"]){
       this.updateFrame();
     }
     mesh.scale.x = this.computedProperties.width;
@@ -134,8 +134,7 @@ class MetaPictureController extends MRM.MetaComponentController {
   }
 
   updateFrame(){
-    //TODO: Add the Frame mesh to the group
-    var frameWidth = this.metaStyle.metaStyle["frame-width"];
+    var frameWidth = this.metaStyle.metaStyle["frame-width"] || 0.1;
     var frameThickness = this.metaStyle.metaStyle["frame-thickness"] || 0.3;
     var frameColor = this.metaStyle.metaStyle["frame-color"] || this.metaStyle.metaStyle['material-color'] || white;
     var length = this.properties.length;

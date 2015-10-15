@@ -7,15 +7,59 @@ class MetaTextController extends MRM.MetaComponentController {
     this.properties.text = this.dom.innerText || '';
 
     this.metaObject = this.createMetaObject();
+    this.computedProperties = {};
+    this.computedPropertiesKey.forEach((key) => {
+      var settings = this.computedPropertiesSettings[key];
+      var value = settings.type(this.properties[key] || settings.default)
+      Object.defineProperty(this.computedProperties, key, {
+        get: function(){
+          return value
+        },
+        set: (inputValue) => {
+          value = settings.type(inputValue)
+        }
+      })
+    });
     this.metaObject.mesh.position.set(0,0,0.2)
 
     this.updateMetaObject()
   }
 
+  get computedPropertiesSettings(){
+    return {
+      width: {
+        type: Number,
+        default: null,
+      },
+      length: {
+        type: Number,
+        default: null,
+      },
+    };
+  }
+
+  get computedPropertiesKey(){
+    return Object.keys(this.computedPropertiesSettings);
+  }
+
   get propertiesSettings() {
     return {
-      width: {type: Number, default: 1, attrName: 'width'},
-      length: {type: Number, default: 1, attrName: 'length'}
+      width: {
+        type: Number,
+        default: 1,
+        attrName: 'width',
+        onChange: (value)=>{
+          this.computedProperties.width = value;
+        }
+      },
+      length: {
+        type: Number,
+        default: 1,
+        attrName: 'length',
+        onChange: (value)=>{
+          this.computedProperties.length = value;
+        }
+      }
     }
   }
 
@@ -75,8 +119,6 @@ class MetaTextController extends MRM.MetaComponentController {
     var mesh = this.metaObject.mesh;
     var group = this.metaObject.group;
 
-    mesh.scale.x = this.properties.width
-    mesh.scale.y = this.properties.length
     if(this.metaStyle.metaStyle["position"] === 'absolute'){
       group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
       group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
@@ -91,6 +133,45 @@ class MetaTextController extends MRM.MetaComponentController {
     if(this.parent){
       group.position.z = this.parent.metaStyle['thickness']/2 || group.position.z;
     }
+    if(this.metaStyle.metaStyle["frame-width"] || this.metaStyle.metaStyle["frame-thickness"]){
+      this.updateFrame();
+    }
+    mesh.scale.x = this.computedProperties.width;
+    mesh.scale.y = this.computedProperties.length;
+  }
+
+  updateFrame(){
+    var frameWidth = this.metaStyle.metaStyle["frame-width"] || 0.1;
+    var frameThickness = this.metaStyle.metaStyle["frame-thickness"] || 0.3;
+    var frameColor = this.metaStyle.metaStyle["frame-color"] || this.metaStyle.metaStyle['material-color'] || white;
+    var length = this.properties.length;
+    var width = this.properties.width;
+    var frameShape = new THREE.Shape();
+    frameShape.moveTo( 0,0 );
+    frameShape.lineTo( 0, length );
+    frameShape.lineTo( width, length );
+    frameShape.lineTo( width, 0 );
+    frameShape.lineTo( 0, 0 );
+
+    var frameHole = new THREE.Path();
+    frameHole.moveTo(frameWidth + 0, frameWidth + 0);
+    frameHole.lineTo(width - frameWidth, frameWidth + 0 );
+    frameHole.lineTo(width - frameWidth, length - frameWidth);
+    frameHole.lineTo(frameWidth + 0, length - frameWidth);
+    frameShape.holes.push(frameHole);
+
+    var extrudeSettings = { amount: frameThickness, bevelEnabled: false};
+    var geometry = new THREE.ExtrudeGeometry( frameShape, extrudeSettings );
+    var material = new THREE.MeshPhongMaterial( { color: frameColor, wireframe: false } );
+    var mesh = new THREE.Mesh( geometry, material );
+    mesh.scale.set(1, 1, 1);
+    mesh.position.set( -this.properties.width / 2, -this.properties.length / 2, 0);
+    this.computedProperties.width = width - (2 * frameWidth);
+    this.computedProperties.length = length - (2 * frameWidth);
+    if(this.metaObject.group.children.length > 1){
+      this.metaObject.group.children.pop();
+    }
+    this.metaObject.group.add(mesh);
   }
 }
 
