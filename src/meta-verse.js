@@ -131,7 +131,6 @@ class MetaVerseController extends MRM.MetaBaseController {
         });
       })
     });
-
     [].forEach.call(metaChildren, (metaTag)=>{
       if(metaTag.controller) {
         if(metaTag.controller.metaStyle.applyMetaStyleAttribute){

@@ -21,7 +21,14 @@
       </meta-style>
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
         <meta-floor id='main-meta-floor'>
-          <meta-table width='3' height='4' length='2' id='main-meta-table'>
+          <meta-table width='3' height='4' length='2' id='main-meta-table' meta-style='margin:4'>
+          </meta-table>
+          <meta-table height='3' id='second-meta-table'>
+            <meta-tsurface>
+              <meta-picture src='../../demo/img/VRcollab.png' width='4' length='4' id='first-meta-pic' meta-style='margin:1'></meta-picture>
+              <meta-picture src='../../demo/img/VRcollab.png' width='3' length='2' id='second-meta-pic'></meta-picture>
+              <meta-picture src='../../demo/img/VRcollab.png' width='6' length='1' id='third-meta-pic'></meta-picture>
+            </meta-tsurface>
           </meta-table>
         </meta-floor>
         <meta-wall align='left' id='main-meta-wall'></meta-wall>
@@ -36,9 +43,13 @@
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
         jlet('metaFloor', function(){ return document.querySelector('#main-meta-floor')});
         jlet('metaTable', function(){ return document.querySelector('#main-meta-table')});
-
+        jlet('secondMetaTable', function(){ return document.querySelector('#second-meta-table')});
         jlet('metaTableGroup', function(){ return J.metaTable.controller.metaObject.group } );
         jlet('metaTableMesh', function(){ return J.metaTable.controller.metaObject.mesh } );
+        jlet('firstMetaPicture', function(){ return document.querySelector('#first-meta-pic'); } );
+        jlet('secondMetaPicture', function(){ return document.querySelector('#second-meta-pic'); } );
+        jlet('thirdMetaPicture', function(){ return document.querySelector('#third-meta-pic'); } );
+
       });
 
       describe("when initialize", function(){
@@ -131,9 +142,28 @@
               expect(J.metaTable.controller.computedProperties.width).to.equal(3)
               expect(J.metaTable.controller.computedProperties.length).to.equal(3)
             });
-          })
+          });
         });
 
+        describe("meta component on dynamic table with margin attribute", function(){
+          it('sets the margin attribute on meta-picture in meta-style', function(){
+            expect(J.firstMetaPicture.controller.metaStyle.metaStyle['margin']).to.equal(1);
+          });
+
+          it('sets the table width and length dynamically', function(){
+            expect(J.secondMetaTable.controller.computedProperties.width).to.equal(9);
+            expect(J.secondMetaTable.controller.computedProperties.length).to.equal(7);
+          });
+
+          it('sets the position of components correctly using margin attribute', function(){
+            expect(J.firstMetaPicture.controller.metaObject.group.position.x).to.equal(-1.5);
+            expect(J.firstMetaPicture.controller.metaObject.group.position.y).to.equal(0.5);
+            expect(J.secondMetaPicture.controller.metaObject.group.position.x).to.equal(3);
+            expect(J.secondMetaPicture.controller.metaObject.group.position.y).to.equal(-1.5);
+            expect(J.thirdMetaPicture.controller.metaObject.group.position.x).to.equal(-1.5);
+            expect(J.thirdMetaPicture.controller.metaObject.group.position.y).to.equal(-3);
+          });
+        });
       });
 
       describe("meta style", function(){
@@ -146,6 +176,10 @@
 
           jlet('metaTableGroup', function(){ return J.metaTable.controller.metaObject.group } );
           jlet('metaTableMesh', function(){ return J.metaTable.controller.metaObject.mesh } );
+        });
+
+        it("initialize the margin", function(){
+          expect(J.metaTable.controller.metaStyle.metaStyle["margin"]).to.equal(4);
         });
 
         describe("tbottom padding", function(){

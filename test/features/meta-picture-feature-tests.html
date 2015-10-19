@@ -14,13 +14,20 @@
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
         <meta-wall align='left' id='main-meta-wall'>
-          <meta-picture width='3' height='4' src='fixtures/ball.png' id='meta-picture-on-wall'></meta-picture>
+          <meta-picture width='3' height='4' src='fixtures/ball.png' id='meta-picture-on-wall' meta-style='margin: 1'></meta-picture>
 
           <meta-board width='3' length='5' id='main-meta-board'>
             <meta-picture width='3' meta-style='frame-color:blue;frame-width: 0.3' length='4' src='fixtures/ball.png' id='main-meta-picture'></meta-picture>
           </meta-board>
 
         </meta-wall>
+        <meta-floor>
+          <meta-table height='2'>
+            <meta-tsurface>
+              <meta-picture width='3' meta-style='frame-color:blue;frame-width: 0.3; margin: 1' length='4' src='fixtures/ball.png' id='meta-picture-on-table'></meta-picture>
+            </meta-tsurface>
+          </meta-table>
+        </meta-floor>
       </meta-room>
     </meta-verse>
   </div>
@@ -33,6 +40,7 @@
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
         jlet('metaBoard', function(){ return document.querySelector('#main-meta-board')});
         jlet('metaPicture', function(){ return document.querySelector('#main-meta-picture')});
+        jlet('metaPictureOnTable', function(){ return document.querySelector('#meta-picture-on-table')});
         jlet('metaPictureMesh', function(){ return J.metaPicture.controller.metaObject.mesh});
       });
 
@@ -54,11 +62,20 @@
           expect(J.metaPicture.controller.metaObject.group.children[1].material.color.b).to.equal(1);
         });
 
+        it('adds margin to table on floor', function(){
+          expect(J.metaPictureOnTable.controller.metaStyle.metaStyle['frame-width']).to.equal(0.3);
+          expect(J.metaPictureOnTable.controller.metaStyle.metaStyle['margin']).to.equal(1);
+        });
+
         describe("when the meta-picture is on the wall", function(){
           beforeEach(function(){
             jlet('metaPicture', function(){ return document.querySelector('#meta-picture-on-wall')});
           });
           shouldBehaveLikeA['Plane Adding MetaTag']('metaPicture', 'metaWall');
+
+          it('is set with margin attribute in meta-style', function(){
+            expect(J.metaPicture.controller.metaStyle.metaStyle['margin']).to.equal(1);
+          });
         });
       });
 

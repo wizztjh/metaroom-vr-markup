@@ -24,6 +24,9 @@ shouldBehaveLikeA["Surface"] = function (metaObjectName, childrenTagName){
                   group: {
                     position: { x: 0, y:0 }
                   }
+                },
+                metaStyle: {
+                  metaStyle: {}
                 }
               }
             }

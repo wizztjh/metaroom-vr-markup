@@ -118,7 +118,10 @@ class MetaWallController extends MRM.MetaBaseWallController{
         group.position.set(this.properties.roomWidth/2 + (this.metaStyle['thickness']/2 || 0.125), this.properties.roomHeight/2, 0);
         break;
     }
-    this.updateChildrenDisplayInline();
+    var eventToTriggerOnResize = this.updateChildrenDisplayInline();
+    if(eventToTriggerOnResize){
+      this.dom.dispatchEvent(eventToTriggerOnResize);
+    }
   }
 
 }

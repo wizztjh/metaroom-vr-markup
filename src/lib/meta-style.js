@@ -274,6 +274,15 @@ export default class MetaStyle {
     return this.metaStyle["skybox-texture"];
   }
 
+  set ["margin"](length) {
+    this.metaStyle["margin"] = Number(length);
+    return length;
+  }
+
+  get ["margin"]() {
+    return this.metaStyle["margin"];
+  }
+
   clear(){
     //TODO: need to set everything back to default
     this.metaStyle = {}

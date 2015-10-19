@@ -70,8 +70,6 @@
 
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
 
-        jlet('metaFloor', function(){ return document.querySelector('meta-table')});
-
         jlet('metaWallWidth', function(){ return J.metaWall.controller.metaObject.mesh.scale.x });
         jlet('metaWallLength', function(){ return J.metaWall.controller.metaObject.mesh.scale.y});
 
@@ -137,7 +135,6 @@
 
       describe("meta-floor and meta-table", function(){
         beforeEach(function(){
-          jlet('metaFloor', function(){ return document.querySelector('#main-meta-floor')});
           jlet('dynamicMetaTable', function(){ return document.querySelector('#dynamic-meta-table')});
           jlet('secondMetaTable', function(){ return document.querySelector('#second-meta-table')});
         });

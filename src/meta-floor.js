@@ -65,7 +65,10 @@ class MetaFloorController extends MRM.MetaBaseWallController{
     group.position.set(0, 0 - (this.metaStyle['thickness']/2 || 0.125), 0);
     mesh.scale.set(this.properties.width, this.properties.length , 1);
 
-    this.updateChildrenDisplayInline();
+    var eventToTriggerOnResize = this.updateChildrenDisplayInline();
+    if(eventToTriggerOnResize){
+      this.dom.dispatchEvent(eventToTriggerOnResize);
+    }
   }
 }
 
