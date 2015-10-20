@@ -36,6 +36,24 @@ export default class MetaStyle {
     return this.metaStyle["vertex-shader"];
   }
 
+  set ["geometry-segment-x"](segments){
+    this.metaStyle["geometry-segment-x"] = Number(segments);
+    return Number(segments);
+  }
+
+  get ["geometry-segment-x"](){
+    return this.metaStyle["geometry-segment-x"];
+  }
+
+  set ["geometry-segment-y"](segments){
+    this.metaStyle["geometry-segment-y"] = Number(segments);
+    return Number(segments);
+  }
+
+  get ["geometry-segment-y"](){
+    return this.metaStyle["geometry-segment-y"];
+  }
+
   set ["tbottom-padding"](tbottomPadding) {
     this.controller.metaStyle['tbottom-padding-top'] = tbottomPadding;
     this.controller.metaStyle['tbottom-padding-bottom'] = tbottomPadding;

@@ -45873,21 +45873,21 @@ exports["default"] = MetaBaseController;
 module.exports = exports["default"];
 
 },{}],30:[function(require,module,exports){
-"use strict";
+'use strict';
 
-Object.defineProperty(exports, "__esModule", {
+Object.defineProperty(exports, '__esModule', {
   value: true
 });
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
+function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) subClass.__proto__ = superClass; }
 
 var _metaComponentControllerJs = require("./meta-component-controller.js");
 
@@ -45899,11 +45899,11 @@ var MetaBaseWallController = (function (_MetaComponentController) {
   function MetaBaseWallController(dom) {
     _classCallCheck(this, MetaBaseWallController);
 
-    _get(Object.getPrototypeOf(MetaBaseWallController.prototype), "constructor", this).call(this, dom);
+    _get(Object.getPrototypeOf(MetaBaseWallController.prototype), 'constructor', this).call(this, dom);
   }
 
   _createClass(MetaBaseWallController, [{
-    key: "createMetaObject",
+    key: 'createMetaObject',
     value: function createMetaObject() {
       var planeHeight = 1;
       var planeWidth = 1;
@@ -45926,13 +45926,13 @@ var MetaBaseWallController = (function (_MetaComponentController) {
       };
     }
   }, {
-    key: "createBoxGeometry",
+    key: 'createBoxGeometry',
     value: function createBoxGeometry() {
-      var geometry = new THREE.BoxGeometry(1, 1, 0.25);
+      var geometry = new THREE.BoxGeometry(1, 1, 0.25, this.metaStyle['geometry-segment-x'] || 1, this.metaStyle['geometry-segment-y'] || 1);
       return geometry;
     }
   }, {
-    key: "updateWallChildrenDisplayInline",
+    key: 'updateWallChildrenDisplayInline',
     value: function updateWallChildrenDisplayInline() {
       // TODO: change the board to parent to make it generic
       var parent = this;
@@ -46012,10 +46012,10 @@ var MetaBaseWallController = (function (_MetaComponentController) {
   }]);
 
   return MetaBaseWallController;
-})(_metaComponentControllerJs2["default"]);
+})(_metaComponentControllerJs2['default']);
 
-exports["default"] = MetaBaseWallController;
-module.exports = exports["default"];
+exports['default'] = MetaBaseWallController;
+module.exports = exports['default'];
 
 },{"./meta-component-controller.js":32}],31:[function(require,module,exports){
 'use strict';
@@ -46459,6 +46459,24 @@ var MetaStyle = (function () {
     },
     get: function get() {
       return this.metaStyle["vertex-shader"];
+    }
+  }, {
+    key: "geometry-segment-x",
+    set: function set(segments) {
+      this.metaStyle["geometry-segment-x"] = Number(segments);
+      return Number(segments);
+    },
+    get: function get() {
+      return this.metaStyle["geometry-segment-x"];
+    }
+  }, {
+    key: "geometry-segment-y",
+    set: function set(segments) {
+      this.metaStyle["geometry-segment-y"] = Number(segments);
+      return Number(segments);
+    },
+    get: function get() {
+      return this.metaStyle["geometry-segment-y"];
     }
   }, {
     key: "tbottom-padding",
@@ -47203,7 +47221,12 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
       var group = this.metaObject.group;
       // TODO: sets the properties.width and height of wall for refference
 
+      if (this.metaStyle['geometry-segment-x'] || this.metaStyle['geometry-segment-y']) {
+        mesh.geometry.dispose();
+        mesh.geometry = new THREE.PlaneGeometry(1, 1, this.metaStyle['geometry-segment-x'] || 1, this.metaStyle['geometry-segment-y'] || 1);
+      }
       if (this.metaStyle['thickness']) {
+        mesh.geometry.dispose();
         mesh.geometry = this.createBoxGeometry();
       }
 
@@ -47717,6 +47740,14 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
       this.properties.width = this.properties.roomWidth !== 0 ? this.properties.roomWidth : this.properties.width;
       this.properties.length = this.properties.roomLength !== 0 ? this.properties.roomLength : this.properties.length;
 
+      if (this.metaStyle['geometry-segment-x'] || this.metaStyle['geometry-segment-y']) {
+        mesh.geometry.dispose();
+        mesh.geometry = new THREE.PlaneGeometry(1, 1, this.metaStyle['geometry-segment-x'] || 1, this.metaStyle['geometry-segment-y'] || 1);
+      }
+      if (this.metaStyle['thickness']) {
+        mesh.geometry.dispose();
+        mesh.geometry = this.createBoxGeometry();
+      }
       group.rotation.x = 270 * (Math.PI / 180);
       group.position.set(0, 0 - (this.metaStyle['thickness'] / 2 || 0), 0);
       mesh.scale.set(this.properties.width, this.properties.length, this.metaStyle['thickness'] / 2 || 0);

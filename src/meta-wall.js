@@ -61,7 +61,12 @@ class MetaWallController extends MRM.MetaBaseWallController{
     var group = this.metaObject.group;
     // TODO: sets the properties.width and height of wall for refference
 
+    if(this.metaStyle['geometry-segment-x'] || this.metaStyle['geometry-segment-y']){
+      mesh.geometry.dispose();
+      mesh.geometry = new THREE.PlaneGeometry(1, 1, this.metaStyle['geometry-segment-x'] || 1, this.metaStyle['geometry-segment-y'] || 1);
+    }
     if(this.metaStyle['thickness']){
+      mesh.geometry.dispose();
       mesh.geometry = this.createBoxGeometry();
     }
 

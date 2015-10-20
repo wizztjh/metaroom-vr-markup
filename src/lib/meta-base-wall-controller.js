@@ -28,7 +28,7 @@ export default class MetaBaseWallController extends MetaComponentController {
   }
 
   createBoxGeometry(){
-    var geometry = new THREE.BoxGeometry(1, 1, 0.25);
+    var geometry = new THREE.BoxGeometry(1, 1, 0.25, this.metaStyle['geometry-segment-x'] || 1, this.metaStyle['geometry-segment-y'] || 1);
     return geometry;
   }
 
