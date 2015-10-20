@@ -245,7 +245,14 @@ export default class MetaStyle {
           mesh.material = new THREE.MeshPhongMaterial({color: this.metaStyle["material-color"]});
           break;
         default:
-          mesh.material = new THREE.MeshBasicMaterial({color: this.metaStyle["material-color"]});
+          var shader = THREE.ShaderLib[type];
+          var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
+          mesh.material = new THREE.ShaderMaterial( {
+        		fragmentShader: shader.fragmentShader,
+        		vertexShader: shader.vertexShader,
+        		uniforms: uniforms,
+        		side: THREE.BackSide
+        	} );
       }
       this.metaStyle["material-type"] = type;
       return mesh.material;

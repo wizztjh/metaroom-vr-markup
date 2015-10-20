@@ -27,17 +27,13 @@ class MetaVerseController extends MRM.MetaBaseController {
   }
 
   createMetaObject(){
-    var mesh, group, src = "";
-
-    if(this.metaStyle.hasOwnProperty("skybox-texture")){
-      src = this.metaStyle['skybox-texture'];
-    }
+    var mesh, group, src = "", material;
 
     var geometry = new THREE.SphereGeometry( 5000, 32, 32 );
-    var material = new THREE.MeshBasicMaterial( {
-      map: THREE.ImageUtils.loadTexture( src ),
+    material = new THREE.MeshPhongMaterial({
       side: THREE.BackSide
-    } );
+    });
+
     mesh = new THREE.Mesh( geometry, material );
     group = new THREE.Group();
     group.add(mesh);

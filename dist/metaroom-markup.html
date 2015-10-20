@@ -46676,7 +46676,14 @@ var MetaStyle = (function () {
             mesh.material = new THREE.MeshPhongMaterial({ color: this.metaStyle["material-color"] });
             break;
           default:
-            mesh.material = new THREE.MeshBasicMaterial({ color: this.metaStyle["material-color"] });
+            var shader = THREE.ShaderLib[type];
+            var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+            mesh.material = new THREE.ShaderMaterial({
+              fragmentShader: shader.fragmentShader,
+              vertexShader: shader.vertexShader,
+              uniforms: uniforms,
+              side: THREE.BackSide
+            });
         }
         this.metaStyle["material-type"] = type;
         return mesh.material;
@@ -46792,17 +46799,14 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
     value: function createMetaObject() {
       var mesh,
           group,
-          src = "";
-
-      if (this.metaStyle.hasOwnProperty("skybox-texture")) {
-        src = this.metaStyle['skybox-texture'];
-      }
+          src = "",
+          material;
 
       var geometry = new THREE.SphereGeometry(5000, 32, 32);
-      var material = new THREE.MeshBasicMaterial({
-        map: THREE.ImageUtils.loadTexture(src),
+      material = new THREE.MeshPhongMaterial({
         side: THREE.BackSide
       });
+
       mesh = new THREE.Mesh(geometry, material);
       group = new THREE.Group();
       group.add(mesh);
