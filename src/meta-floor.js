@@ -62,8 +62,8 @@ class MetaFloorController extends MRM.MetaBaseWallController{
     this.properties.length = (this.properties.roomLength !== 0) ? this.properties.roomLength : this.properties.length;
 
     group.rotation.x = 270 * (Math.PI/180);
-    group.position.set(0, 0 - (this.metaStyle['thickness']/2 || 0.125), 0);
-    mesh.scale.set(this.properties.width, this.properties.length , 1);
+    group.position.set(0, 0 - (this.metaStyle['thickness']/2 || 0), 0);
+    mesh.scale.set(this.properties.width, this.properties.length , this.metaStyle['thickness']/2 || 0);
 
     var eventToTriggerOnResize = this.updateChildrenDisplayInline();
     if(eventToTriggerOnResize){

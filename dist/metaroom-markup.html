@@ -45908,7 +45908,7 @@ var MetaBaseWallController = (function (_MetaComponentController) {
       var planeHeight = 1;
       var planeWidth = 1;
 
-      var geometry = new THREE.BoxGeometry(planeWidth, planeHeight, 1);
+      var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
       var material = new THREE.MeshPhongMaterial({
         color: 0xffffff,
         side: THREE.DoubleSide
@@ -45924,6 +45924,12 @@ var MetaBaseWallController = (function (_MetaComponentController) {
         mesh: mesh,
         group: group
       };
+    }
+  }, {
+    key: "createBoxGeometry",
+    value: function createBoxGeometry() {
+      var geometry = new THREE.BoxGeometry(1, 1, 0.25);
+      return geometry;
     }
   }, {
     key: "updateWallChildrenDisplayInline",
@@ -47197,23 +47203,27 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
       var group = this.metaObject.group;
       // TODO: sets the properties.width and height of wall for refference
 
+      if (this.metaStyle['thickness']) {
+        mesh.geometry = this.createBoxGeometry();
+      }
+
       switch (this.properties.align) {
         case 'left':
         case 'right':
-          mesh.scale.set(this.properties.roomLength, this.properties.roomHeight, this.metaStyle["thickness"] || 0.25);
+          mesh.scale.set(this.properties.roomLength, this.properties.roomHeight, this.metaStyle["thickness"] * 4 || 0);
           this.properties.width = this.properties.roomLength;
           this.properties.length = this.properties.roomHeight;
           break;
 
         case 'ceiling':
-          mesh.scale.set(this.properties.roomWidth, this.properties.roomLength, this.metaStyle["thickness"] || 0.25);
+          mesh.scale.set(this.properties.roomWidth, this.properties.roomLength, this.metaStyle["thickness"] * 4 || 0);
           this.properties.width = this.properties.roomWidth;
           this.properties.length = this.properties.roomLength;
           break;
 
         case 'front':
         case 'back':
-          mesh.scale.set(this.properties.roomWidth, this.properties.roomHeight, this.metaStyle["thickness"] || 0.25);
+          mesh.scale.set(this.properties.roomWidth, this.properties.roomHeight, this.metaStyle["thickness"] * 4 || 0);
           this.properties.width = this.properties.roomWidth;
           this.properties.length = this.properties.roomHeight;
           break;
@@ -47225,17 +47235,16 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
           group.rotation.x = 0;
           group.rotation.y = 90 * (Math.PI / 180);
           group.rotation.z = 0;
-          group.position.set(-(this.properties.roomWidth / 2) - (this.metaStyle['thickness'] / 2 || 0.125), this.properties.roomHeight / 2, 0);
+          group.position.set(-(this.properties.roomWidth / 2) - (this.metaStyle['thickness'] / 2 || 0), this.properties.roomHeight / 2, 0);
           break;
         case 'front':
-          group.position.set(0, this.properties.roomHeight / 2, -(this.properties.roomLength / 2) - (this.metaStyle['thickness'] / 2 || 0.125));
+          group.position.set(0, this.properties.roomHeight / 2, -(this.properties.roomLength / 2) - (this.metaStyle['thickness'] / 2 || 0));
           group.rotation.x = 0;
           group.rotation.y = 0;
           group.rotation.z = 0;
           break;
-          break;
         case 'back':
-          group.position.set(0, this.properties.roomHeight / 2, this.properties.roomLength / 2 + (this.metaStyle['thickness'] / 2 || 0.125));
+          group.position.set(0, this.properties.roomHeight / 2, this.properties.roomLength / 2 + (this.metaStyle['thickness'] / 2 || 0));
           group.rotation.x = 0;
           group.rotation.y = 180 * (Math.PI / 180);
           group.rotation.z = 0;
@@ -47245,13 +47254,13 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
           group.rotation.y = 0;
           group.rotation.z = 0;
 
-          group.position.set(0, this.properties.roomHeight + (this.metaStyle['thickness'] / 2 || 0.125), 0);
+          group.position.set(0, this.properties.roomHeight + (this.metaStyle['thickness'] / 2 || 0), 0);
           break;
         case 'right':
           group.rotation.x = 0;
           group.rotation.y = 270 * (Math.PI / 180);
           group.rotation.z = 0;
-          group.position.set(this.properties.roomWidth / 2 + (this.metaStyle['thickness'] / 2 || 0.125), this.properties.roomHeight / 2, 0);
+          group.position.set(this.properties.roomWidth / 2 + (this.metaStyle['thickness'] / 2 || 0), this.properties.roomHeight / 2, 0);
           break;
       }
       var eventToTriggerOnResize = this.updateChildrenDisplayInline();
@@ -47709,8 +47718,8 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
       this.properties.length = this.properties.roomLength !== 0 ? this.properties.roomLength : this.properties.length;
 
       group.rotation.x = 270 * (Math.PI / 180);
-      group.position.set(0, 0 - (this.metaStyle['thickness'] / 2 || 0.125), 0);
-      mesh.scale.set(this.properties.width, this.properties.length, 1);
+      group.position.set(0, 0 - (this.metaStyle['thickness'] / 2 || 0), 0);
+      mesh.scale.set(this.properties.width, this.properties.length, this.metaStyle['thickness'] / 2 || 0);
 
       var eventToTriggerOnResize = this.updateChildrenDisplayInline();
       if (eventToTriggerOnResize) {

@@ -9,7 +9,7 @@ export default class MetaBaseWallController extends MetaComponentController {
     var planeHeight = 1;
     var planeWidth = 1;
 
-    var geometry = new THREE.BoxGeometry(planeWidth, planeHeight, 1);
+    var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
     var material = new THREE.MeshPhongMaterial({
       color: 0xffffff,
       side: THREE.DoubleSide
@@ -25,6 +25,11 @@ export default class MetaBaseWallController extends MetaComponentController {
       mesh: mesh,
       group: group
     };
+  }
+
+  createBoxGeometry(){
+    var geometry = new THREE.BoxGeometry(1, 1, 0.25);
+    return geometry;
   }
 
   updateWallChildrenDisplayInline() {
