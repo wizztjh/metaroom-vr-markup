@@ -1,9 +1,0 @@
-# Created by ItSeez3D
-newmtl material_0
-Ka 1.000000 0.000000 0.000000
-Kd 1.000000 1.000000 1.000000
-Ks 0.000000 0.000000 0.000000
-Tr 1.000000
-illum 0
-Ns 0.000000
-map_Kd model_texture.jpg
