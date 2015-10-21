@@ -75,14 +75,14 @@ class MetaItemController extends MRM.MetaComponentController {
       _.forEach(this.metaObject.group.children, (child) => {
         this.metaObject.group.remove(child);
       });
-      this.metaObject.mesh = object.children[1]
+      this.metaObject.mesh = object
       var bbox = new THREE.BoundingBoxHelper( this.metaObject.mesh, 0xff0000 );
       bbox.update();
       this.metaObject.mesh.scale.set(this.properties.width / bbox.box.size().x,
         this.properties.height / bbox.box.size().y, this.properties.length / bbox.box.size().z);
       this.metaObject.mesh.rotation.x = 90 * (Math.PI/180);
       bbox.update();
-      this.metaObject.group.add( object.children[1] );
+      this.metaObject.group.add( this.metaObject.mesh );
       this.metaObject.group.position.z = this.properties.height / 2;
     });
   }

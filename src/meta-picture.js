@@ -126,15 +126,17 @@ class MetaPictureController extends MRM.MetaComponentController {
     if(this.parent){
       group.position.z = this.parent.metaStyle['thickness']/2 || group.position.z;
     }
-    if(this.metaStyle.metaStyle["frame-width"]){
-      this.updateFrame(this.metaStyle.metaStyle["frame-width"]);
+    if(this.metaStyle.metaStyle["frame-width"] || this.metaStyle.metaStyle["frame-thickness"]){
+      this.updateFrame();
     }
     mesh.scale.x = this.computedProperties.width;
     mesh.scale.y = this.computedProperties.length;
   }
 
-  updateFrame(frameWidth, frameThickness){
-    //TODO: Add the Frame mesh to the group
+  updateFrame(){
+    var frameWidth = this.metaStyle.metaStyle["frame-width"] || 0.1;
+    var frameThickness = this.metaStyle.metaStyle["frame-thickness"] || 0.3;
+    var frameColor = this.metaStyle.metaStyle["frame-color"] || this.metaStyle.metaStyle['material-color'] || white;
     var length = this.properties.length;
     var width = this.properties.width;
     var frameShape = new THREE.Shape();
@@ -151,9 +153,9 @@ class MetaPictureController extends MRM.MetaComponentController {
     frameHole.lineTo(frameWidth + 0, length - frameWidth);
     frameShape.holes.push(frameHole);
 
-    var extrudeSettings = { amount: frameThickness || 0.3, bevelEnabled: false};
+    var extrudeSettings = { amount: frameThickness, bevelEnabled: false};
     var geometry = new THREE.ExtrudeGeometry( frameShape, extrudeSettings );
-    var material = new THREE.MeshPhongMaterial( { color: 0xb00000, wireframe: false } );
+    var material = new THREE.MeshPhongMaterial( { color: frameColor, wireframe: false } );
     var mesh = new THREE.Mesh( geometry, material );
     mesh.scale.set(1, 1, 1);
     mesh.position.set( -this.properties.width / 2, -this.properties.length / 2, 0);

@@ -9,14 +9,14 @@ export default class MetaBaseWallController extends MetaComponentController {
     var planeHeight = 1;
     var planeWidth = 1;
 
-    var geometry = new THREE.BoxGeometry(planeWidth, planeHeight, 1);
+    var geometry = new THREE.PlaneGeometry(planeWidth, planeHeight);
     var material = new THREE.MeshPhongMaterial({
       color: 0xffffff,
       side: THREE.DoubleSide
     });
 
     var mesh = new THREE.Mesh(geometry, material);
-    mesh.castShadow = false;
+    mesh.castShadow = true;
     mesh.receiveShadow = true;
     var group = new THREE.Group();
     group.add( mesh );
@@ -25,6 +25,11 @@ export default class MetaBaseWallController extends MetaComponentController {
       mesh: mesh,
       group: group
     };
+  }
+
+  createBoxGeometry(){
+    var geometry = new THREE.BoxGeometry(1, 1, 0.25, this.metaStyle['geometry-segment-x'] || 1, this.metaStyle['geometry-segment-y'] || 1);
+    return geometry;
   }
 
   updateWallChildrenDisplayInline() {
@@ -50,6 +55,10 @@ export default class MetaBaseWallController extends MetaComponentController {
         child.controller.computedProperties.width);
       childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
         child.controller.computedProperties.length);
+      if(child.controller.metaStyle.metaStyle["margin"]){
+        childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
+        childLength += 2 * child.controller.metaStyle.metaStyle["margin"];
+      }
       if(currentLineWidth + Number(childWidth) <= parent.properties.width){
       }else{
         currentLine += 1;
@@ -70,6 +79,10 @@ export default class MetaBaseWallController extends MetaComponentController {
           child.controller.computedProperties.width);
         childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
           child.controller.computedProperties.length);
+        if(child.controller.metaStyle.metaStyle["margin"]){
+          childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
+          childLength += 2 * child.controller.metaStyle.metaStyle["margin"];
+        }
         nextComponentX += Number(childWidth)/2;
 
         var group = child.controller.metaObject.group;
@@ -91,6 +104,10 @@ export default class MetaBaseWallController extends MetaComponentController {
         var group = child.controller.metaObject.group;
         childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
           child.controller.computedProperties.length);
+        if(child.controller.metaStyle.metaStyle["margin"]){
+          childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
+          childLength += 2 * child.controller.metaStyle.metaStyle["margin"];
+        }
         group.position.y = baseLineY + childLength/2;
       });
     });

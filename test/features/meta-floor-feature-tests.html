@@ -9,10 +9,15 @@
   <script src='../spec.js'></script>
 </head>
 <body>
+  <script id="vertexShader" type="x-shader/x-vertex">
+    void main()	{
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0);
+    }
+  </script>
   <div id='fixture'>
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
-        <meta-floor id='main-meta-floor'></meta-floor>
+        <meta-floor id='main-meta-floor' meta-style="vertex-shader: vertexShader"></meta-floor>
       </meta-room>
     </meta-verse>
   </div>
@@ -22,6 +27,7 @@
       beforeEach(function(){
         jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
+        jlet('vertexShader', function(){ return document.getElementById('vertexShader'); });
 
         jlet('metaFloor', function(){ return document.querySelector('#main-meta-floor')});
         jlet('metaFloorMesh', function(){ return J.metaFloor.controller.metaObject.mesh });
@@ -47,16 +53,16 @@
         });
 
 
-        // describe("when the room width changes", function(){
-        //
-        //   it("sets the meta object to the left of the room", function(){
-        //     metaRoom.width = 20;
-        //     expect(metaFloorMesh.position.x, 'x').to.equal(-10);
-        //     expect(metaFloorMesh.position.y, 'y').to.equal(0);
-        //     expect(metaFloorMesh.position.z, 'z').to.equal(0);
-        //   });
-        //
-        // });
+        describe("when the vertex shader added", function(){
+
+          it("sets the meta style", function(){
+            expect(J.metaFloor.controller.metaStyle.metaStyle["vertex-shader"]).to.equal(J.vertexShader.textContent);
+            // expect(J.metaFloorMesh.material.vertexShader).to.equal(J.vertexShader.textContent);
+            // expect(metaFloorMesh.position.y, 'y').to.equal(0);
+            // expect(metaFloorMesh.position.z, 'z').to.equal(0);
+          });
+
+        });
       });
 
     });

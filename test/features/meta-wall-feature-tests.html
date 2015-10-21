@@ -48,7 +48,7 @@
 
         describe("with align=left", function(){
           it("sets the meta object group to the left of the room", function(){
-            expect(J.metaWallGroup.position.x, 'x').to.equal(-5.125);
+            expect(J.metaWallGroup.position.x, 'x').to.equal(-5);
             expect(J.metaWallGroup.position.y, 'y').to.equal(5);
             expect(J.metaWallGroup.position.z, 'z').to.equal(0);
           });
@@ -59,7 +59,7 @@
             });
 
             it("sets the meta object to the right of the room", function(){
-              expect(J.metaWallGroup.position.x, 'x').to.equal(5.125);
+              expect(J.metaWallGroup.position.x, 'x').to.equal(5);
               expect(J.metaWallGroup.position.y, 'y').to.equal(5);
               expect(J.metaWallGroup.position.z, 'z').to.equal(0);
             });
@@ -68,7 +68,7 @@
 
               it("sets the position of meta object", function(){
                 J.metaRoom.setAttribute('width', 20);
-                expect(J.metaWallGroup.position.x, 'x').to.equal(10.125);
+                expect(J.metaWallGroup.position.x, 'x').to.equal(10);
                 expect(J.metaWallGroup.position.y, 'y').to.equal(5);
                 expect(J.metaWallGroup.position.z, 'z').to.equal(0);
               });
@@ -96,7 +96,7 @@
           });
 
           it("sets the position of meta object", function(){
-            expect(J.metaWallGroup.position.x, 'x').to.equal(-10.125);
+            expect(J.metaWallGroup.position.x, 'x').to.equal(-10);
             expect(J.metaWallGroup.position.y, 'y').to.equal(5);
             expect(J.metaWallGroup.position.z, 'z').to.equal(0);
           });
@@ -108,7 +108,7 @@
             J.metaRoom.setAttribute('length', 20);
             expect(J.metaWallMesh.scale.x, 'x').to.equal(20);
             expect(J.metaWallMesh.scale.y, 'y').to.equal(10);
-            expect(J.metaWallMesh.scale.z, 'z').to.equal(0.25);
+            expect(J.metaWallMesh.scale.z, 'z').to.equal(1);
           });
         });
 

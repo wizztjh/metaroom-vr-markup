@@ -70,7 +70,10 @@ class MetaBoardController extends MRM.MetaComponentController {
     if(this.parent){
       group.position.z = this.parent.metaStyle['thickness']/2 || group.position.z;
     }
-    this.updateChildrenDisplayInline();
+    var eventToTriggerOnResize = this.updateChildrenDisplayInline();
+    if(eventToTriggerOnResize){
+      this.dom.dispatchEvent(eventToTriggerOnResize);
+    }
   }
 
   get metaChildrenNames(){
@@ -110,6 +113,10 @@ class MetaBoardController extends MRM.MetaComponentController {
         child.controller.computedProperties.width);
       childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
         child.controller.computedProperties.length);
+      if(child.controller.metaStyle.metaStyle["margin"]){
+        childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
+        childLength += 2 * child.controller.metaStyle.metaStyle["margin"];
+      }
       if(currentLineWidth + Number(childWidth) <= parent.properties.width){
       }else{
         currentLine += 1;
@@ -130,6 +137,10 @@ class MetaBoardController extends MRM.MetaComponentController {
           child.controller.computedProperties.width);
         childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
           child.controller.computedProperties.length);
+        if(child.controller.metaStyle.metaStyle["margin"]){
+          childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
+          childLength += 2 * child.controller.metaStyle.metaStyle["margin"];
+        }
         nextComponentX += Number(childWidth)/2;
 
         var group = child.controller.metaObject.group;
@@ -149,6 +160,10 @@ class MetaBoardController extends MRM.MetaComponentController {
 
       line.forEach(function(child, childIndex){
         var group = child.controller.metaObject.group;
+        if(child.controller.metaStyle.metaStyle["margin"]){
+          childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
+          childLength += 2 * child.controller.metaStyle.metaStyle["margin"];
+        }
         childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
           child.controller.computedProperties.length);
         group.position.y = baseLineY + childLength/2;

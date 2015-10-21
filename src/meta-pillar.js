@@ -93,7 +93,10 @@ class MetaPillarController extends MRM.MetaComponentController{
     }
     mesh.scale.set(this.properties.width, this.properties.length, this.properties.height);
     group.position.z = this.properties.height / 2;
-    this.updateChildrenDisplayInline();
+    var eventToTriggerOnResize = this.updateChildrenDisplayInline();
+    if(eventToTriggerOnResize){
+      this.dom.dispatchEvent(eventToTriggerOnResize);
+    }
   }
 
   updatePillarChildrenDisplayInline(){
@@ -150,6 +153,10 @@ class MetaPillarController extends MRM.MetaComponentController{
         child.controller.computedProperties.width);
       childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
         child.controller.computedProperties.length);
+      if(child.controller.metaStyle.metaStyle["margin"]){
+        childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
+        childLength += 2 * child.controller.metaStyle.metaStyle["margin"];
+      }
       if(currentLineWidth + Number(childWidth) <= parent.metaObject.mesh.scale[width]){
       }else{
         currentLine += 1;
@@ -172,6 +179,10 @@ class MetaPillarController extends MRM.MetaComponentController{
           child.controller.computedProperties.width);
         childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
           child.controller.computedProperties.length);
+        if(child.controller.metaStyle.metaStyle["margin"]){
+          childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
+          childLength += 2 * child.controller.metaStyle.metaStyle["margin"];
+        }
         nextComponentX += Number(childWidth)/2;
 
         var group = child.controller.metaObject.group;
@@ -192,6 +203,10 @@ class MetaPillarController extends MRM.MetaComponentController{
         var group = child.controller.metaObject.group;
         childLength = (Number(child.controller.properties.length) !== 0 ? Number(child.controller.properties.length) :
           child.controller.computedProperties.length);
+        if(child.controller.metaStyle.metaStyle["margin"]){
+          childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
+          childLength += 2 * child.controller.metaStyle.metaStyle["margin"];
+        }
         group.position[height] = baseLineY + childLength/2;
       });
     });

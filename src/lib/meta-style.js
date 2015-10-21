@@ -27,6 +27,33 @@ export default class MetaStyle {
     return this.metaStyle["material-color"];
   }
 
+  set ["vertex-shader"](domId){
+    this.metaStyle["vertex-shader"] = document.getElementById(domId).textContent;
+    return domId;
+  }
+
+  get ["vertex-shader"](){
+    return this.metaStyle["vertex-shader"];
+  }
+
+  set ["geometry-segment-x"](segments){
+    this.metaStyle["geometry-segment-x"] = Number(segments);
+    return Number(segments);
+  }
+
+  get ["geometry-segment-x"](){
+    return this.metaStyle["geometry-segment-x"];
+  }
+
+  set ["geometry-segment-y"](segments){
+    this.metaStyle["geometry-segment-y"] = Number(segments);
+    return Number(segments);
+  }
+
+  get ["geometry-segment-y"](){
+    return this.metaStyle["geometry-segment-y"];
+  }
+
   set ["tbottom-padding"](tbottomPadding) {
     this.controller.metaStyle['tbottom-padding-top'] = tbottomPadding;
     this.controller.metaStyle['tbottom-padding-bottom'] = tbottomPadding;
@@ -98,6 +125,32 @@ export default class MetaStyle {
 
   get ["frame-width"]() {
     return this.metaStyle["frame-width"];
+  }
+
+  set ["frame-thickness"](thickness) {
+    var controller = this.controller;
+    if (controller && typeof controller.updateFrame === 'function') {
+      controller.updateMetaObject();
+      this.metaStyle["frame-thickness"] = Number(thickness);
+    }
+    return Number(thickness);
+  }
+
+  get ["frame-thickness"]() {
+    return this.metaStyle["frame-thickness"];
+  }
+
+  set ["frame-color"](color) {
+    var controller = this.controller;
+    if (controller && typeof controller.updateFrame === 'function') {
+      controller.updateMetaObject();
+      this.metaStyle["frame-color"] = color;
+    }
+    return Number(color);
+  }
+
+  get ["frame-color"]() {
+    return this.metaStyle["frame-color"];
   }
 
   set ["position"](type) {
@@ -192,7 +245,14 @@ export default class MetaStyle {
           mesh.material = new THREE.MeshPhongMaterial({color: this.metaStyle["material-color"]});
           break;
         default:
-          mesh.material = new THREE.MeshBasicMaterial({color: this.metaStyle["material-color"]});
+          var shader = THREE.ShaderLib[type];
+          var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
+          mesh.material = new THREE.ShaderMaterial( {
+        		fragmentShader: shader.fragmentShader,
+        		vertexShader: shader.vertexShader,
+        		uniforms: uniforms,
+        		side: THREE.BackSide
+        	} );
       }
       this.metaStyle["material-type"] = type;
       return mesh.material;
@@ -237,6 +297,15 @@ export default class MetaStyle {
 
   get ["skybox-texture"]() {
     return this.metaStyle["skybox-texture"];
+  }
+
+  set ["margin"](length) {
+    this.metaStyle["margin"] = Number(length);
+    return length;
+  }
+
+  get ["margin"]() {
+    return this.metaStyle["margin"];
   }
 
   clear(){

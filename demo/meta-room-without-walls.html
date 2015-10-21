@@ -3,12 +3,34 @@
   <head>
     <script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
     <link rel="import" href="../dist/metaroom-markup.html">
+    <script src='SkyShader.js' id='sky'></script>
   </head>
 
   <body>
-    <meta-verse meta-style='skybox-texture: img/panoramaSkybox1.jpg'>
-    <meta-floor width='10000' length='10000' meta-style='material-texture: img/checkerboard.jpg; material-texture-repeat:repeat'>
+    <meta-verse meta-style='material-type: sky'>
+    <meta-floor width='1000' length='1000' meta-style='geometry-segment-x: 32; geometry-segment-y: 32'>
     </meta-floor>
     </meta-verse>
   </body>
+  <script type="text/javascript" src="../bower_components/jquery/dist/jquery.min.js"></script>
+  <script>
+    $(document).ready(function(){
+      var verseController = document.getElementsByTagName('meta-verse')[0].controller;
+      verseController.gameObject.scene.fog.density = 0.0075;
+      verseController.gameObject.scene.fog.color.setHex(0xffff99);
+
+      var floorController = document.getElementsByTagName('meta-floor')[0].controller;
+      var floorVertices = floorController.metaObject.mesh.geometry.vertices;
+      floorController.metaObject.mesh.geometry.dynamic = true;
+      for ( var i = 0 ; i < floorVertices.length; i ++ ) {
+          floorVertices[ i ].z =  (5 * Math.sin( (i/2) )+ 3* Math.cos( i/2));;
+      }
+      floorController.metaObject.mesh.geometry.verticesNeedUpdate = true;
+      floorController.metaObject.mesh.geometry.normalsNeedUpdate = true;
+      floorController.metaObject.mesh.material.color.setHex(0xcfb68d);
+      floorController.metaObject.mesh.geometry.computeFaceNormals();
+      floorController.metaObject.mesh.geometry.computeVertexNormals();
+    });
+
+  </script>
 </html>
