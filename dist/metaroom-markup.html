@@ -45572,7 +45572,7 @@ var GameObject = (function () {
     this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
 
     this.scene = new THREE.Scene();
-
+    this.scene.fog = new THREE.FogExp2(0xffff99, 0);
     var hemiLightWhite = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.9);
     this.hemiLightWhite = hemiLightWhite;
     hemiLightWhite.position.set(0, 500, 0);
@@ -45915,7 +45915,7 @@ var MetaBaseWallController = (function (_MetaComponentController) {
       });
 
       var mesh = new THREE.Mesh(geometry, material);
-      mesh.castShadow = false;
+      mesh.castShadow = true;
       mesh.receiveShadow = true;
       var group = new THREE.Group();
       group.add(mesh);
@@ -47237,20 +47237,20 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
       switch (this.properties.align) {
         case 'left':
         case 'right':
-          mesh.scale.set(this.properties.roomLength, this.properties.roomHeight, this.metaStyle["thickness"] * 4 || 0);
+          mesh.scale.set(this.properties.roomLength, this.properties.roomHeight, this.metaStyle["thickness"] * 4 || 1);
           this.properties.width = this.properties.roomLength;
           this.properties.length = this.properties.roomHeight;
           break;
 
         case 'ceiling':
-          mesh.scale.set(this.properties.roomWidth, this.properties.roomLength, this.metaStyle["thickness"] * 4 || 0);
+          mesh.scale.set(this.properties.roomWidth, this.properties.roomLength, this.metaStyle["thickness"] * 4 || 1);
           this.properties.width = this.properties.roomWidth;
           this.properties.length = this.properties.roomLength;
           break;
 
         case 'front':
         case 'back':
-          mesh.scale.set(this.properties.roomWidth, this.properties.roomHeight, this.metaStyle["thickness"] * 4 || 0);
+          mesh.scale.set(this.properties.roomWidth, this.properties.roomHeight, this.metaStyle["thickness"] * 4 || 1);
           this.properties.width = this.properties.roomWidth;
           this.properties.length = this.properties.roomHeight;
           break;
@@ -47754,7 +47754,7 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
       }
       group.rotation.x = 270 * (Math.PI / 180);
       group.position.set(0, 0 - (this.metaStyle['thickness'] / 2 || 0), 0);
-      mesh.scale.set(this.properties.width, this.properties.length, this.metaStyle['thickness'] / 2 || 0);
+      mesh.scale.set(this.properties.width, this.properties.length, this.metaStyle['thickness'] / 2 || 1);
 
       var eventToTriggerOnResize = this.updateChildrenDisplayInline();
       if (eventToTriggerOnResize) {
@@ -48641,13 +48641,13 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         _.forEach(_this.metaObject.group.children, function (child) {
           _this.metaObject.group.remove(child);
         });
-        _this.metaObject.mesh = object.children[1];
+        _this.metaObject.mesh = object;
         var bbox = new THREE.BoundingBoxHelper(_this.metaObject.mesh, 0xff0000);
         bbox.update();
         _this.metaObject.mesh.scale.set(_this.properties.width / bbox.box.size().x, _this.properties.height / bbox.box.size().y, _this.properties.length / bbox.box.size().z);
         _this.metaObject.mesh.rotation.x = 90 * (Math.PI / 180);
         bbox.update();
-        _this.metaObject.group.add(object.children[1]);
+        _this.metaObject.group.add(_this.metaObject.mesh);
         _this.metaObject.group.position.z = _this.properties.height / 2;
       });
     }

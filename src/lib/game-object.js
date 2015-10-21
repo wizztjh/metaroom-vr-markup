@@ -21,7 +21,7 @@ export default class GameObject{
     this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
 
     this.scene = new THREE.Scene();
-
+    this.scene.fog = new THREE.FogExp2( 0xffff99, 0 );
     var hemiLightWhite = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.9 );
     this.hemiLightWhite = hemiLightWhite;
     hemiLightWhite.position.set( 0, 500, 0 );

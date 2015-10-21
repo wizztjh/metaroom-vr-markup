@@ -41,7 +41,7 @@
         beforeEach(function(){
           var loader = new THREE.OBJMTLLoader();
           loader.load( J.metaItem.controller.properties.geometrySrc , J.metaItem.controller.properties.materialSrc, ( object ) => {
-            var bbox = new THREE.BoundingBoxHelper( object.children[1], 0xff0000 );
+            var bbox = new THREE.BoundingBoxHelper( object, 0xff0000 );
             bbox.update();
             scale = {x : J.metaItem.controller.properties.width / bbox.box.size().x,
               y: J.metaItem.controller.properties.height / bbox.box.size().y, z: J.metaItem.controller.properties.length / bbox.box.size().z};

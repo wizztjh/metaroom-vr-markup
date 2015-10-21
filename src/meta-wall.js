@@ -73,20 +73,20 @@ class MetaWallController extends MRM.MetaBaseWallController{
     switch(this.properties.align) {
       case 'left':
       case 'right':
-      mesh.scale.set(this.properties.roomLength, this.properties.roomHeight , this.metaStyle["thickness"] * 4|| 0);
+      mesh.scale.set(this.properties.roomLength, this.properties.roomHeight , this.metaStyle["thickness"] * 4|| 1);
       this.properties.width = this.properties.roomLength
       this.properties.length = this.properties.roomHeight
       break;
 
       case 'ceiling':
-      mesh.scale.set(this.properties.roomWidth, this.properties.roomLength , this.metaStyle["thickness"] * 4 || 0);
+      mesh.scale.set(this.properties.roomWidth, this.properties.roomLength , this.metaStyle["thickness"] * 4 || 1);
       this.properties.width = this.properties.roomWidth
       this.properties.length = this.properties.roomLength
       break;
 
       case 'front':
       case 'back':
-      mesh.scale.set(this.properties.roomWidth, this.properties.roomHeight , this.metaStyle["thickness"] * 4|| 0);
+      mesh.scale.set(this.properties.roomWidth, this.properties.roomHeight , this.metaStyle["thickness"] * 4|| 1);
       this.properties.width = this.properties.roomWidth
       this.properties.length = this.properties.roomHeight
       break;

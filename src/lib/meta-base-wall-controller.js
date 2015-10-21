@@ -16,7 +16,7 @@ export default class MetaBaseWallController extends MetaComponentController {
     });
 
     var mesh = new THREE.Mesh(geometry, material);
-    mesh.castShadow = false;
+    mesh.castShadow = true;
     mesh.receiveShadow = true;
     var group = new THREE.Group();
     group.add( mesh );
