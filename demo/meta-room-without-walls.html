@@ -233,7 +233,6 @@
   <body>
     <meta-verse meta-style='material-type: sky'>
     <meta-floor width='1000' length='1000' meta-style='geometry-segment-x: 32; geometry-segment-y: 32'>
-      <meta-item width='40' length='80' height='100' material-src='model/EmbraceTextures/model_mesh.mtl' geometry-src='model/EmbraceTextures/model_mesh.obj' id='meta-item-on-floor' meta-style='position: absolute; top: 300; left: 500; rotate-z: 90'></meta-item>
     </meta-floor>
     </meta-verse>
   </body>
@@ -243,9 +242,6 @@
       var verseController = document.getElementsByTagName('meta-verse')[0].controller;
       verseController.gameObject.scene.fog.density = 0.0075;
       verseController.gameObject.scene.fog.color.setHex(0xffff99);
-
-      var itemController = document.getElementsByTagName('meta-item')[0].controller;
-      itemController.metaObject.group.position.z = 0;
 
       var floorController = document.getElementsByTagName('meta-floor')[0].controller;
       var floorVertices = floorController.metaObject.mesh.geometry.vertices;
