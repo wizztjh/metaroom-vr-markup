@@ -76,6 +76,10 @@ class MetaPillarController extends MRM.MetaComponentController{
     if(this.parent && this.parent.parent){
       this.properties.height = this.parent.parent.properties.height;
     }
+    group.position.z = this.properties.height / 2;
+    if(this.metaStyle.metaStyle["position"] === 'absolute'){
+      this.setAbsolutePostion();
+    }
     if(this.metaObject.group.children.length > 0){
       switch (this.properties.face) {
         case 'left':
@@ -92,10 +96,35 @@ class MetaPillarController extends MRM.MetaComponentController{
       }
     }
     mesh.scale.set(this.properties.width, this.properties.length, this.properties.height);
-    group.position.z = this.properties.height / 2;
     var eventToTriggerOnResize = this.updateChildrenDisplayInline();
     if(eventToTriggerOnResize){
       this.dom.dispatchEvent(eventToTriggerOnResize);
+    }
+  }
+
+  setAbsolutePostion(){
+    var group = this.metaObject.group;
+    if(this.metaStyle.metaStyle.hasOwnProperty('left')){
+      group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
+    }
+    else if(this.metaStyle.metaStyle.hasOwnProperty('right')){
+      group.position.x = - (- (this.parent.properties.width/2) + (this.metaStyle["right"] || 0) + (this.properties.width/2));
+    }
+    if(this.metaStyle.metaStyle.hasOwnProperty('top')){
+      group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
+    }
+    else if(this.metaStyle.metaStyle.hasOwnProperty('bottom')){
+      group.position.y = - ((this.parent.properties.length/2) - (this.metaStyle["bottom"] || 0) - (this.properties.length/2));
+    }
+    group.position.z = (this.parent.properties.height/2 || 0) + (this.metaStyle["z"] || 0) + (this.properties.height/2 || 0);
+    if(this.metaStyle.metaStyle['rotate-x']){
+      group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
+    }
+    if(this.metaStyle.metaStyle['rotate-y']){
+      group.rotation.y = this.metaStyle.metaStyle['rotate-y'] * (Math.PI / 180);
+    }
+    if(this.metaStyle.metaStyle['rotate-z']){
+      group.rotation.z = this.metaStyle.metaStyle['rotate-z'] * (Math.PI / 180);
     }
   }
 
