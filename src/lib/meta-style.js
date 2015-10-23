@@ -163,6 +163,15 @@ export default class MetaStyle {
     return this.metaStyle["position"];
   }
 
+  set ["z"](height) {
+    this.metaStyle["z"] = Number(height);
+    return height;
+  }
+
+  get ["z"]() {
+    return this.metaStyle["z"];
+  }
+
   set ["top"](length) {
     this.metaStyle["top"] = Number(length);
     return length;
@@ -172,6 +181,15 @@ export default class MetaStyle {
     return this.metaStyle["top"];
   }
 
+  set ["bottom"](length) {
+    this.metaStyle["bottom"] = Number(length);
+    return length;
+  }
+
+  get ["bottom"]() {
+    return this.metaStyle["bottom"];
+  }
+
   set ["left"](width) {
     this.metaStyle["left"] = Number(width);
     return width;
@@ -179,6 +197,15 @@ export default class MetaStyle {
 
   get ["left"]() {
     return this.metaStyle["left"];
+  }
+
+  set ["right"](width) {
+    this.metaStyle["right"] = Number(width);
+    return width;
+  }
+
+  get ["right"]() {
+    return this.metaStyle["right"];
   }
 
   set ["material-texture"](textureSrc) {
@@ -245,14 +272,16 @@ export default class MetaStyle {
           mesh.material = new THREE.MeshPhongMaterial({color: this.metaStyle["material-color"]});
           break;
         default:
-          var shader = THREE.ShaderLib[type];
-          var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
-          mesh.material = new THREE.ShaderMaterial( {
-        		fragmentShader: shader.fragmentShader,
-        		vertexShader: shader.vertexShader,
-        		uniforms: uniforms,
-        		side: THREE.BackSide
-        	} );
+          if(THREE.ShaderLib.hasOwnProperty(type)){
+            var shader = THREE.ShaderLib[type];
+            var uniforms = THREE.UniformsUtils.clone( shader.uniforms );
+            mesh.material = new THREE.ShaderMaterial( {
+              fragmentShader: shader.fragmentShader,
+              vertexShader: shader.vertexShader,
+              uniforms: uniforms,
+              side: THREE.BackSide
+            } );
+          }
       }
       this.metaStyle["material-type"] = type;
       return mesh.material;
