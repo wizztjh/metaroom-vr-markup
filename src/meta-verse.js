@@ -23,7 +23,7 @@ class MetaVerseController extends MRM.MetaBaseController {
   }
 
   get metaChildrenNames(){
-    return ["meta-style", "meta-room", "meta-floor"]
+    return ["meta-style", "meta-room", "meta-floor", "meta-button"]
   }
 
   createMetaObject(){
@@ -70,7 +70,7 @@ class MetaVerseController extends MRM.MetaBaseController {
   }
 
   getAllMetaChildren(){
-    return document.querySelectorAll("meta-style, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface, meta-tbottom, meta-item, meta-video, meta-pillar");
+    return document.querySelectorAll("meta-style, meta-button, meta-room, meta-wall, meta-floor, meta-board, meta-picture, meta-text, meta-table, meta-tsurface, meta-tbottom, meta-item, meta-video, meta-pillar");
   }
 
   triggerMetaReady(){
@@ -157,11 +157,16 @@ class MetaVerseController extends MRM.MetaBaseController {
 
     var texture = THREE.ImageUtils.loadTexture(src);
     this.metaObject.mesh.material.map = texture;
+
   }
 
   attachMetaObject(targetController){
     targetController.parent = this
-    this.gameObject.add(targetController.metaObject);
+    if(targetController.tagName === 'meta-button'){
+      this.gameObject.dollyCam.add(targetController.metaObject.group);
+    }else {
+      this.gameObject.add(targetController.metaObject);
+    }
   }
 
   needsUpdate(){

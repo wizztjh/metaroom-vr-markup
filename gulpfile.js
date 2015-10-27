@@ -20,6 +20,7 @@ gulp.task('build:cleanup', function(cb) {
     'dist/meta-*',
     'dist/polymer*',
     'dist/lib.js',
+    'dist/leapjs-widgets-0.1.0.js',
     'dist/metaroom-markup.local.html'
   ], cb);
 });
@@ -84,7 +85,15 @@ gulp.task('copy:metaroomMarkup', function () {
   .pipe(gulp.dest('dist'));
 });
 
-gulp.task('build:copy',['copy:webComponents', 'copy:metaroomMarkup', 'copy:webComponentsJS'])
+gulp.task('copy:leapWidgets', function () {
+  return gulp.src([
+    'src/lib/leap-widgets-0.1.0.js',
+  ])
+  .pipe($.rename('leap-widgets-0.1.0.js'))
+  .pipe(gulp.dest('dist'));
+});
+
+gulp.task('build:copy',['copy:webComponents', 'copy:metaroomMarkup', 'copy:webComponentsJS', 'copy:leapWidgets'])
 
 gulp.task('build', function(callback) {
   return runSequence('build:clean',

@@ -27,6 +27,15 @@ export default class MetaStyle {
     return this.metaStyle["material-color"];
   }
 
+  set ["onTouch"](handler){
+    this.metaStyle["onTouch"] = handler;
+    return handler;
+  }
+
+  get ["onTouch"](){
+    return this.metaStyle["onTouch"];
+  }
+
   set ["vertex-shader"](domId){
     this.metaStyle["vertex-shader"] = document.getElementById(domId).textContent;
     return domId;

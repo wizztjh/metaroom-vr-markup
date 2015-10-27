@@ -28,6 +28,9 @@
     "threejs-VRControls": "https://raw.githubusercontent.com/mrdoob/three.js/01d7456ac5052ea6c00a8dd9ff526d0332ef88be/examples/js/controls/VRControls.js",
     "webvr-boilerplate": "borismus/webvr-boilerplate",
     "meta-table-geometry": "git@github.com:vr-collab/meta-table-geometry.git",
+    "leapjs": ">0.4.x",
+    "leapjs-plugins": "*",
+    "leapjs-rigged-hand": "#dfab7dc294",
     "jquery": "*"
   }
 }

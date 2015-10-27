@@ -70,6 +70,20 @@ export default class GameObject{
 
     this.manager = new WebVRManager(this.renderer, this.effect, {hideButton: false});
 
+    Leap.loop();
+
+    self.leapController = Leap.loopController;
+    self.leapController.use('transform', {
+      vr: true,
+      effectiveParent: this.camera,
+      targetEl: this.metaVerseController.dom,
+      rendererOps: {antialias: true}
+    });
+    self.leapController.use('boneHand', {
+      scene: this.scene,
+      arm: true
+    }).use('proximity');
+
     this.clock = new THREE.Clock(true)
     this.clock.start()
 
@@ -120,8 +134,8 @@ export default class GameObject{
         self.metaVerseController.needsUpdate();
       }
     }
-
     animate();
+
     // Object.keys(initObjs).forEach(function(name){
     //   returnObject = initObjs[name].apply(self)
     //   self.add(name, returnObject);
