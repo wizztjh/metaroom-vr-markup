@@ -338,8 +338,12 @@ export default class MetaStyle {
   }
 
   set ["animation-duration"](length) {
-    this.metaStyle["animation-duration"] = Number(length);
-    return length;
+    var regex = /(\d+)s/;
+    var duration = length.match(regex);
+    if(duration){
+      this.metaStyle["animation-duration"] = duration[1];
+    }
+    return duration;
   }
 
   get ["animation-duration"]() {
@@ -401,10 +405,12 @@ export default class MetaStyle {
   rotate(){
     Object.keys(this.animationSettings.rotate).forEach((rotationAxis) => {
       if(this.animationSettings.rotate[rotationAxis].hasOwnProperty("to") && this.animationSettings.rotate[rotationAxis].hasOwnProperty("from")){
-        if(this.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] + 0.005 > this.animationSettings.rotate[rotationAxis].to){
+        var rotationAngle = (6 * Math.PI) / (180 * this.metaStyle["animation-duration"]);
+        if(this.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] + rotationAngle >
+          this.animationSettings.rotate[rotationAxis].to){
           this.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] = this.animationSettings.rotate[rotationAxis].from;
         }else {
-          this.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] += 0.005;
+          this.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] += rotationAngle;
         }
       }
     });

@@ -46462,10 +46462,11 @@ var MetaStyle = (function () {
 
       Object.keys(this.animationSettings.rotate).forEach(function (rotationAxis) {
         if (_this3.animationSettings.rotate[rotationAxis].hasOwnProperty("to") && _this3.animationSettings.rotate[rotationAxis].hasOwnProperty("from")) {
-          if (_this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] + 0.005 > _this3.animationSettings.rotate[rotationAxis].to) {
+          var rotationAngle = 6 * Math.PI / (180 * _this3.metaStyle["animation-duration"]);
+          if (_this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] + rotationAngle > _this3.animationSettings.rotate[rotationAxis].to) {
             _this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] = _this3.animationSettings.rotate[rotationAxis].from;
           } else {
-            _this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] += 0.005;
+            _this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] += rotationAngle;
           }
         }
       });
@@ -46833,8 +46834,12 @@ var MetaStyle = (function () {
   }, {
     key: "animation-duration",
     set: function set(length) {
-      this.metaStyle["animation-duration"] = Number(length);
-      return length;
+      var regex = /(\d+)s/;
+      var duration = length.match(regex);
+      if (duration) {
+        this.metaStyle["animation-duration"] = duration[1];
+      }
+      return duration;
     },
     get: function get() {
       return this.metaStyle["animation-duration"];
@@ -47065,7 +47070,7 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
           if (metaTag.controller.tagName === 'meta-video') {
             _this2.videos.push(metaTag);
           }
-          if (metaTag.controller.metaStyle['animation-name']) {
+          if (metaTag.controller.metaStyle['animation-name'] && metaTag.controller.metaStyle['position'] === 'absolute' && metaTag.controller.metaStyle['animation-duration']) {
             _this2.animeObjects.push(metaTag);
           }
         }

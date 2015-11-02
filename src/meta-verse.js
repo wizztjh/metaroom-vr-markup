@@ -170,7 +170,8 @@ class MetaVerseController extends MRM.MetaBaseController {
         if(metaTag.controller.tagName === 'meta-video'){
           this.videos.push(metaTag);
         }
-        if(metaTag.controller.metaStyle['animation-name']){
+        if(metaTag.controller.metaStyle['animation-name'] && metaTag.controller.metaStyle['position'] === 'absolute' &&
+          metaTag.controller.metaStyle['animation-duration']){
           this.animeObjects.push(metaTag);
         }
       }
