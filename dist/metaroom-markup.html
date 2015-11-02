@@ -46408,6 +46408,70 @@ var MetaStyle = (function () {
   }
 
   _createClass(MetaStyle, [{
+    key: "from",
+    value: function from(animeProperties) {
+      var _this = this;
+
+      //TODO: loop through the animeProperties and set the animation object in metaStyle properties
+      Object.keys(animeProperties).forEach(function (animeProperty) {
+        if (animeProperty === "transform") {
+          var animeValue = animeProperties[animeProperty];
+          var rotateOptions = animeValue.match(/rotate[XYZ]\(\d+deg\)/g);
+          _.forEach(rotateOptions, function (rotateOption) {
+            var rotationProps = rotateOption.match(/rotate([XYZ])\((\d+)deg\)\s?/);
+            if (rotationProps) {
+              _this.animationSettings.rotate = _this.animationSettings.rotate || {};
+              _this.animationSettings.rotate[rotationProps[1]] = _this.animationSettings.rotate[rotationProps[1]] || {};
+              _this.animationSettings.rotate[rotationProps[1]].from = rotationProps[2] * (Math.PI / 180);
+              _this.controller.metaObject.group.rotation[rotationProps[1]] = rotationProps[2] * (Math.PI / 180);
+            }
+          });
+        }
+      });
+    }
+  }, {
+    key: "to",
+    value: function to(animeProperties) {
+      var _this2 = this;
+
+      //TODO: loop through the animeProperties and set the animation object in metaStyle properties
+      Object.keys(animeProperties).forEach(function (animeProperty) {
+        if (animeProperty === "transform") {
+          var animeValue = animeProperties[animeProperty];
+          var rotateOptions = animeValue.match(/rotate[XYZ]\(\d+deg\)/g);
+          _.forEach(rotateOptions, function (rotateOption) {
+            var rotationProps = rotateOption.match(/rotate([XYZ])\((\d+)deg\)\s?/);
+            if (rotationProps) {
+              _this2.animationSettings.rotate = _this2.animationSettings.rotate || {};
+              _this2.animationSettings.rotate[rotationProps[1]] = _this2.animationSettings.rotate[rotationProps[1]] || {};
+              _this2.animationSettings.rotate[rotationProps[1]].to = rotationProps[2] * (Math.PI / 180);;
+            }
+          });
+        }
+      });
+    }
+  }, {
+    key: "animate",
+    value: function animate() {
+      //TODO: for each animation property change the metaObject settings
+      this.rotate();
+    }
+  }, {
+    key: "rotate",
+    value: function rotate() {
+      var _this3 = this;
+
+      Object.keys(this.animationSettings.rotate).forEach(function (rotationAxis) {
+        if (_this3.animationSettings.rotate[rotationAxis].hasOwnProperty("to") && _this3.animationSettings.rotate[rotationAxis].hasOwnProperty("from")) {
+          if (_this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] + 0.005 > _this3.animationSettings.rotate[rotationAxis].to) {
+            _this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] = _this3.animationSettings.rotate[rotationAxis].from;
+          } else {
+            _this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] += 0.005;
+          }
+        }
+      });
+    }
+  }, {
     key: "clear",
     value: function clear() {
       //TODO: need to set everything back to default
@@ -46417,7 +46481,7 @@ var MetaStyle = (function () {
   }, {
     key: "applyMetaStyleAttribute",
     value: function applyMetaStyleAttribute() {
-      var _this = this;
+      var _this4 = this;
 
       var metaStyleAttribute = this.controller.dom.getAttribute("meta-style");
       if (!metaStyleAttribute) {
@@ -46428,7 +46492,7 @@ var MetaStyle = (function () {
       var declarations = parsedCSSRules[0].declarations;
 
       _.forEach(declarations, function (declaration) {
-        _this[declaration.property] = declaration.value;
+        _this4[declaration.property] = declaration.value;
       });
     }
   }, {
@@ -46636,25 +46700,25 @@ var MetaStyle = (function () {
   }, {
     key: "material-texture",
     set: function set(textureSrc) {
-      var _this2 = this;
+      var _this5 = this;
 
       var mesh = this.controller.metaObject.mesh;
       if (mesh) {
         var texture = THREE.ImageUtils.loadTexture(textureSrc, undefined, function (tex) {
           texture = tex;
-          if (_this2.metaStyle["material-texture-repeat"] === "repeat") {
+          if (_this5.metaStyle["material-texture-repeat"] === "repeat") {
             var imageWidth = texture.image.width,
                 imageHeight = texture.image.height,
-                width = _this2.controller.properties.width * 5 / imageWidth,
-                height = _this2.controller.properties.length * 5 / imageHeight;
+                width = _this5.controller.properties.width * 5 / imageWidth,
+                height = _this5.controller.properties.length * 5 / imageHeight;
             texture.needsUpdate = true;
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
             if (width < 1) {
-              width = _this2.controller.properties.width;
+              width = _this5.controller.properties.width;
             }
             if (height < 1) {
-              height = _this2.controller.properties.length;
+              height = _this5.controller.properties.length;
             }
             texture.repeat.set(width, height);
             mesh.material.map = texture;
@@ -46767,6 +46831,25 @@ var MetaStyle = (function () {
     get: function get() {
       return this.metaStyle["margin"];
     }
+  }, {
+    key: "animation-duration",
+    set: function set(length) {
+      this.metaStyle["animation-duration"] = Number(length);
+      return length;
+    },
+    get: function get() {
+      return this.metaStyle["animation-duration"];
+    }
+  }, {
+    key: "animation-name",
+    set: function set(name) {
+      this.metaStyle["animation-name"] = name;
+      this.animationSettings = this.animationSettings || {};
+      return name;
+    },
+    get: function get() {
+      return this.metaStyle["animation-name"];
+    }
   }]);
 
   return MetaStyle;
@@ -46815,8 +46898,10 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
     this.metaStyle = new MRM.MetaStyle(this);
     this.metaObject = this.createMetaObject();
     this.globalMetaStyle = {};
+    this.globalMetaStyle.rules = {};
     this.ready = false;
     this.videos = [];
+    this.animeObjects = [];
 
     this.setupComponent();
     this.attachMetaObject(this);
@@ -46865,13 +46950,27 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
       var metaStyles = targetController.metaStyle;
       if (metaStyles) {
         metaStyles.forEach(function (metaStyle) {
-          metaStyle.selectors.forEach(function (selector) {
-            _this.globalMetaStyle[selector] = _this.globalMetaStyle[selector] || {};
+          if (metaStyle.type === "rule") {
+            _this.globalMetaStyle.rules = _this.globalMetaStyle.rules || {};
+            metaStyle.selectors.forEach(function (selector) {
+              _this.globalMetaStyle["rules"][selector] = _this.globalMetaStyle["rules"][selector] || {};
 
-            metaStyle.declarations.forEach(function (declaration) {
-              _this.globalMetaStyle[selector][declaration.property] = declaration.value;
+              metaStyle.declarations.forEach(function (declaration) {
+                _this.globalMetaStyle["rules"][selector][declaration.property] = declaration.value;
+              });
             });
-          });
+          } else {
+            _this.globalMetaStyle[metaStyle.name] = _this.globalMetaStyle[metaStyle.name] || {};
+            metaStyle[metaStyle.type].forEach(function (rule) {
+              rule.values.forEach(function (selector) {
+                _this.globalMetaStyle[metaStyle.name][selector] = _this.globalMetaStyle[metaStyle.name][selector] || {};
+
+                rule.declarations.forEach(function (declaration) {
+                  _this.globalMetaStyle[metaStyle.name][selector][declaration.property] = declaration.value;
+                });
+              });
+            });
+          }
         });
       }
     }
@@ -46930,15 +47029,27 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
       });
 
       // NOTE: we sort and reverse because we want to prioritize id -> class -> meta tag
-      Object.keys(globalMetaStyle).sort().reverse().forEach(function (selector) {
+      Object.keys(globalMetaStyle.rules).sort().reverse().forEach(function (selector) {
         [].forEach.call(document.querySelectorAll(selector), function (metaComponent) {
-          var metaStyleProperties = globalMetaStyle[selector];
+          var metaStyleProperties = globalMetaStyle.rules[selector];
 
           Object.keys(metaStyleProperties).forEach(function (property) {
             metaComponent.controller.metaStyle[property] = metaStyleProperties[property];
+            if (property === "animation-name") {
+              var ruleName = metaStyleProperties[property];
+              var declarations = globalMetaStyle[ruleName];
+              metaComponent.controller.metaStyle[metaStyleProperties[property]] = metaComponent.controller.metaStyle[metaStyleProperties[property]] || {};
+              Object.keys(declarations).forEach(function (declaration) {
+                var animeProperties = globalMetaStyle[metaStyleProperties[property]][declaration];
+                if (typeof metaComponent.controller.metaStyle[declaration] === "function") {
+                  metaComponent.controller.metaStyle[declaration](animeProperties);
+                }
+              });
+            }
           });
         });
       });
+
       [].forEach.call(metaChildren, function (metaTag) {
         if (metaTag.controller) {
           if (metaTag.controller.metaStyle.applyMetaStyleAttribute) {
@@ -46954,6 +47065,9 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
           }
           if (metaTag.controller.tagName === "meta-video") {
             _this2.videos.push(metaTag);
+          }
+          if (metaTag.controller.metaStyle["animation-name"]) {
+            _this2.animeObjects.push(metaTag);
           }
         }
       });
@@ -46984,6 +47098,14 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
         if (video.controller) {
           if (video.controller.videoElement.readyState !== video.controller.videoElement.HAVE_ENOUGH_DATA) return;
           video.controller.metaObject.mesh.material.needsUpdate = true;
+        }
+      });
+      _.forEach(this.animeObjects, function (object) {
+        if (object.controller) {
+          var animationName = object.controller.metaStyle["animation-name"];
+          if (object.controller.metaStyle[animationName]) {
+            object.controller.metaStyle.animate();
+          }
         }
       });
     }

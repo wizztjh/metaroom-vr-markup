@@ -10,9 +10,11 @@ class MetaVerseController extends MRM.MetaBaseController {
     this.parent = null;
     this.metaStyle = new MRM.MetaStyle(this);
     this.metaObject = this.createMetaObject();
-    this.globalMetaStyle = {}
+    this.globalMetaStyle = {};
+    this.globalMetaStyle.rules = {};
     this.ready = false;
     this.videos = [];
+    this.animeObjects = [];
 
     this.setupComponent();
     this.attachMetaObject(this);
@@ -57,14 +59,27 @@ class MetaVerseController extends MRM.MetaBaseController {
     var metaStyles = targetController.metaStyle
     if(metaStyles){
       metaStyles.forEach((metaStyle) => {
-        metaStyle.selectors.forEach((selector) => {
-          this.globalMetaStyle[selector] = this.globalMetaStyle[selector] || {}
+        if(metaStyle.type === 'rule'){
+          this.globalMetaStyle.rules = this.globalMetaStyle.rules || {};
+          metaStyle.selectors.forEach((selector) => {
+            this.globalMetaStyle["rules"][selector] = this.globalMetaStyle["rules"][selector] || {};
 
-          metaStyle.declarations.forEach((declaration) => {
-            this.globalMetaStyle[selector][declaration.property] = declaration.value
-          })
+            metaStyle.declarations.forEach((declaration) => {
+              this.globalMetaStyle["rules"][selector][declaration.property] = declaration.value;
+            });
+          });
+        }else {
+          this.globalMetaStyle[metaStyle.name] = this.globalMetaStyle[metaStyle.name] || {};
+          metaStyle[metaStyle.type].forEach((rule) => {
+            rule.values.forEach((selector) => {
+              this.globalMetaStyle[metaStyle.name][selector] = this.globalMetaStyle[metaStyle.name][selector] || {};
 
-        })
+              rule.declarations.forEach((declaration) => {
+                this.globalMetaStyle[metaStyle.name][selector][declaration.property] = declaration.value;
+              });
+            });
+          });
+        }
       });
     }
   }
@@ -118,15 +133,27 @@ class MetaVerseController extends MRM.MetaBaseController {
     });
 
     // NOTE: we sort and reverse because we want to prioritize id -> class -> meta tag
-    Object.keys(globalMetaStyle).sort().reverse().forEach((selector) => {
+    Object.keys(globalMetaStyle.rules).sort().reverse().forEach((selector) => {
       [].forEach.call( document.querySelectorAll(selector), function(metaComponent){
-        var metaStyleProperties = globalMetaStyle[selector]
+        var metaStyleProperties = globalMetaStyle.rules[selector]
 
         Object.keys(metaStyleProperties).forEach(function(property){
-          metaComponent.controller.metaStyle[property] = metaStyleProperties[property]
+          metaComponent.controller.metaStyle[property] = metaStyleProperties[property];
+          if(property === 'animation-name'){
+            var ruleName = metaStyleProperties[property];
+            var declarations = globalMetaStyle[ruleName];
+            metaComponent.controller.metaStyle[metaStyleProperties[property]] = metaComponent.controller.metaStyle[metaStyleProperties[property]] || {};
+            Object.keys(declarations).forEach((declaration) => {
+              var animeProperties = globalMetaStyle[metaStyleProperties[property]][declaration];
+              if(typeof metaComponent.controller.metaStyle[declaration] === 'function'){
+                metaComponent.controller.metaStyle[declaration](animeProperties);
+              }
+            });
+          }
         });
       })
     });
+
     [].forEach.call(metaChildren, (metaTag)=>{
       if(metaTag.controller) {
         if(metaTag.controller.metaStyle.applyMetaStyleAttribute){
@@ -142,6 +169,9 @@ class MetaVerseController extends MRM.MetaBaseController {
         }
         if(metaTag.controller.tagName === 'meta-video'){
           this.videos.push(metaTag);
+        }
+        if(metaTag.controller.metaStyle['animation-name']){
+          this.animeObjects.push(metaTag);
         }
       }
     });
@@ -170,7 +200,15 @@ class MetaVerseController extends MRM.MetaBaseController {
         if( video.controller.videoElement.readyState !== video.controller.videoElement.HAVE_ENOUGH_DATA )	return;
         video.controller.metaObject.mesh.material.needsUpdate = true;
       }
-    })
+    });
+    _.forEach(this.animeObjects, (object) => {
+      if(object.controller){
+        var animationName = object.controller.metaStyle['animation-name'];
+        if(object.controller.metaStyle[animationName]){
+          object.controller.metaStyle.animate();
+        }
+      }
+    });
   }
 
 }
