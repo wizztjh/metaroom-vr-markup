@@ -51,6 +51,17 @@
         meta-table{
           thickness: 0.1;
         }
+        .animate {
+          animation-name: slidein;
+        }
+        @keyframes slidein {
+          from {
+            transform: rotateX(0deg) rotateY(0deg);
+          }
+          to {
+            transform: rotateX(359deg) rotateY(359deg);
+          }
+        }
       </meta-style>
 
       <meta-room width='30' height='15' length='20'>
@@ -178,7 +189,7 @@
             <meta-tbottom class='light-chocolate' align='left'></meta-tbottom>
 
           </meta-table>
-          <meta-item width='2' length='2' height='4' material-src='model/pokka/model_mesh.obj.mtl' geometry-src='model/pokka/model_mesh.obj' id='meta-item-on-floor' meta-style='rotate-z:45; position: absolute; top: 15; left: 20; z: 3'></meta-item>
+          <meta-item class="animate" width='2' length='2' height='4' material-src='model/pokka/model_mesh.obj.mtl' geometry-src='model/pokka/model_mesh.obj' id='meta-item-on-floor' meta-style='rotate-z:45; position: absolute; top: 15; left: 20; z: 3'></meta-item>
         </meta-floor>
 
       </meta-room>
