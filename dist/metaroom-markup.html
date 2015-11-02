@@ -46414,7 +46414,11 @@ var MetaStyle = (function () {
 
       //TODO: loop through the animeProperties and set the animation object in metaStyle properties
       Object.keys(animeProperties).forEach(function (animeProperty) {
+<<<<<<< HEAD
         if (animeProperty === "transform") {
+=======
+        if (animeProperty === 'transform') {
+>>>>>>> animate works without animation-duration attribute
           var animeValue = animeProperties[animeProperty];
           var rotateOptions = animeValue.match(/rotate[XYZ]\(\d+deg\)/g);
           _.forEach(rotateOptions, function (rotateOption) {
@@ -46436,7 +46440,11 @@ var MetaStyle = (function () {
 
       //TODO: loop through the animeProperties and set the animation object in metaStyle properties
       Object.keys(animeProperties).forEach(function (animeProperty) {
+<<<<<<< HEAD
         if (animeProperty === "transform") {
+=======
+        if (animeProperty === 'transform') {
+>>>>>>> animate works without animation-duration attribute
           var animeValue = animeProperties[animeProperty];
           var rotateOptions = animeValue.match(/rotate[XYZ]\(\d+deg\)/g);
           _.forEach(rotateOptions, function (rotateOption) {
@@ -46463,11 +46471,18 @@ var MetaStyle = (function () {
 
       Object.keys(this.animationSettings.rotate).forEach(function (rotationAxis) {
         if (_this3.animationSettings.rotate[rotationAxis].hasOwnProperty("to") && _this3.animationSettings.rotate[rotationAxis].hasOwnProperty("from")) {
+<<<<<<< HEAD
           var rotationAngle = 6 * Math.PI / (180 * _this3.metaStyle["animation-duration"]);
           if (_this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] + rotationAngle > _this3.animationSettings.rotate[rotationAxis].to) {
             _this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] = _this3.animationSettings.rotate[rotationAxis].from;
           } else {
             _this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] += rotationAngle;
+=======
+          if (_this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] + 0.005 > _this3.animationSettings.rotate[rotationAxis].to) {
+            _this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] = _this3.animationSettings.rotate[rotationAxis].from;
+          } else {
+            _this3.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] += 0.005;
+>>>>>>> animate works without animation-duration attribute
           }
         }
       });
@@ -46707,7 +46722,11 @@ var MetaStyle = (function () {
       if (mesh) {
         var texture = THREE.ImageUtils.loadTexture(textureSrc, undefined, function (tex) {
           texture = tex;
+<<<<<<< HEAD
           if (_this5.metaStyle["material-texture-repeat"] === "repeat") {
+=======
+          if (_this5.metaStyle["material-texture-repeat"] === 'repeat') {
+>>>>>>> animate works without animation-duration attribute
             var imageWidth = texture.image.width,
                 imageHeight = texture.image.height,
                 width = _this5.controller.properties.width * 5 / imageWidth,
@@ -46835,12 +46854,17 @@ var MetaStyle = (function () {
   }, {
     key: "animation-duration",
     set: function set(length) {
+<<<<<<< HEAD
       var regex = /(\d+)s/;
       var duration = length.match(regex);
       if (duration) {
         this.metaStyle["animation-duration"] = duration[1];
       }
       return duration;
+=======
+      this.metaStyle["animation-duration"] = Number(length);
+      return length;
+>>>>>>> animate works without animation-duration attribute
     },
     get: function get() {
       return this.metaStyle["animation-duration"];
@@ -46955,7 +46979,11 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
       var metaStyles = targetController.metaStyle;
       if (metaStyles) {
         metaStyles.forEach(function (metaStyle) {
+<<<<<<< HEAD
           if (metaStyle.type === "rule") {
+=======
+          if (metaStyle.type === 'rule') {
+>>>>>>> animate works without animation-duration attribute
             _this.globalMetaStyle.rules = _this.globalMetaStyle.rules || {};
             metaStyle.selectors.forEach(function (selector) {
               _this.globalMetaStyle["rules"][selector] = _this.globalMetaStyle["rules"][selector] || {};
@@ -47040,13 +47068,21 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
 
           Object.keys(metaStyleProperties).forEach(function (property) {
             metaComponent.controller.metaStyle[property] = metaStyleProperties[property];
+<<<<<<< HEAD
             if (property === "animation-name") {
+=======
+            if (property === 'animation-name') {
+>>>>>>> animate works without animation-duration attribute
               var ruleName = metaStyleProperties[property];
               var declarations = globalMetaStyle[ruleName];
               metaComponent.controller.metaStyle[metaStyleProperties[property]] = metaComponent.controller.metaStyle[metaStyleProperties[property]] || {};
               Object.keys(declarations).forEach(function (declaration) {
                 var animeProperties = globalMetaStyle[metaStyleProperties[property]][declaration];
+<<<<<<< HEAD
                 if (typeof metaComponent.controller.metaStyle[declaration] === "function") {
+=======
+                if (typeof metaComponent.controller.metaStyle[declaration] === 'function') {
+>>>>>>> animate works without animation-duration attribute
                   metaComponent.controller.metaStyle[declaration](animeProperties);
                 }
               });
@@ -47071,7 +47107,11 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
           if (metaTag.controller.tagName === "meta-video") {
             _this2.videos.push(metaTag);
           }
+<<<<<<< HEAD
           if (metaTag.controller.metaStyle["animation-name"] && metaTag.controller.metaStyle["position"] === "absolute" && metaTag.controller.metaStyle["animation-duration"]) {
+=======
+          if (metaTag.controller.metaStyle['animation-name']) {
+>>>>>>> animate works without animation-duration attribute
             _this2.animeObjects.push(metaTag);
           }
         }
@@ -47107,7 +47147,11 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
       });
       _.forEach(this.animeObjects, function (object) {
         if (object.controller) {
+<<<<<<< HEAD
           var animationName = object.controller.metaStyle["animation-name"];
+=======
+          var animationName = object.controller.metaStyle['animation-name'];
+>>>>>>> animate works without animation-duration attribute
           if (object.controller.metaStyle[animationName]) {
             object.controller.metaStyle.animate();
           }
