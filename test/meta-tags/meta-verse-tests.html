@@ -95,9 +95,11 @@
                   tagName: 'meta-style',
                   metaStyle: [
                     {
+                      type: "rule",
                       selectors: ['.picture-2'],
                       declarations: [
                         {
+                          type: "declaration",
                           "property": "mesh-color",
                           "value": 'blue'
                         }
@@ -115,9 +117,11 @@
                   tagName: 'meta-style',
                   metaStyle: [
                     {
+                      type: "rule",
                       selectors: ['.picture-1'],
                       declarations: [
                         {
+                          type: "declaration",
                           "property": "mesh-color",
                           "value": 'red'
                         }
@@ -128,8 +132,8 @@
               }
             }));
 
-            expect(J.metaVerse.controller.globalMetaStyle[".picture-1"]).to.deep.equal({"mesh-color": "red"})
-            expect(J.metaVerse.controller.globalMetaStyle[".picture-2"]).to.deep.equal({"mesh-color": "blue"})
+            expect(J.metaVerse.controller.globalMetaStyle.rules[".picture-1"]).to.deep.equal({"mesh-color": "red"})
+            expect(J.metaVerse.controller.globalMetaStyle.rules[".picture-2"]).to.deep.equal({"mesh-color": "blue"})
 
           });
 
