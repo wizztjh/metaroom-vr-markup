@@ -48,9 +48,10 @@
         shouldBehaveLikeA['MetaObject that scales']('metaPictureMesh', {x: 2.4, y: 3.4});
         shouldBehaveLikeA['Plane Adding MetaTag']('metaPicture', 'metaBoard');
 
-        it('updates the texture based on src', function(){
-          expect(J.metaPicture.controller.metaObject.mesh.material.map.sourceFile).to.equal("fixtures/ball.png");
-        });
+        //NOTE: mesh.material.map.sourceFile is no more used in r73 #7390
+        // it('updates the texture based on src', function(){
+        //   expect(J.metaPicture.controller.metaObject.mesh.material.map.sourceFile).to.equal("fixtures/ball.png");
+        // });
 
         it('adds another mesh in group when frame-width is included in meta-style', function(){
           expect(J.metaPicture.controller.metaObject.group.children.length).to.equal(2);

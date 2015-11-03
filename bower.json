@@ -22,7 +22,7 @@
     "lodash": "~3.10.1"
   },
   "devDependencies": {
-    "threejs": "r71",
+    "threejs": "r73",
     "metaroom-webvr-polyfill": "https://raw.githubusercontent.com/MetaRoomMarkup/webvr-polyfill/master/build/webvr-polyfill.js",
     "threejs-VREffect": "https://raw.githubusercontent.com/mrdoob/three.js/01d7456ac5052ea6c00a8dd9ff526d0332ef88be/examples/js/effects/VREffect.js",
     "threejs-VRControls": "https://raw.githubusercontent.com/mrdoob/three.js/01d7456ac5052ea6c00a8dd9ff526d0332ef88be/examples/js/controls/VRControls.js",
