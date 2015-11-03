@@ -337,6 +337,85 @@ export default class MetaStyle {
     return this.metaStyle["margin"];
   }
 
+  set ["animation-duration"](length) {
+    var regex = /(\d+)s/;
+    var duration = length.match(regex);
+    if(duration){
+      this.metaStyle["animation-duration"] = duration[1];
+    }
+    return duration;
+  }
+
+  get ["animation-duration"]() {
+    return this.metaStyle["animation-duration"];
+  }
+
+  set ["animation-name"](name) {
+    this.metaStyle["animation-name"] = name;
+    this.animationSettings = this.animationSettings || {};
+    return name;
+  }
+
+  get ["animation-name"]() {
+    return this.metaStyle["animation-name"];
+  }
+
+  from(animeProperties){
+    //TODO: loop through the animeProperties and set the animation object in metaStyle properties
+    Object.keys(animeProperties).forEach((animeProperty) => {
+      if(animeProperty === 'transform'){
+        var animeValue = animeProperties[animeProperty];
+        var rotateOptions = animeValue.match(/rotate[XYZ]\(\d+deg\)/g);
+        _.forEach(rotateOptions, (rotateOption) => {
+          var rotationProps = rotateOption.match(/rotate([XYZ])\((\d+)deg\)\s?/);
+          if(rotationProps){
+            this.animationSettings.rotate = this.animationSettings.rotate || {};
+            this.animationSettings.rotate[rotationProps[1]] = this.animationSettings.rotate[rotationProps[1]] || {};
+            this.animationSettings.rotate[rotationProps[1]].from = rotationProps[2] * (Math.PI / 180);
+            this.controller.metaObject.group.rotation[rotationProps[1]] = rotationProps[2] * (Math.PI / 180);
+          }
+        });
+      }
+    });
+  }
+
+  to(animeProperties){
+    //TODO: loop through the animeProperties and set the animation object in metaStyle properties
+    Object.keys(animeProperties).forEach((animeProperty) => {
+      if(animeProperty === 'transform'){
+        var animeValue = animeProperties[animeProperty];
+        var rotateOptions = animeValue.match(/rotate[XYZ]\(\d+deg\)/g);
+        _.forEach(rotateOptions, (rotateOption) => {
+          var rotationProps = rotateOption.match(/rotate([XYZ])\((\d+)deg\)\s?/);
+          if(rotationProps){
+            this.animationSettings.rotate = this.animationSettings.rotate || {};
+            this.animationSettings.rotate[rotationProps[1]] = this.animationSettings.rotate[rotationProps[1]] || {};
+            this.animationSettings.rotate[rotationProps[1]].to = rotationProps[2] * (Math.PI / 180);;
+          }
+        });
+      }
+    });
+  }
+
+  animate(){
+    //TODO: for each animation property change the metaObject settings
+    this.rotate();
+  }
+
+  rotate(){
+    Object.keys(this.animationSettings.rotate).forEach((rotationAxis) => {
+      if(this.animationSettings.rotate[rotationAxis].hasOwnProperty("to") && this.animationSettings.rotate[rotationAxis].hasOwnProperty("from")){
+        var rotationAngle = (6 * Math.PI) / (180 * this.metaStyle["animation-duration"]);
+        if(this.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] + rotationAngle >
+          this.animationSettings.rotate[rotationAxis].to){
+          this.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] = this.animationSettings.rotate[rotationAxis].from;
+        }else {
+          this.controller.metaObject.group.rotation[rotationAxis.toLowerCase()] += rotationAngle;
+        }
+      }
+    });
+  }
+
   clear(){
     //TODO: need to set everything back to default
     this.metaStyle = {}

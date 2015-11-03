@@ -47,6 +47,18 @@
         .red {
           material-color: red;
         }
+        .animate {
+          animation-name: slidein;
+          animation-duration: 3s;
+        }
+        @keyframes slidein {
+          from {
+            transform: rotateX(10deg);
+          }
+          to {
+            transform: rotateX(10deg) rotateY(5deg);
+          }
+        }
       </meta-style>
 
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
@@ -59,6 +71,7 @@
           <meta-table width='3' height='4' length='2' id='phong-meta-table'>
             <meta-tsurface id="phong-meta-tsurface"></meta-tsurface>
           </meta-table>
+          <meta-picture id='that-pic' class='animate'></meta-picture>
         </meta-floor>
         <meta-wall align='left' id='main-meta-wall'></meta-wall>
         <meta-wall class='blue-wall' align='right' id='right-meta-wall'></meta-wall>
@@ -78,6 +91,7 @@
         jlet('metaPhongTable', function(){ return document.querySelector('#phong-meta-table')});
         jlet('metaWall', function(){ return document.querySelector('#main-meta-wall')});
         jlet('metaPicture', function(){ return document.querySelector('#that-wall')});
+        jlet('metaAnimatePicture', function(){ return document.querySelector('#that-pic')});
         jlet('metaBoardStyledByAttribute', function(){ return document.querySelector('#meta-board-styled-by-attribute')});
         jlet('metaTsurface', function(){ return document.querySelector('#main-meta-tsurface')});
         jlet('metaPhongTsurface', function(){ return document.querySelector('#phong-meta-tsurface')});
@@ -102,6 +116,8 @@
           // NOTE: we do metaStyle.metaStyle because that is the object that contain the meta style properties and value
           expect(Object.keys(J.metaWall.controller.metaStyle.metaStyle).length).to.equal(1)
           expect(J.metaWall.controller.metaStyle["material-color"]).to.equal('red');
+          expect(J.metaAnimatePicture.controller.metaStyle.metaStyle["animation-name"]).to.equal('slidein');
+          expect(J.metaAnimatePicture.controller.metaStyle.animationSettings.rotate.X.from).to.equal(10 * Math.PI / 180);
         });
       });
 
