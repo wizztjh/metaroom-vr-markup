@@ -14,7 +14,7 @@
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
         <meta-floor align='left' id='main-meta-floor'>
-          <meta-item width='4' length='5' height='6' material-src='fixtures/model/male02.mtl' geometry-src='fixtures/model/male02.obj' src='fixtures/model/smale02.obj, fixtures/model/male02.mtl'id='meta-item-on-floor'></meta-item>
+          <meta-item width='4' length='5' height='6' material-src='fixtures/model/male02.mtl' src='fixtures/model/male02.obj' id='meta-item-on-floor'></meta-item>
         </meta-floor>
       </meta-room>
     </meta-verse>
@@ -24,13 +24,6 @@
     describe('meta-item', function() {
       var scale = 0;
       beforeEach(function(){
-        var loader = new THREE.OBJMTLLoader();
-        loader.load( 'fixtures/model/male02.obj', 'fixtures/model/male02.mtl', ( object ) => {
-          var bbox = new THREE.BoundingBoxHelper( object, 0xff0000 );
-          bbox.update();
-          scale = {x : 4 / bbox.box.size().x,
-            y: 6 / bbox.box.size().y, z: 5 / bbox.box.size().z};
-        });
         jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
         jlet('metaFloor', function(){ return document.querySelector('#main-meta-floor')});
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
@@ -44,26 +37,12 @@
       });
 
       describe("when initilize", function(){
-        beforeEach(function(){
-          // debugger;
-          jlet('metaItemMesh', function(){ return J.metaItem.controller.metaObject.mesh; });
-          jlet('metaItemGroup', function(){ return J.metaItem.controller.metaObject.group; });
-        });
-        it("sets the dimension of the object", function(){
-          expect(J.metaItemMesh.scale.x, 'width').to.equal(scale.x);
-          expect(J.metaItemMesh.scale.y, 'length').to.equal(scale.y);
-          expect(J.metaItemMesh.scale.z, 'height').to.equal(scale.z);
-        });
 
         shouldBehaveLikeA['Plane Adding MetaTag']('metaItem', 'metaFloor');
 
         it("creates a metaobject with a group", function(){
           expect(J.metaFloorChildrenUUID).to.include(J.metaItem.controller.metaObject.group.uuid);
         });
-
-        it("rotates to face upward", function(){
-          expect(J.metaItemMesh.rotation.x).to.equal( 0 );
-        })
 
         // TODO: write unit spec for this, and make sure the rotation updates accordingly
         // describe("when the meta-item is on the wall", function(){

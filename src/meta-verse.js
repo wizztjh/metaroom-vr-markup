@@ -18,6 +18,7 @@ class MetaVerseController extends MRM.MetaBaseController {
 
     this.setupComponent();
     this.attachMetaObject(this);
+    this.initializeTHREELoaders();
   }
 
   get tagName(){
@@ -43,6 +44,13 @@ class MetaVerseController extends MRM.MetaBaseController {
       mesh: mesh,
       group: group
     };
+  }
+
+  initializeTHREELoaders(){
+    THREE.Loader.Handlers.add(/\.ply$/i, new THREE.PLYLoader());
+    THREE.Loader.Handlers.add(/\.obj$/i, new THREE.OBJLoader());
+    THREE.Loader.Handlers.add(/\.dae$/i, new THREE.ColladaLoader());
+    THREE.Loader.Handlers.add(/\.mtl$/i, new THREE.MTLLoader());
   }
 
   setupComponent() {
