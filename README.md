@@ -1,10 +1,8 @@
-# MetaRoomMarkup (Alpha stage, V0)
+# webVR Markup (Alpha)
 
-[![Join the chat at https://gitter.im/MetaRoomMarkup/MetaRoomMarkup](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/MetaRoomMarkup/MetaRoomMarkup?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[What is webVR Markup](http://vrcollab.com/2015/08/10/what-is-metaroom-markup.html)
 
-[What is MetaRoom Markup](http://vrcollab.com/2015/08/10/what-is-metaroom-markup.html)
-
-MetaRoomMarkup applies the HTML/CSS way of positioning and styling to a 3D object.
+webVR Markup applies the HTML/CSS way of positioning and styling to a 3D object.
 
 ``` html
 <meta-table class='nice-table'>
@@ -19,7 +17,12 @@ MetaRoomMarkup applies the HTML/CSS way of positioning and styling to a 3D objec
 }
 ```
 
-## Why MetaRoom Markup?
+## Why create webVR markup when there are other VR markup language
+
+Most of the 3D markup language is svg, it declares cube, geometries, vertices and material.
+I want a real HTML/CSS VR markup language that declares table, room, picture, grass planes, plants, human and stairs.
+
+## Why webVR Markup?
 
 #### Dynamic scaling base on children's dimension
 ![alt tag](demo/img/dynamic-table.gif)
@@ -38,8 +41,7 @@ A quick sandbox to test out
 ### Getting Started
 
 ``` zsh
-bower install MetaRoomMarkup
-bower install webcomponentsjs
+bower install webvr-markup
 ```
 
 then include MetaRoomMarkup and webcomponentsjs in your html
@@ -194,15 +196,14 @@ Open a github issue
 - How do we scroll in VR or 3D? There should be a path in the meta-room that follows all the tabindex, meta-link and meta-item
 - meta-section to define a section and meta-label to guide user to the location along the meta-path region
 
-### Introduction to metaroom-markup video:
+### Introduction to webvr-markup video:
 
-[![metaroom-markup video](http://img.youtube.com/vi/eoWaB1wufn4/0.jpg)](http://www.youtube.com/watch?v=eoWaB1wufn4)
-
+[![webvr-markup video](http://img.youtube.com/vi/eoWaB1wufn4/0.jpg)](http://www.youtube.com/watch?v=eoWaB1wufn4)
 
 ### Dev setup
 
-    git clone git@github.com:MetaRoomMarkup/MetaRoomMarkup.git
-    cd MetaRoomMarkup
+    git clone git@github.com:vr-collab/webvr-markup.git
+    cd webvr-markup
     npm install
     bower install
 
