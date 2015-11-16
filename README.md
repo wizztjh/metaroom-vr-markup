@@ -33,6 +33,9 @@ I want a real HTML/CSS VR markup language that declares table, room, picture, gr
 #### Display inline positioning
 ![alt tag](demo/img/display-inline.gif)
 
+#### Animation with CSS keyframe
+![alt tag](demo/img/animation.gif)
+
 ### Sandbox
 A quick sandbox to test out
 
