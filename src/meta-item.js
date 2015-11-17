@@ -5,17 +5,78 @@ class MetaItemController extends MRM.MetaComponentController {
     this.parent = dom.parentElement.controller;
 
     this.metaObject = this.createMetaObject()
+    this.computedProperties = {};
+    this.computedPropertiesKey.forEach((key) => {
+      var settings = this.computedPropertiesSettings[key];
+      var value = settings.type(this.properties[key] || settings.default)
+      Object.defineProperty(this.computedProperties, key, {
+        get: function(){
+          return value
+        },
+        set: (inputValue) => {
+          var onChangeFunction = settings.onChange;
+          value = settings.type(inputValue)
+          if(typeof onChangeFunction === "function") {
+            if(oldValue !== value) {
+              onChangeFunction.call(this, value, oldValue, key)
+            }
+          }
+        }
+      });
+    });
     this.updateMetaObject();
   }
 
   get propertiesSettings() {
     return {
-      width: {type: Number, default: 1, attrName: 'width'},
-      length: {type: Number, default: 1, attrName: 'length'},
-      height: {type: Number, default: 1, attrName: 'height'},
+      width: {
+        type: Number,
+        default: null,
+        attrName: 'width',
+        onChange: (value)=>{
+          this.computedProperties.width = value;
+        }
+      },
+      length: {
+        type: Number,
+        default: null,
+        attrName: 'length',
+        onChange: (value)=>{
+          this.computedProperties.length = value;
+        }
+      },
+      height: {
+        type: Number,
+        default: null,
+        attrName: 'height',
+        onChange: (value)=>{
+          this.computedProperties.height = value;
+        }
+      },
       materialSrc: {type: String, default: '', attrName: 'material-src'},
       src: {type: String, default: '', attrName: 'src'}
     }
+  }
+
+  get computedPropertiesSettings(){
+    return {
+      width: {
+        type: Number,
+        default: 0.1
+      },
+      length: {
+        type: Number,
+        default: 0.1
+      },
+      height: {
+        type: Number,
+        default: 0.1
+      }
+    };
+  }
+
+  get computedPropertiesKey(){
+    return Object.keys(this.computedPropertiesSettings);
   }
 
   get metaAttachedActions(){
@@ -68,6 +129,13 @@ class MetaItemController extends MRM.MetaComponentController {
       scope.metaObject.mesh = collada.scene;
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
+      var event = new CustomEvent('size-attributes-change', {
+        'detail': {
+          'controller': scope,
+        },
+        bubbles: true
+      });
+      scope.dom.dispatchEvent(event);
     }
 
     function objLoaderCallback(object){
@@ -75,6 +143,13 @@ class MetaItemController extends MRM.MetaComponentController {
       scope.metaObject.mesh = object;
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
+      var event = new CustomEvent('size-attributes-change', {
+        'detail': {
+          'controller': scope,
+        },
+        bubbles: true
+      });
+      scope.dom.dispatchEvent(event);
     }
 
     function plyLoaderCallback(geometry){
@@ -92,6 +167,13 @@ class MetaItemController extends MRM.MetaComponentController {
       }
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
+      var event = new CustomEvent('size-attributes-change', {
+        'detail': {
+          'controller': scope,
+        },
+        bubbles: true
+      });
+      scope.dom.dispatchEvent(event);
     }
 
     function objmtlLoaderCallback(object){
@@ -99,6 +181,13 @@ class MetaItemController extends MRM.MetaComponentController {
       scope.metaObject.mesh = object;
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
+      var event = new CustomEvent('size-attributes-change', {
+        'detail': {
+          'controller': scope,
+        },
+        bubbles: true
+      });
+      scope.dom.dispatchEvent(event);
     }
 
     //TODO: why keep loading this? Don't need to keep loading if geometrySrc and materialSrc did not change
@@ -119,15 +208,73 @@ class MetaItemController extends MRM.MetaComponentController {
   }
 
   scaleMetaObject(){
-    var bbox = new THREE.BoundingBoxHelper( this.metaObject.mesh, 0xff0000 );
-    bbox.update();
-    this.metaObject.mesh.scale.set(this.properties.width / bbox.box.size().x,
-      this.properties.height / bbox.box.size().y, this.properties.length / bbox.box.size().z);
-    // this.metaObject.mesh.scale.set(this.properties.width, this.properties.height, this.properties.length);
+    var bbox;
+    if(this.metaObject.box === undefined){
+      bbox = new THREE.BoundingBoxHelper( this.metaObject.mesh, 0xff0000 );
+      bbox.update();
+      this.metaObject.box = bbox;
+    }
+    else {
+      bbox = this.metaObject.box;
+    }
     this.metaObject.mesh.rotation.x = 90 * (Math.PI/180);
-    bbox.update();
-    // this.metaObject.box = bbox;
-    // this.metaObject.group.add( this.metaObject.box );
+    if(this.properties.width){
+      if(this.properties.length === 0){
+        //width set, but length is not set
+        this.computedProperties.length = (this.properties.width / this.metaObject.box.box.size().x);
+      }else{
+        //width and length are set
+        this.computedProperties.length = this.properties.length / this.metaObject.box.box.size().z;
+      }
+      if (this.properties.height === 0) {
+        //width set, but height is not set
+        this.computedProperties.height = ( this.properties.width / this.metaObject.box.box.size().x);
+      }
+      else{
+        // width, length and height are set
+        this.computedProperties.height = this.properties.height / this.metaObject.box.box.size().y;
+      }
+      this.computedProperties.width = this.properties.width / this.metaObject.box.box.size().x;
+    }
+    else if (this.properties.length) {
+      //length set, but width is undefined as it reached this flow
+      this.computedProperties.width = (this.properties.length / this.metaObject.box.box.size().z);
+      if (this.properties.height === 0) {
+        //length set, but height is not set
+        this.computedProperties.height = (this.properties.length / this.metaObject.box.box.size().z);
+      }
+      else{
+        // length, height are set and width is not set
+        this.computedProperties.height = this.properties.height / this.metaObject.box.box.size().y;
+      }
+      this.computedProperties.length = this.properties.length / this.metaObject.box.box.size().z;
+    }
+    else if (this.properties.height) {
+      //height is set, but both width and length are not set
+      this.computedProperties.width = (this.properties.height / this.metaObject.box.box.size().y);
+      this.computedProperties.length = (this.properties.height / this.metaObject.box.box.size().y);
+      this.computedProperties.height = this.properties.height / this.metaObject.box.box.size().y;
+    }
+    else {
+      //width, length and height are not set
+      this.computedProperties.width = this.metaObject.box.box.size().x;
+      this.computedProperties.height = this.metaObject.box.box.size().y;
+      this.computedProperties.length = this.metaObject.box.box.size().z;
+      this.metaObject.newBbox = bbox;
+      this.metaObject.group.position.z = bbox.box.size().z / 2;
+      return;
+    }
+    this.metaObject.mesh.scale.x = this.computedProperties.width;
+    this.metaObject.mesh.scale.y = this.computedProperties.height;
+    this.metaObject.mesh.scale.z = this.computedProperties.length;
+    var newBbox = new THREE.BoundingBoxHelper( this.metaObject.mesh, 0xff0000 );
+    newBbox.update();
+    this.computedProperties.width = newBbox.box.size().x;
+    this.computedProperties.length = newBbox.box.size().y;
+    this.computedProperties.height = newBbox.box.size().z;
+    this.metaObject.group.position.z = newBbox.box.size().z / 2;
+    this.metaObject.newBbox = newBbox;
+    // this.metaObject.group.add( newBbox );
   }
 
   clearGroup(){

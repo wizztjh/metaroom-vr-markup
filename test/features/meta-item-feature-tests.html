@@ -14,7 +14,7 @@
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
         <meta-floor align='left' id='main-meta-floor'>
-          <meta-item width='4' length='5' height='6' material-src='fixtures/model/male02.mtl' src='fixtures/model/male02.obj' id='meta-item-on-floor'></meta-item>
+          <meta-item material-src='fixtures/model/male02.mtl' src='fixtures/model/male02.obj' id='meta-item-on-floor'></meta-item>
         </meta-floor>
       </meta-room>
     </meta-verse>
@@ -22,12 +22,28 @@
 
   <script>
     describe('meta-item', function() {
-      var scale = 0;
-      beforeEach(function(){
+      var scale;
+      beforeEach(function(done){
         jlet('metaVerse', function(){ return document.querySelector('#meta-verse')});
         jlet('metaFloor', function(){ return document.querySelector('#main-meta-floor')});
         jlet('metaRoom', function(){ return document.querySelector('#main-meta-room')});
         jlet('metaItem', function(){ return document.querySelector('#meta-item-on-floor')});
+
+        jlet('metaItemMesh', function(){ return J.metaItem.controller.metaObject.mesh; });
+        setTimeout(function(){
+          var loader = new THREE.OBJMTLLoader();
+          loader.load( J.metaItem.controller.properties.src , J.metaItem.controller.properties.materialSrc, ( object ) => {
+            var bbox = new THREE.BoundingBoxHelper( object, 0xff0000 );
+            bbox.update();
+            scale = {
+              x :bbox.box.size().x,
+              y: bbox.box.size().y,
+              z: bbox.box.size().z
+            };
+            jlet('metaItemMesh', function(){ return J.metaItem.controller.metaObject.mesh; });
+            done();
+          });
+        }, 1000);
 
         jlet('metaFloorChildrenUUID', function(){
           return J.metaFloor.controller.metaObject.group.children.map(function(child){
@@ -44,10 +60,95 @@
           expect(J.metaFloorChildrenUUID).to.include(J.metaItem.controller.metaObject.group.uuid);
         });
 
+        it("rotates to face upward", function(){
+          expect(J.metaItemMesh.rotation.x).to.equal( 90 * (Math.PI/180))
+        });
+
+        it("scales to default", function(){
+          expect(J.metaItem.controller.computedProperties.width, 'width').to.equal(scale.x);
+          expect(J.metaItem.controller.computedProperties.height, 'height').to.equal(scale.y);
+          expect(J.metaItem.controller.computedProperties.length, 'length').to.equal(scale.z);
+        });
+
         // TODO: write unit spec for this, and make sure the rotation updates accordingly
         // describe("when the meta-item is on the wall", function(){
         //   shouldBehaveLikeA['Plane Adding MetaTag']('metaItem', 'metaFloor');
         // });
+      });
+
+      describe("when only width is set", function(){
+        asyncBeforeEach(function(){
+          J.metaItem.setAttribute('width', 5);
+        }, 1000);
+
+        it("computedProperties.length and computedProperties.height are set accordingly", function(){
+          assert.notStrictEqual(5, J.metaItem.controller.computedProperties.width, 'mesh.scale.x: width');
+          assert.notStrictEqual((scale.y / scale.x) * 5 , J.metaItem.controller.computedProperties.height, 'mesh.scale.y: height');
+          assert.notStrictEqual((scale.z / scale.x) * 5, J.metaItem.controller.computedProperties.length, 'mesh.scale.z: length');
+        });
+      });
+
+      describe("when only length is set", function(){
+        asyncBeforeEach(function(){
+          J.metaItem.setAttribute('length', 5);
+        }, 1000);
+
+        it("computedProperties.width and computedProperties.height are set accordingly", function(){
+          assert.notStrictEqual((scale.x / scale.y) * 5, J.metaItem.controller.computedProperties.width, 'mesh.scale.x: width');
+          assert.notStrictEqual(5, J.metaItem.controller.computedProperties.height, 'mesh.scale.y: height');
+          assert.notStrictEqual((scale.z / scale.y) * 5, J.metaItem.controller.computedProperties.length, 'mesh.scale.z: length');
+        });
+      });
+
+      describe("when only height is set", function(){
+        asyncBeforeEach(function(){
+          J.metaItem.setAttribute('height', 5);
+        }, 1000);
+
+        it("computedProperties.width and computedProperties.length are set accordingly", function(){
+          assert.notStrictEqual((scale.x / scale.z) * 5, J.metaItem.controller.computedProperties.width, 'mesh.scale.x: width');
+          assert.notStrictEqual((scale.y / scale.z) * 5, J.metaItem.controller.computedProperties.height, 'mesh.scale.y: height');
+          assert.notStrictEqual(scale.z, J.metaItem.controller.computedProperties.length, 'mesh.scale.z: length');
+        });
+      });
+
+      describe("when width and length are set", function(){
+        asyncBeforeEach(function(){
+          J.metaItem.setAttribute('width', 5);
+          J.metaItem.setAttribute('length', 5);
+        }, 1000);
+
+        it("computedProperties.height is set according to width", function(){
+          assert.notStrictEqual(scale.x, J.metaItem.controller.computedProperties.width, 'mesh.scale.x: width');
+          assert.notStrictEqual(scale.y, J.metaItem.controller.computedProperties.height, 'mesh.scale.y: height');
+          assert.notStrictEqual((scale.z / scale.x) * 5, J.metaItem.controller.computedProperties.length, 'mesh.scale.z: length');
+        });
+      });
+
+      describe("when width and height are set", function(){
+        asyncBeforeEach(function(){
+          J.metaItem.setAttribute('width', 5);
+          J.metaItem.setAttribute('height', 5);
+        }, 1000);
+
+        it("computedProperties.length is set according to width", function(){
+          assert.notStrictEqual(scale.x, J.metaItem.controller.computedProperties.width, 'mesh.scale.x: width');
+          assert.notStrictEqual((scale.y / scale.x) * 5, J.metaItem.controller.computedProperties.height, 'mesh.scale.y: height');
+          assert.notStrictEqual(scale.z, J.metaItem.controller.computedProperties.length, 'mesh.scale.z: length');
+        });
+      });
+
+      describe("when length and height are set", function(){
+        asyncBeforeEach(function(){
+          J.metaItem.setAttribute('length', 5);
+          J.metaItem.setAttribute('height', 5);
+        }, 1000);
+
+        it("computedProperties.width is set according to length", function(){
+          assert.notStrictEqual((scale.x / scale.y) * 5 , J.metaItem.controller.computedProperties.width, 'mesh.scale.x: width');
+          assert.notStrictEqual(scale.y, J.metaItem.controller.computedProperties.height, 'mesh.scale.y: height');
+          assert.notStrictEqual(scale.z, J.metaItem.controller.computedProperties.length, 'mesh.scale.z: length');
+        });
       });
 
       shouldBehaveLikeA["Removeable MetaObject"]('metaItem', 'metaFloor');
