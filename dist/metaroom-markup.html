@@ -53887,7 +53887,6 @@ var MetaComponent = (function (_MetaBase) {
     key: 'attributeChangedCallback',
     value: function attributeChangedCallback(attrName, oldValue, newValue) {
       var actionsArray = this.controller.eventActionSettings[attrName] || [];
-
       var actions = actionsArray.reduce(function (memo, action) {
         memo[action] = true;
         return memo;
@@ -56489,6 +56488,8 @@ function _inherits(subClass, superClass) { if (typeof superClass !== 'function' 
 
 var MetaItemController = (function (_MRM$MetaComponentController) {
   function MetaItemController(dom) {
+    var _this = this;
+
     _classCallCheck(this, MetaItemController);
 
     _get(Object.getPrototypeOf(MetaItemController.prototype), 'constructor', this).call(this, dom);
@@ -56496,6 +56497,25 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
     this.parent = dom.parentElement.controller;
 
     this.metaObject = this.createMetaObject();
+    this.computedProperties = {};
+    this.computedPropertiesKey.forEach(function (key) {
+      var settings = _this.computedPropertiesSettings[key];
+      var value = settings.type(_this.properties[key] || settings['default']);
+      Object.defineProperty(_this.computedProperties, key, {
+        get: function get() {
+          return value;
+        },
+        set: function set(inputValue) {
+          var onChangeFunction = settings.onChange;
+          value = settings.type(inputValue);
+          if (typeof onChangeFunction === "function") {
+            if (oldValue !== value) {
+              onChangeFunction.call(_this, value, oldValue, key);
+            }
+          }
+        }
+      });
+    });
     this.updateMetaObject();
   }
 
@@ -56533,6 +56553,13 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         scope.metaObject.mesh = collada.scene;
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
+        var event = new CustomEvent('size-attributes-change', {
+          'detail': {
+            'controller': scope
+          },
+          bubbles: true
+        });
+        scope.dom.dispatchEvent(event);
       }
 
       function objLoaderCallback(object) {
@@ -56540,6 +56567,13 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         scope.metaObject.mesh = object;
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
+        var event = new CustomEvent('size-attributes-change', {
+          'detail': {
+            'controller': scope
+          },
+          bubbles: true
+        });
+        scope.dom.dispatchEvent(event);
       }
 
       function plyLoaderCallback(geometry) {
@@ -56557,6 +56591,13 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         }
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
+        var event = new CustomEvent('size-attributes-change', {
+          'detail': {
+            'controller': scope
+          },
+          bubbles: true
+        });
+        scope.dom.dispatchEvent(event);
       }
 
       function objmtlLoaderCallback(object) {
@@ -56564,6 +56605,13 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         scope.metaObject.mesh = object;
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
+        var event = new CustomEvent('size-attributes-change', {
+          'detail': {
+            'controller': scope
+          },
+          bubbles: true
+        });
+        scope.dom.dispatchEvent(event);
       }
 
       //TODO: why keep loading this? Don't need to keep loading if geometrySrc and materialSrc did not change
@@ -56583,22 +56631,75 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
   }, {
     key: 'scaleMetaObject',
     value: function scaleMetaObject() {
-      var bbox = new THREE.BoundingBoxHelper(this.metaObject.mesh, 0xff0000);
-      bbox.update();
-      this.metaObject.mesh.scale.set(this.properties.width / bbox.box.size().x, this.properties.height / bbox.box.size().y, this.properties.length / bbox.box.size().z);
-      // this.metaObject.mesh.scale.set(this.properties.width, this.properties.height, this.properties.length);
+      var bbox;
+      if (this.metaObject.box === undefined) {
+        bbox = new THREE.BoundingBoxHelper(this.metaObject.mesh, 0xff0000);
+        bbox.update();
+        this.metaObject.box = bbox;
+      } else {
+        bbox = this.metaObject.box;
+      }
       this.metaObject.mesh.rotation.x = 90 * (Math.PI / 180);
-      bbox.update();
-      // this.metaObject.box = bbox;
-      // this.metaObject.group.add( this.metaObject.box );
+      if (this.properties.width) {
+        if (this.properties.length === 0) {
+          //width set, but length is not set
+          this.computedProperties.length = this.properties.width / this.metaObject.box.box.size().x;
+        } else {
+          //width and length are set
+          this.computedProperties.length = this.properties.length / this.metaObject.box.box.size().z;
+        }
+        if (this.properties.height === 0) {
+          //width set, but height is not set
+          this.computedProperties.height = this.properties.width / this.metaObject.box.box.size().x;
+        } else {
+          // width, length and height are set
+          this.computedProperties.height = this.properties.height / this.metaObject.box.box.size().y;
+        }
+        this.computedProperties.width = this.properties.width / this.metaObject.box.box.size().x;
+      } else if (this.properties.length) {
+        //length set, but width is undefined as it reached this flow
+        this.computedProperties.width = this.properties.length / this.metaObject.box.box.size().z;
+        if (this.properties.height === 0) {
+          //length set, but height is not set
+          this.computedProperties.height = this.properties.length / this.metaObject.box.box.size().z;
+        } else {
+          // length, height are set and width is not set
+          this.computedProperties.height = this.properties.height / this.metaObject.box.box.size().y;
+        }
+        this.computedProperties.length = this.properties.length / this.metaObject.box.box.size().z;
+      } else if (this.properties.height) {
+        //height is set, but both width and length are not set
+        this.computedProperties.width = this.properties.height / this.metaObject.box.box.size().y;
+        this.computedProperties.length = this.properties.height / this.metaObject.box.box.size().y;
+        this.computedProperties.height = this.properties.height / this.metaObject.box.box.size().y;
+      } else {
+        //width, length and height are not set
+        this.computedProperties.width = this.metaObject.box.box.size().x;
+        this.computedProperties.height = this.metaObject.box.box.size().y;
+        this.computedProperties.length = this.metaObject.box.box.size().z;
+        this.metaObject.newBbox = bbox;
+        this.metaObject.group.position.z = bbox.box.size().z / 2;
+        return;
+      }
+      this.metaObject.mesh.scale.x = this.computedProperties.width;
+      this.metaObject.mesh.scale.y = this.computedProperties.height;
+      this.metaObject.mesh.scale.z = this.computedProperties.length;
+      var newBbox = new THREE.BoundingBoxHelper(this.metaObject.mesh, 0xff0000);
+      newBbox.update();
+      this.computedProperties.width = newBbox.box.size().x;
+      this.computedProperties.length = newBbox.box.size().y;
+      this.computedProperties.height = newBbox.box.size().z;
+      this.metaObject.group.position.z = newBbox.box.size().z / 2;
+      this.metaObject.newBbox = newBbox;
+      // this.metaObject.group.add( newBbox );
     }
   }, {
     key: 'clearGroup',
     value: function clearGroup() {
-      var _this = this;
+      var _this2 = this;
 
       _.forEach(this.metaObject.group.children, function (child) {
-        _this.metaObject.group.remove(child);
+        _this2.metaObject.group.remove(child);
       });
     }
   }, {
@@ -56629,13 +56730,59 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
   }, {
     key: 'propertiesSettings',
     get: function get() {
+      var _this3 = this;
+
       return {
-        width: { type: Number, 'default': 1, attrName: 'width' },
-        length: { type: Number, 'default': 1, attrName: 'length' },
-        height: { type: Number, 'default': 1, attrName: 'height' },
+        width: {
+          type: Number,
+          'default': null,
+          attrName: 'width',
+          onChange: function onChange(value) {
+            _this3.computedProperties.width = value;
+          }
+        },
+        length: {
+          type: Number,
+          'default': null,
+          attrName: 'length',
+          onChange: function onChange(value) {
+            _this3.computedProperties.length = value;
+          }
+        },
+        height: {
+          type: Number,
+          'default': null,
+          attrName: 'height',
+          onChange: function onChange(value) {
+            _this3.computedProperties.height = value;
+          }
+        },
         materialSrc: { type: String, 'default': '', attrName: 'material-src' },
         src: { type: String, 'default': '', attrName: 'src' }
       };
+    }
+  }, {
+    key: 'computedPropertiesSettings',
+    get: function get() {
+      return {
+        width: {
+          type: Number,
+          'default': 0.1
+        },
+        length: {
+          type: Number,
+          'default': 0.1
+        },
+        height: {
+          type: Number,
+          'default': 0.1
+        }
+      };
+    }
+  }, {
+    key: 'computedPropertiesKey',
+    get: function get() {
+      return Object.keys(this.computedPropertiesSettings);
     }
   }, {
     key: 'metaAttachedActions',
@@ -57381,8 +57528,8 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
           totalLength = 0,
           eventToTriggerOnResize;
       function pushChildForChildrenDisplayInline(index, child) {
-        var childWidth = child.controller.properties.width,
-            childLength = child.controller.properties.length;
+        var childWidth = child.controller.properties.width !== 0 ? child.controller.properties.width : child.controller.computedProperties.width,
+            childLength = child.controller.properties.length !== 0 ? child.controller.properties.length : child.controller.computedProperties.length;
         if (child.controller.metaStyle.metaStyle["margin"]) {
           childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
           childLength += 2 * child.controller.metaStyle.metaStyle["margin"];
@@ -57408,8 +57555,8 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
           if (index > 0) {
             lineIndex = 0, currentLineWidth = 0, currentLineLength = 0, totalLength = 0;
             for (var i = 0; i < index; i++) {
-              var cWidth = children[i].controller.properties.width,
-                  cLength = children[i].controller.properties.length;
+              var cWidth = children[i].controller.properties.width !== 0 ? children[i].controller.properties.width : children[i].controller.computedProperties.width,
+                  cLength = children[i].controller.properties.length !== 0 ? children[i].controller.properties.length : children[i].controller.computedProperties.length;
               if (children[i].controller.metaStyle.metaStyle["margin"]) {
                 cWidth += 2 * children[i].controller.metaStyle.metaStyle["margin"];
                 cLength += 2 * children[i].controller.metaStyle.metaStyle["margin"];
@@ -57423,8 +57570,8 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
               if (currentLineLength < cLength) {
                 currentLineLength = cLength;
                 _.forEach(childrenInLine[lineIndex], function (child) {
-                  var width = child.controller.properties.width,
-                      length = child.controller.properties.length;
+                  var width = child.controller.properties.width !== 0 ? child.controller.properties.width : child.controller.computedProperties.width,
+                      length = child.controller.properties.length !== 0 ? child.controller.properties.length : child.controller.computedProperties.length;
                   if (child.controller.metaStyle.metaStyle["margin"]) {
                     width += 2 * child.controller.metaStyle.metaStyle["margin"];
                     length += 2 * child.controller.metaStyle.metaStyle["margin"];
@@ -57446,8 +57593,8 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
         if (currentLineLength < childLength) {
           currentLineLength = childLength;
           _.forEach(childrenInLine[lineIndex], function (child) {
-            var cWidth = child.controller.properties.width,
-                cLength = child.controller.properties.length;
+            var cWidth = child.controller.properties.width !== 0 ? child.controller.properties.width : child.controller.computedProperties.width,
+                cLength = child.controller.properties.length !== 0 ? child.controller.properties.length : child.controller.computedProperties.length;
             if (child.controller.metaStyle.metaStyle["margin"]) {
               cWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
               cLength += 2 * child.controller.metaStyle.metaStyle["margin"];
@@ -57500,8 +57647,8 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
       function calculateChildPosition(child) {
         var x = 0,
             y = 0;
-        var childWidth = child.controller.properties.width,
-            childLength = child.controller.properties.length;
+        var childWidth = child.controller.properties.width !== 0 ? child.controller.properties.width : child.controller.computedProperties.width,
+            childLength = child.controller.properties.length !== 0 ? child.controller.properties.length : child.controller.computedProperties.length;
         if (child.controller.metaStyle["margin"]) {
           childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
           childLength += 2 * child.controller.metaStyle.metaStyle["margin"];

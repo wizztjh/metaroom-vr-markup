@@ -31,7 +31,6 @@ export default class MetaComponent extends MetaBase{
 
   attributeChangedCallback(attrName, oldValue, newValue) {
     var actionsArray = this.controller.eventActionSettings[attrName] || [];
-
     var actions = actionsArray.reduce(function(memo, action){
       memo[action] = true
       return memo
