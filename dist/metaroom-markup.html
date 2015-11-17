@@ -76826,6 +76826,9 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
 
     this.metaObject = this.createMetaObject();
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
     this.computedProperties = {};
     this.computedPropertiesKey.forEach(function (key) {
       var settings = _this.computedPropertiesSettings[key];
@@ -76845,8 +76848,11 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         }
       });
     });
+<<<<<<< HEAD
 =======
 >>>>>>> [Finishes #107191088] Developer can update src of <meta-item>
+=======
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
     this.updateMetaObject();
   }
 
@@ -76883,6 +76889,9 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
         var event = new CustomEvent('size-attributes-change', {
           'detail': {
             'controller': scope
@@ -76890,8 +76899,11 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
           bubbles: true
         });
         scope.dom.dispatchEvent(event);
+<<<<<<< HEAD
 =======
 >>>>>>> [Finishes #107191088] Developer can update src of <meta-item>
+=======
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
       }
 
       function objLoaderCallback(object) {
@@ -76900,6 +76912,9 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
         var event = new CustomEvent('size-attributes-change', {
           'detail': {
             'controller': scope
@@ -76907,8 +76922,11 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
           bubbles: true
         });
         scope.dom.dispatchEvent(event);
+<<<<<<< HEAD
 =======
 >>>>>>> [Finishes #107191088] Developer can update src of <meta-item>
+=======
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
       }
 
       function plyLoaderCallback(geometry) {
@@ -76927,6 +76945,9 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
         var event = new CustomEvent('size-attributes-change', {
           'detail': {
             'controller': scope
@@ -76934,8 +76955,11 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
           bubbles: true
         });
         scope.dom.dispatchEvent(event);
+<<<<<<< HEAD
 =======
 >>>>>>> [Finishes #107191088] Developer can update src of <meta-item>
+=======
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
       }
 
       function objmtlLoaderCallback(object) {
@@ -76944,6 +76968,9 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
         var event = new CustomEvent('size-attributes-change', {
           'detail': {
             'controller': scope
@@ -76951,8 +76978,11 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
           bubbles: true
         });
         scope.dom.dispatchEvent(event);
+<<<<<<< HEAD
 =======
 >>>>>>> [Finishes #107191088] Developer can update src of <meta-item>
+=======
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
       }
 
       //TODO: why keep loading this? Don't need to keep loading if geometrySrc and materialSrc did not change
@@ -76973,6 +77003,9 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
     key: 'scaleMetaObject',
     value: function scaleMetaObject() {
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
       var bbox;
       if (this.metaObject.box === undefined) {
         bbox = new THREE.BoundingBoxHelper(this.metaObject.mesh, 0xff0000);
@@ -76981,6 +77014,7 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
       } else {
         bbox = this.metaObject.box;
       }
+<<<<<<< HEAD
       this.metaObject.mesh.rotation.x = 90 * (Math.PI / 180);
       if (this.properties.width) {
         if (this.properties.length === 0) {
@@ -77044,10 +77078,66 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
       // this.metaObject.box = bbox;
       // this.metaObject.group.add( this.metaObject.box );
 >>>>>>> [Finishes #107191088] Developer can update src of <meta-item>
+=======
+      this.metaObject.mesh.rotation.x = 90 * (Math.PI / 180);
+      if (this.properties.width) {
+        if (this.properties.length === 0) {
+          //width set, but length is not set
+          this.computedProperties.length = this.properties.width / this.metaObject.box.box.size().x;
+        } else {
+          //width and length are set
+          this.computedProperties.length = this.properties.length / this.metaObject.box.box.size().z;
+        }
+        if (this.properties.height === 0) {
+          //width set, but height is not set
+          this.computedProperties.height = this.properties.width / this.metaObject.box.box.size().x;
+        } else {
+          // width, length and height are set
+          this.computedProperties.height = this.properties.height / this.metaObject.box.box.size().y;
+        }
+        this.computedProperties.width = this.properties.width / this.metaObject.box.box.size().x;
+      } else if (this.properties.length) {
+        //length set, but width is undefined as it reached this flow
+        this.computedProperties.width = this.properties.length / this.metaObject.box.box.size().z;
+        if (this.properties.height === 0) {
+          //length set, but height is not set
+          this.computedProperties.height = this.properties.length / this.metaObject.box.box.size().z;
+        } else {
+          // length, height are set and width is not set
+          this.computedProperties.height = this.properties.height / this.metaObject.box.box.size().y;
+        }
+        this.computedProperties.length = this.properties.length / this.metaObject.box.box.size().z;
+      } else if (this.properties.height) {
+        //height is set, but both width and length are not set
+        this.computedProperties.width = this.properties.height / this.metaObject.box.box.size().y;
+        this.computedProperties.length = this.properties.height / this.metaObject.box.box.size().y;
+        this.computedProperties.height = this.properties.height / this.metaObject.box.box.size().y;
+      } else {
+        //width, length and height are not set
+        this.computedProperties.width = this.metaObject.box.box.size().x;
+        this.computedProperties.height = this.metaObject.box.box.size().y;
+        this.computedProperties.length = this.metaObject.box.box.size().z;
+        this.metaObject.newBbox = bbox;
+        this.metaObject.group.position.z = bbox.box.size().z / 2;
+        return;
+      }
+      this.metaObject.mesh.scale.x = this.computedProperties.width;
+      this.metaObject.mesh.scale.y = this.computedProperties.height;
+      this.metaObject.mesh.scale.z = this.computedProperties.length;
+      var newBbox = new THREE.BoundingBoxHelper(this.metaObject.mesh, 0xff0000);
+      newBbox.update();
+      this.computedProperties.width = newBbox.box.size().x;
+      this.computedProperties.length = newBbox.box.size().y;
+      this.computedProperties.height = newBbox.box.size().z;
+      this.metaObject.group.position.z = newBbox.box.size().z / 2;
+      this.metaObject.newBbox = newBbox;
+      // this.metaObject.group.add( newBbox );
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
     }
   }, {
     key: 'clearGroup',
     value: function clearGroup() {
+<<<<<<< HEAD
 <<<<<<< HEAD
       var _this2 = this;
 
@@ -77059,6 +77149,12 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
       _.forEach(this.metaObject.group.children, function (child) {
         _this.metaObject.group.remove(child);
 >>>>>>> [Finishes #107191088] Developer can update src of <meta-item>
+=======
+      var _this2 = this;
+
+      _.forEach(this.metaObject.group.children, function (child) {
+        _this2.metaObject.group.remove(child);
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
       });
     }
   }, {
@@ -77142,6 +77238,27 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
       };
     }
   }, {
+<<<<<<< HEAD
+=======
+    key: 'computedPropertiesSettings',
+    get: function get() {
+      return {
+        width: {
+          type: Number,
+          'default': 0.1
+        },
+        length: {
+          type: Number,
+          'default': 0.1
+        },
+        height: {
+          type: Number,
+          'default': 0.1
+        }
+      };
+    }
+  }, {
+>>>>>>> specs included on computed properties of meta-item when width, length and height are given at random
     key: 'computedPropertiesKey',
     get: function get() {
       return Object.keys(this.computedPropertiesSettings);
