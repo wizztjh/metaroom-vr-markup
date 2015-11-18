@@ -75114,6 +75114,15 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
     get: function get() {
       return ["meta-style", "meta-room", "meta-floor"];
     }
+  }, {
+    key: "eventActionSettings",
+    get: function get() {
+      return {
+        "meta-style": ['propagateMetaStyle'],
+        "class": ["propagateMetaStyle"],
+        "id": ["propagateMetaStyle"]
+      };
+    }
   }]);
 
   return MetaVerseController;
@@ -75178,6 +75187,28 @@ var MetaVerse = (function (_MRM$MetaBase) {
         this.controller.propagateMetaStyle();
         delete e.detail.actions.propagateMetaStyle;
       }
+    }
+  }, {
+    key: "attributeChangedCallback",
+    value: function attributeChangedCallback(attrName, oldValue, newValue) {
+      var actionsArray = this.controller.eventActionSettings[attrName] || [];
+      var actions = actionsArray.reduce(function (memo, action) {
+        memo[action] = true;
+        return memo;
+      }, {});
+
+      // TODO: maybe we can add a new propertiesSettings `bubbleUp` to enable the event bubbling when attribute changes
+      var event = new CustomEvent('meta-attribute-change', {
+        'detail': {
+          'attrName': attrName,
+          'oldValue': oldValue,
+          'newValue': newValue,
+          'controller': this.controller,
+          'actions': actions
+        },
+        bubbles: true
+      });
+      this.dispatchEvent(event);
     }
   }]);
 
