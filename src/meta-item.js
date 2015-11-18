@@ -136,6 +136,13 @@ class MetaItemController extends MRM.MetaComponentController {
         bubbles: true
       });
       scope.dom.dispatchEvent(event);
+      var loadCompleteEvent = new CustomEvent('item-load-complete', {
+        bubbles: false,
+        'detail': {
+          'controller': scope
+        }
+      });
+      scope.dom.dispatchEvent(loadCompleteEvent);
     }
 
     function objLoaderCallback(object){
@@ -150,6 +157,13 @@ class MetaItemController extends MRM.MetaComponentController {
         bubbles: true
       });
       scope.dom.dispatchEvent(event);
+      var loadCompleteEvent = new CustomEvent('item-load-complete', {
+        bubbles: false,
+        'detail': {
+          'controller': scope
+        }
+      });
+      scope.dom.dispatchEvent(loadCompleteEvent);
     }
 
     function plyLoaderCallback(geometry){
@@ -174,6 +188,13 @@ class MetaItemController extends MRM.MetaComponentController {
         bubbles: true
       });
       scope.dom.dispatchEvent(event);
+      var loadCompleteEvent = new CustomEvent('item-load-complete', {
+        bubbles: false,
+        'detail': {
+          'controller': scope
+        }
+      });
+      scope.dom.dispatchEvent(loadCompleteEvent);
     }
 
     function objmtlLoaderCallback(object){
@@ -188,6 +209,13 @@ class MetaItemController extends MRM.MetaComponentController {
         bubbles: true
       });
       scope.dom.dispatchEvent(event);
+      var loadCompleteEvent = new CustomEvent('item-load-complete', {
+        bubbles: false,
+        'detail': {
+          'controller': scope
+        }
+      });
+      scope.dom.dispatchEvent(loadCompleteEvent);
     }
 
     //TODO: why keep loading this? Don't need to keep loading if geometrySrc and materialSrc did not change
@@ -284,20 +312,23 @@ class MetaItemController extends MRM.MetaComponentController {
   }
 
   setAbsolutePostion(){
-    var group = this.metaObject.group;
+    var group = this.metaObject.group,
+        width = this.properties.width || this.computedProperties.width,
+        length = this.properties.length || this.computedProperties.length,
+        height = this.properties.height || this.computedProperties.height;
     if(this.metaStyle.metaStyle.hasOwnProperty('left')){
-      group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (this.properties.width/2);
+      group.position.x = - (this.parent.properties.width/2) + (this.metaStyle["left"] || 0) + (width/2);
     }
     else if(this.metaStyle.metaStyle.hasOwnProperty('right')){
-      group.position.x = - (- (this.parent.properties.width/2) + (this.metaStyle["right"] || 0) + (this.properties.width/2));
+      group.position.x = - (- (this.parent.properties.width/2) + (this.metaStyle["right"] || 0) + (width/2));
     }
     if(this.metaStyle.metaStyle.hasOwnProperty('top')){
-      group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (this.properties.length/2);
+      group.position.y = (this.parent.properties.length/2) - (this.metaStyle["top"] || 0) - (length/2);
     }
     else if(this.metaStyle.metaStyle.hasOwnProperty('bottom')){
-      group.position.y = - ((this.parent.properties.length/2) - (this.metaStyle["bottom"] || 0) - (this.properties.length/2));
+      group.position.y = - ((this.parent.properties.length/2) - (this.metaStyle["bottom"] || 0) - (length/2));
     }
-    group.position.z = (this.parent.properties.height/2 || 0) + (this.metaStyle["z"] || 0) + (this.properties.height/2 || 0);
+    group.position.z = (this.parent.properties.height/2 || 0) + (this.metaStyle["z"] || 0) + (height/2 || 0);
     if(this.metaStyle.metaStyle['rotate-x']){
       group.rotation.x = this.metaStyle.metaStyle['rotate-x'] * (Math.PI / 180);
     }
@@ -314,6 +345,16 @@ class MetaItem extends MRM.MetaComponent {
   createdCallback() {
     this.controller = new MetaItemController(this);
     super.createdCallback();
+    if(typeof this.itemLoadComplete === 'function') {
+      this.addEventListener('item-load-complete', this.itemLoadComplete, false);
+    }
+  }
+
+  itemLoadComplete(e){
+    var targetController = e.detail.controller;
+    if(targetController.metaStyle.metaStyle["position"] === 'absolute'){
+      targetController.setAbsolutePostion();
+    }
   }
 }
 
