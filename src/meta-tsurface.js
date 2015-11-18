@@ -100,7 +100,8 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
         totalLength = 0,
         eventToTriggerOnResize;
     function pushChildForChildrenDisplayInline(index, child){
-      var childWidth = child.controller.properties.width, childLength = child.controller.properties.length;
+      var childWidth = child.controller.properties.width !== 0 ? child.controller.properties.width : child.controller.computedProperties.width,
+          childLength = child.controller.properties.length !== 0 ? child.controller.properties.length : child.controller.computedProperties.length;
       if(child.controller.metaStyle.metaStyle["margin"]){
         childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
         childLength += 2 * child.controller.metaStyle.metaStyle["margin"];
@@ -129,7 +130,8 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
           currentLineLength = 0,
           totalLength = 0;
           for(var i = 0; i < index; i++){
-            var cWidth = children[i].controller.properties.width, cLength = children[i].controller.properties.length;
+            var cWidth = children[i].controller.properties.width !== 0 ? children[i].controller.properties.width : children[i].controller.computedProperties.width,
+                cLength = children[i].controller.properties.length !== 0 ? children[i].controller.properties.length : children[i].controller.computedProperties.length;
             if(children[i].controller.metaStyle.metaStyle["margin"]){
               cWidth += 2 * children[i].controller.metaStyle.metaStyle["margin"];
               cLength += 2 * children[i].controller.metaStyle.metaStyle["margin"];
@@ -143,7 +145,8 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
             if(currentLineLength < cLength){
               currentLineLength = cLength;
               _.forEach(childrenInLine[lineIndex], (child) =>{
-                var width = child.controller.properties.width, length = child.controller.properties.length;
+                var width = child.controller.properties.width !== 0 ? child.controller.properties.width : child.controller.computedProperties.width,
+                    length = child.controller.properties.length !== 0 ? child.controller.properties.length : child.controller.computedProperties.length;
                 if(child.controller.metaStyle.metaStyle["margin"]){
                   width += 2 * child.controller.metaStyle.metaStyle["margin"];
                   length += 2 * child.controller.metaStyle.metaStyle["margin"];
@@ -166,7 +169,8 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
       if(currentLineLength < childLength){
         currentLineLength = childLength;
         _.forEach(childrenInLine[lineIndex], (child) =>{
-          var cWidth = child.controller.properties.width, cLength = child.controller.properties.length;
+          var cWidth = child.controller.properties.width !== 0 ? child.controller.properties.width : child.controller.computedProperties.width,
+              cLength = child.controller.properties.length !== 0 ? child.controller.properties.length : child.controller.computedProperties.length;
           if(child.controller.metaStyle.metaStyle["margin"]){
             cWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
             cLength += 2 * child.controller.metaStyle.metaStyle["margin"];
@@ -225,7 +229,8 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
 
     function calculateChildPosition(child){
       var x = 0, y = 0;
-      var childWidth = child.controller.properties.width, childLength = child.controller.properties.length;
+      var childWidth = child.controller.properties.width !== 0 ? child.controller.properties.width : child.controller.computedProperties.width,
+          childLength = child.controller.properties.length !== 0 ? child.controller.properties.length : child.controller.computedProperties.length;
       if(child.controller.metaStyle["margin"]){
         childWidth += 2 * child.controller.metaStyle.metaStyle["margin"];
         childLength += 2 * child.controller.metaStyle.metaStyle["margin"];
