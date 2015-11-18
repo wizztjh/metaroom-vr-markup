@@ -46,6 +46,14 @@ class MetaVerseController extends MRM.MetaBaseController {
     };
   }
 
+  get eventActionSettings(){
+    return {
+      "meta-style": ['propagateMetaStyle'],
+      "class": ["propagateMetaStyle"],
+      "id": ["propagateMetaStyle"]
+    }
+  }
+
   initializeTHREELoaders(){
     THREE.Loader.Handlers.add(/\.ply$/i, new THREE.PLYLoader());
     THREE.Loader.Handlers.add(/\.obj$/i, new THREE.OBJLoader());
@@ -266,6 +274,26 @@ class MetaVerse extends MRM.MetaBase {
     }
   }
 
+  attributeChangedCallback(attrName, oldValue, newValue) {
+    var actionsArray = this.controller.eventActionSettings[attrName] || [];
+    var actions = actionsArray.reduce(function(memo, action){
+      memo[action] = true
+      return memo
+    }, {});
+
+    // TODO: maybe we can add a new propertiesSettings `bubbleUp` to enable the event bubbling when attribute changes
+    var event = new CustomEvent('meta-attribute-change', {
+      'detail': {
+        'attrName': attrName,
+        'oldValue': oldValue,
+        'newValue': newValue,
+        'controller': this.controller,
+        'actions': actions
+      },
+      bubbles: true
+    });
+    this.dispatchEvent(event);
+  }
 }
 
 document.registerElement('meta-verse', MetaVerse);
