@@ -319,15 +319,6 @@ export default class MetaStyle {
     return this.metaStyle["rotate-z"];
   }
 
-  set ["skybox-texture"](file) {
-    this.metaStyle["skybox-texture"] = (file);
-    return file;
-  }
-
-  get ["skybox-texture"]() {
-    return this.metaStyle["skybox-texture"];
-  }
-
   set ["margin"](length) {
     this.metaStyle["margin"] = Number(length);
     return length;

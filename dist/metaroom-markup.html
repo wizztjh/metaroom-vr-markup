@@ -54408,15 +54408,6 @@ var MetaStyle = (function () {
       return this.metaStyle["rotate-z"];
     }
   }, {
-    key: "skybox-texture",
-    set: function set(file) {
-      this.metaStyle["skybox-texture"] = file;
-      return file;
-    },
-    get: function get() {
-      return this.metaStyle["skybox-texture"];
-    }
-  }, {
     key: "margin",
     set: function set(length) {
       this.metaStyle["margin"] = Number(length);
@@ -54685,12 +54676,6 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
     key: "updateMetaObject",
     value: function updateMetaObject() {
       var src;
-      if (this.metaStyle.metaStyle.hasOwnProperty("skybox-texture")) {
-        src = this.metaStyle.metaStyle['skybox-texture'];
-      }
-
-      var texture = THREE.ImageUtils.loadTexture(src);
-      this.metaObject.mesh.material.map = texture;
     }
   }, {
     key: "attachMetaObject",

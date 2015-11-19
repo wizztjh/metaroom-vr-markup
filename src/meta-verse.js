@@ -198,12 +198,6 @@ class MetaVerseController extends MRM.MetaBaseController {
 
   updateMetaObject(){
     var src;
-    if(this.metaStyle.metaStyle.hasOwnProperty("skybox-texture")){
-      src = this.metaStyle.metaStyle['skybox-texture'];
-    }
-
-    var texture = THREE.ImageUtils.loadTexture(src);
-    this.metaObject.mesh.material.map = texture;
   }
 
   attachMetaObject(targetController){
