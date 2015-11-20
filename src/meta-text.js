@@ -98,7 +98,7 @@ class MetaTextController extends MRM.MetaComponentController {
     var texture = new THREE.Texture(canvas1);
     texture.needsUpdate = true;
     var geometry = new THREE.PlaneGeometry(planeWidth, planeLength,1,1);
-    var material = new THREE.MeshBasicMaterial({
+    var material = new THREE.MeshPhongMaterial({
       map: texture,
       color: 0x333333,
       side: THREE.DoubleSide

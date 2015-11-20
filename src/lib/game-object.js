@@ -61,6 +61,13 @@ export default class GameObject{
 
     this.controls = new THREE.VRControls(this.camera);
 
+    var cursor = new THREE.Mesh(new THREE.RingGeometry(1, 2, 32), new THREE.MeshPhongMaterial({color: 0x9975b9, side: THREE.DoubleSide, transparent: true, opacity: 0.9}));
+    cursor.scale.x = cursor.scale.y = cursor.scale.z = 0.01;
+    cursor.position.z = -0.3001;
+    this.camera.add(cursor);
+
+    this.rayCaster = new THREE.Raycaster();
+
     this.dollyCam = new THREE.PerspectiveCamera();
     this.dollyCam.add(this.camera);
     this.scene.add(this.dollyCam);
@@ -72,6 +79,8 @@ export default class GameObject{
 
     this.clock = new THREE.Clock(true)
     this.clock.start()
+
+    var INTERSECTED;
 
     function animate() {
       var velocity = self.velocity;
@@ -109,9 +118,54 @@ export default class GameObject{
       self.dollyCam.translateX( velocity.x * delta );
       self.dollyCam.translateZ( velocity.z * delta );
 
+      // console.log(velocity.x, velocity.z);
+
       self.controls.update();
       // Render the scene through the manager.
       self.camera.position.y = 5;
+
+      self.rayCaster.setFromCamera( new THREE.Vector2(0, 0), self.camera );
+      var intersects = self.rayCaster.intersectObjects( self.scene.children, true );
+      if ( intersects.length > 0 ) {
+        if ( INTERSECTED != intersects[ 0 ].object ) {
+          if ( INTERSECTED ) {
+            if(INTERSECTED.colors){
+              var i = 0;
+              _.forEach(INTERSECTED.material.materials, (material)=> {
+                material.emissive.setHex(INTERSECTED.colors[i++]);
+              });
+            }
+            else {
+              INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+            }
+          }
+          INTERSECTED = intersects[ 0 ].object;
+          if(INTERSECTED.material.materials){
+            _.forEach(INTERSECTED.material.materials, (material)=>{
+              INTERSECTED.colors = INTERSECTED.colors || [];
+              INTERSECTED.colors.push(material.emissive.getHex());
+              material.emissive.setHex(0xff0000);
+            });
+          }else {
+            INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+            INTERSECTED.material.emissive.setHex( 0xff0000 );
+          }
+        }
+      } else {
+        if ( INTERSECTED ){
+          if(INTERSECTED.colors){
+            var i = 0;
+            _.forEach(INTERSECTED.material.materials, (material)=> {
+              material.emissive.setHex(INTERSECTED.colors[i++]);
+            });
+          }
+          else {
+            INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+          }
+        }
+        INTERSECTED = null;
+      }
+
       self.manager.render(self.scene, self.camera);
 
       requestAnimationFrame(animate);
@@ -131,22 +185,18 @@ export default class GameObject{
 
       switch ( event.keyCode ) {
 
-        case 38: // up
-          case 87: // w
+        case 87: // w
           self.moveForward = true;
         break;
 
-        case 37: // left
-          case 65: // a
+        case 65: // a
           self.moveLeft = true; break;
 
-        case 40: // down
-          case 83: // s
+        case 83: // s
           self.moveBackward = true;
         break;
 
-        case 39: // right
-          case 68: // d
+        case 68: // d
           self.moveRight = true;
         break;
 

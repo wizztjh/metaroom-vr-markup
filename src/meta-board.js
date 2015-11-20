@@ -34,7 +34,7 @@ class MetaBoardController extends MRM.MetaComponentController {
     var planeLength = 1;
     var planeWidth = 1;
     var geometry = new THREE.PlaneGeometry(planeWidth, planeLength,1,1);
-    var material = new THREE.MeshBasicMaterial({
+    var material = new THREE.MeshPhongMaterial({
       color: 0x333333,
       side: THREE.DoubleSide
     });

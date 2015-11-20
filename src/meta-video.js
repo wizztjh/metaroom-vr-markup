@@ -100,7 +100,7 @@ class MetaVideoController extends MRM.MetaComponentController {
     videoTexture.needsUpdate = true
 
     var geometry = new THREE.PlaneGeometry(1,1,1,1);
-    var material = new THREE.MeshBasicMaterial({
+    var material = new THREE.MeshPhongMaterial({
       map: videoTexture,
       color: 0x333333,
       side: THREE.DoubleSide

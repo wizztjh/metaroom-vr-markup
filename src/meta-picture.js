@@ -93,7 +93,7 @@ class MetaPictureController extends MRM.MetaComponentController {
     );
 
     var geometry = new THREE.PlaneGeometry(planeWidth, planeLength,1,1);
-    var material = new THREE.MeshBasicMaterial({
+    var material = new THREE.MeshPhongMaterial({
       map: texture,
       color: 0x333333,
       side: THREE.DoubleSide
