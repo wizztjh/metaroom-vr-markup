@@ -54152,12 +54152,12 @@ var MetaStyle = (function () {
     set: function set(tbottomPaddingTop) {
       var mesh = this.controller.metaObject.mesh;
       var computedProperties = this.controller.computedProperties;
+      this.metaStyle["tbottom-padding-top"] = Number(tbottomPaddingTop);
       if (mesh) {
         var geometry = mesh.geometry;
         if (mesh.geometry.update) {
-          mesh.geometry.update(computedProperties.width, computedProperties.height, computedProperties.length, geometry.tbottomThickness, geometry.tsurfaceThickness, Number(tbottomPaddingTop), this.metaStyle['tbottom-padding-bottom'] || 0);
+          this.controller.updateMetaObject();
         }
-        this.metaStyle["tbottom-padding-top"] = Number(tbottomPaddingTop);
       }
       return Number(tbottomPaddingTop);
     },
@@ -56495,6 +56495,12 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
       if (!this.properties.src) {
         return;
       }
+      var loadCompleteEvent = new CustomEvent('item-load-complete', {
+        bubbles: false,
+        'detail': {
+          'controller': scope
+        }
+      });
       var url = this.properties.src;
       var loader = THREE.Loader.Handlers.get(url);
       this.metaObject.group.position.z = this.properties.height / 2;
@@ -56507,19 +56513,6 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         scope.metaObject.mesh = collada.scene;
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
-        var event = new CustomEvent('size-attributes-change', {
-          'detail': {
-            'controller': scope
-          },
-          bubbles: true
-        });
-        scope.dom.dispatchEvent(event);
-        var loadCompleteEvent = new CustomEvent('item-load-complete', {
-          bubbles: false,
-          'detail': {
-            'controller': scope
-          }
-        });
         scope.dom.dispatchEvent(loadCompleteEvent);
       }
 
@@ -56528,19 +56521,6 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         scope.metaObject.mesh = object;
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
-        var event = new CustomEvent('size-attributes-change', {
-          'detail': {
-            'controller': scope
-          },
-          bubbles: true
-        });
-        scope.dom.dispatchEvent(event);
-        var loadCompleteEvent = new CustomEvent('item-load-complete', {
-          bubbles: false,
-          'detail': {
-            'controller': scope
-          }
-        });
         scope.dom.dispatchEvent(loadCompleteEvent);
       }
 
@@ -56559,19 +56539,6 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         }
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
-        var event = new CustomEvent('size-attributes-change', {
-          'detail': {
-            'controller': scope
-          },
-          bubbles: true
-        });
-        scope.dom.dispatchEvent(event);
-        var loadCompleteEvent = new CustomEvent('item-load-complete', {
-          bubbles: false,
-          'detail': {
-            'controller': scope
-          }
-        });
         scope.dom.dispatchEvent(loadCompleteEvent);
       }
 
@@ -56580,19 +56547,6 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
         scope.metaObject.mesh = object;
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
-        var event = new CustomEvent('size-attributes-change', {
-          'detail': {
-            'controller': scope
-          },
-          bubbles: true
-        });
-        scope.dom.dispatchEvent(event);
-        var loadCompleteEvent = new CustomEvent('item-load-complete', {
-          bubbles: false,
-          'detail': {
-            'controller': scope
-          }
-        });
         scope.dom.dispatchEvent(loadCompleteEvent);
       }
 
@@ -56824,6 +56778,13 @@ var MetaItem = (function (_MRM$MetaComponent) {
       if (targetController.metaStyle.metaStyle["position"] === 'absolute') {
         targetController.setAbsolutePostion();
       }
+      var event = new CustomEvent('size-attributes-change', {
+        'detail': {
+          'controller': this.controller
+        },
+        bubbles: true
+      });
+      dispatchEvent(event);
     }
   }]);
 
@@ -57163,7 +57124,6 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
     value: function resetComputedProperties() {
       var _this2 = this;
 
-      _.forEach(this.computedPropertiesS);
       this.computedPropertiesKey.forEach(function (key) {
         _this2.computedProperties[key] = _this2.properties[key];
       });
@@ -57664,6 +57624,12 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
       }
       if (metaTsurface.parent) {
         metaTsurface.parent.resetComputedProperties();
+        eventToTriggerOnResize = new CustomEvent('size-attributes-change', {
+          'detail': {
+            'controller': metaTsurface
+          },
+          bubbles: true
+        });
       } else {
         return;
       }
@@ -57681,6 +57647,8 @@ var MetaTsurfaceController = (function (_MRM$MetaComponentController) {
           eventToTriggerOnResize = event;
         }
       });
+      metaTsurface.parent.computedProperties.width = metaTsurface.parent.computedProperties.width || 1;
+      metaTsurface.parent.computedProperties.length = metaTsurface.parent.computedProperties.length || 1;
       return eventToTriggerOnResize;
     }
   }, {

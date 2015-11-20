@@ -251,6 +251,12 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
     }
     if(metaTsurface.parent){
       metaTsurface.parent.resetComputedProperties();
+      eventToTriggerOnResize = new CustomEvent('size-attributes-change', {
+        'detail' : {
+          'controller' : metaTsurface
+        },
+        bubbles: true
+      });
     }else{
       return;
     }
@@ -266,6 +272,8 @@ class MetaTsurfaceController extends MRM.MetaComponentController {
         eventToTriggerOnResize = event;
       }
     });
+    metaTsurface.parent.computedProperties.width = metaTsurface.parent.computedProperties.width || 1;
+    metaTsurface.parent.computedProperties.length = metaTsurface.parent.computedProperties.length || 1;
     return eventToTriggerOnResize;
   }
 }
