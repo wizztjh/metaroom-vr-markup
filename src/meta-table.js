@@ -195,7 +195,6 @@ class MetaTableController extends MRM.MetaComponentController{
   }
 
   resetComputedProperties(){
-    _.forEach(this.computedPropertiesS)
     this.computedPropertiesKey.forEach((key) => {
       this.computedProperties[key] = this.properties[key];
     });

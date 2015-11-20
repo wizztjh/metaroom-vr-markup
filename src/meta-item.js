@@ -117,6 +117,12 @@ class MetaItemController extends MRM.MetaComponentController {
     if(!this.properties.src){
       return;
     }
+    var loadCompleteEvent = new CustomEvent('item-load-complete', {
+      bubbles: false,
+      'detail': {
+        'controller': scope
+      }
+    });
     var url = this.properties.src;
     var loader = THREE.Loader.Handlers.get(url);
     this.metaObject.group.position.z = this.properties.height / 2;
@@ -129,19 +135,6 @@ class MetaItemController extends MRM.MetaComponentController {
       scope.metaObject.mesh = collada.scene;
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
-      var event = new CustomEvent('size-attributes-change', {
-        'detail': {
-          'controller': scope,
-        },
-        bubbles: true
-      });
-      scope.dom.dispatchEvent(event);
-      var loadCompleteEvent = new CustomEvent('item-load-complete', {
-        bubbles: false,
-        'detail': {
-          'controller': scope
-        }
-      });
       scope.dom.dispatchEvent(loadCompleteEvent);
     }
 
@@ -150,19 +143,6 @@ class MetaItemController extends MRM.MetaComponentController {
       scope.metaObject.mesh = object;
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
-      var event = new CustomEvent('size-attributes-change', {
-        'detail': {
-          'controller': scope,
-        },
-        bubbles: true
-      });
-      scope.dom.dispatchEvent(event);
-      var loadCompleteEvent = new CustomEvent('item-load-complete', {
-        bubbles: false,
-        'detail': {
-          'controller': scope
-        }
-      });
       scope.dom.dispatchEvent(loadCompleteEvent);
     }
 
@@ -181,19 +161,6 @@ class MetaItemController extends MRM.MetaComponentController {
       }
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
-      var event = new CustomEvent('size-attributes-change', {
-        'detail': {
-          'controller': scope,
-        },
-        bubbles: true
-      });
-      scope.dom.dispatchEvent(event);
-      var loadCompleteEvent = new CustomEvent('item-load-complete', {
-        bubbles: false,
-        'detail': {
-          'controller': scope
-        }
-      });
       scope.dom.dispatchEvent(loadCompleteEvent);
     }
 
@@ -202,19 +169,6 @@ class MetaItemController extends MRM.MetaComponentController {
       scope.metaObject.mesh = object;
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
-      var event = new CustomEvent('size-attributes-change', {
-        'detail': {
-          'controller': scope,
-        },
-        bubbles: true
-      });
-      scope.dom.dispatchEvent(event);
-      var loadCompleteEvent = new CustomEvent('item-load-complete', {
-        bubbles: false,
-        'detail': {
-          'controller': scope
-        }
-      });
       scope.dom.dispatchEvent(loadCompleteEvent);
     }
 
@@ -355,6 +309,13 @@ class MetaItem extends MRM.MetaComponent {
     if(targetController.metaStyle.metaStyle["position"] === 'absolute'){
       targetController.setAbsolutePostion();
     }
+    var event = new CustomEvent('size-attributes-change', {
+      'detail': {
+        'controller': this.controller,
+      },
+      bubbles: true
+    });
+    dispatchEvent(event);
   }
 }
 
