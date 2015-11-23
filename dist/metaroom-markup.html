@@ -53207,9 +53207,10 @@ var GameObject = (function () {
 
     this.controls = new THREE.VRControls(this.camera);
 
-    var cursor = new THREE.Mesh(new THREE.RingGeometry(1, 2, 32), new THREE.MeshPhongMaterial({ color: 0x9975b9, side: THREE.DoubleSide, transparent: true, opacity: 0.9 }));
+    var cursor = new THREE.Mesh(new THREE.RingGeometry(1.5, 2, 32), new THREE.MeshPhongMaterial({ color: 0x9975b9, side: THREE.DoubleSide, transparent: true, opacity: 0.9 }));
     cursor.scale.x = cursor.scale.y = cursor.scale.z = 0.01;
     cursor.position.z = -0.3001;
+    this.cursor = cursor;
     this.camera.add(cursor);
 
     this.rayCaster = new THREE.Raycaster();
@@ -53226,7 +53227,8 @@ var GameObject = (function () {
     this.clock = new THREE.Clock(true);
     this.clock.start();
 
-    var INTERSECTED;
+    var INTERSECTED,
+        TTL = 100;
 
     function animate() {
       var velocity = self.velocity;
@@ -53273,43 +53275,38 @@ var GameObject = (function () {
       self.rayCaster.setFromCamera(new THREE.Vector2(0, 0), self.camera);
       var intersects = self.rayCaster.intersectObjects(self.scene.children, true);
       if (intersects.length > 0) {
-        if (INTERSECTED != intersects[0].object) {
-          if (INTERSECTED) {
-            if (INTERSECTED.colors) {
-              var i = 0;
-              _.forEach(INTERSECTED.material.materials, function (material) {
-                material.emissive.setHex(INTERSECTED.colors[i++]);
-              });
-            } else {
-              INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+        //cursor marked object and INTERSECTED are different
+        if (!INTERSECTED || INTERSECTED.obj.uuid != intersects[0].object.uuid) {
+          INTERSECTED = {};
+          INTERSECTED.obj = intersects[0].object;
+          if (intersects[0].object.userData.dom) {
+            INTERSECTED.dom = intersects[0].object.userData.dom;
+            INTERSECTED.onSelect = "";
+            INTERSECTED.triggered = false;
+            if (INTERSECTED.dom.controller.properties) {
+              var onSelect = INTERSECTED.dom.controller.properties.onSelect || "";
+              onSelect = onSelect.trim();
+              if (/^(\w+)\s*\(\)$/.test(onSelect)) {
+                INTERSECTED.onSelect = /^(\w+)\s*\(\)$/.exec(onSelect)[1];
+              }
             }
           }
-          INTERSECTED = intersects[0].object;
-          if (INTERSECTED.material.materials) {
-            _.forEach(INTERSECTED.material.materials, function (material) {
-              INTERSECTED.colors = INTERSECTED.colors || [];
-              INTERSECTED.colors.push(material.emissive.getHex());
-              material.emissive.setHex(0xff0000);
-            });
-          } else {
-            INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-            INTERSECTED.material.emissive.setHex(0xff0000);
-          }
+          INTERSECTED.ttl = TTL;
         }
-      } else {
-        if (INTERSECTED) {
-          if (INTERSECTED.colors) {
-            var i = 0;
-            _.forEach(INTERSECTED.material.materials, function (material) {
-              material.emissive.setHex(INTERSECTED.colors[i++]);
-            });
-          } else {
-            INTERSECTED.material.emissive.setHex(INTERSECTED.currentHex);
+        //INTERSECTED and cursor marked object are same
+        else {
+            if (INTERSECTED.onSelect && !INTERSECTED.triggered) {
+              INTERSECTED.ttl -= 1;
+              var p = INTERSECTED.ttl / TTL;
+              self.cursor.scale.set(p / 100, p / 100, p / 100);
+              if (INTERSECTED.ttl < 0) {
+                self.cursor.scale.set(.01, .01, .01);
+                INTERSECTED.triggered = true;
+                window[INTERSECTED.onSelect]();
+              }
+            }
           }
-        }
-        INTERSECTED = null;
       }
-
       self.manager.render(self.scene, self.camera);
 
       requestAnimationFrame(animate);
@@ -54572,6 +54569,8 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
       mesh = new THREE.Mesh(geometry, material);
       group = new THREE.Group();
       group.add(mesh);
+      mesh.userData.dom = this.dom;
+
       return {
         mesh: mesh,
         group: group
@@ -54733,12 +54732,8 @@ var MetaVerseController = (function (_MRM$MetaBaseController) {
     key: "updateMetaObject",
     value: function updateMetaObject() {
       var src;
-      if (this.metaStyle.metaStyle.hasOwnProperty("skybox-texture")) {
-        src = this.metaStyle.metaStyle['skybox-texture'];
-      }
 
-      var texture = THREE.ImageUtils.loadTexture(src);
-      this.metaObject.mesh.material.map = texture;
+      this.metaObject.mesh.userData.dom = this.dom;
     }
   }, {
     key: "attachMetaObject",
@@ -55132,6 +55127,7 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
       if (eventToTriggerOnResize) {
         this.dom.dispatchEvent(eventToTriggerOnResize);
       }
+      mesh.userData.dom = this.dom;
     }
   }, {
     key: "tagName",
@@ -55159,7 +55155,8 @@ var MetaWallController = (function (_MRM$MetaBaseWallController) {
           type: Number,
           "default": 1,
           onChange: "updateMetaObject"
-        }
+        },
+        onSelect: { type: String, "default": '', attrName: 'onSelect' }
       };
     }
   }, {
@@ -55324,6 +55321,7 @@ var MetaPillarController = (function (_MRM$MetaComponentController) {
       if (eventToTriggerOnResize) {
         this.dom.dispatchEvent(eventToTriggerOnResize);
       }
+      mesh.userData.dom = this.dom;
     }
   }, {
     key: "setAbsolutePostion",
@@ -55488,7 +55486,8 @@ var MetaPillarController = (function (_MRM$MetaComponentController) {
           type: Number,
           "default": 1,
           onChange: "updateMetaObject"
-        }
+        },
+        onSelect: { type: String, "default": '', attrName: 'onSelect' }
       };
     }
   }, {
@@ -55622,6 +55621,7 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
       group.position.set(0, 0 - (this.metaStyle['thickness'] / 2 || 0), 0);
       mesh.scale.set(this.properties.width, this.properties.length, this.metaStyle['thickness'] / 2 || 1);
 
+      mesh.userData.dom = this.dom;
       var eventToTriggerOnResize = this.updateChildrenDisplayInline();
       if (eventToTriggerOnResize) {
         this.dom.dispatchEvent(eventToTriggerOnResize);
@@ -55655,7 +55655,8 @@ var MetaFloorController = (function (_MRM$MetaBaseWallController) {
           type: Number,
           'default': 0,
           onChange: "updateMetaObject"
-        }
+        },
+        onSelect: { type: String, 'default': '', attrName: 'onSelect' }
       };
     }
   }, {
@@ -55796,6 +55797,7 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
         this.setAbsolutePostion();
       }
       var eventToTriggerOnResize = this.updateChildrenDisplayInline();
+      mesh.userData.dom = this.dom;
       if (eventToTriggerOnResize) {
         this.dom.dispatchEvent(eventToTriggerOnResize);
       }
@@ -55908,7 +55910,8 @@ var MetaBoardController = (function (_MRM$MetaComponentController) {
     get: function get() {
       return {
         width: { type: Number, 'default': 1, attrName: 'width' },
-        length: { type: Number, 'default': 1, attrName: 'length' }
+        length: { type: Number, 'default': 1, attrName: 'length' },
+        onSelect: { type: String, 'default': '', attrName: 'onSelect' }
       };
     }
   }, {
@@ -56077,6 +56080,7 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
       if (this.metaStyle.metaStyle["frame-width"] || this.metaStyle.metaStyle["frame-thickness"]) {
         this.updateFrame();
       }
+      mesh.userData.dom = this.dom;
       mesh.scale.x = this.computedProperties.width;
       mesh.scale.y = this.computedProperties.length;
     }
@@ -56181,7 +56185,8 @@ var MetaPictureController = (function (_MRM$MetaComponentController) {
             _this2.computedProperties.length = value;
           }
         },
-        src: { type: String, 'default': '', attrName: 'src' }
+        src: { type: String, 'default': '', attrName: 'src' },
+        onSelect: { type: String, 'default': '', attrName: 'onSelect' }
       };
     }
   }, {
@@ -56329,6 +56334,7 @@ var MetaVideoController = (function (_MRM$MetaComponentController) {
       if (this.metaStyle.metaStyle["frame-width"]) {
         this.updateFrame();
       }
+      mesh.userData.dom = this.dom;
       mesh.scale.x = this.computedProperties.width;
       mesh.scale.y = this.computedProperties.length;
     }
@@ -56434,7 +56440,8 @@ var MetaVideoController = (function (_MRM$MetaComponentController) {
             _this2.computedProperties.length = value;
           }
         },
-        src: { type: String, 'default': '', attrName: 'src' }
+        src: { type: String, 'default': '', attrName: 'src' },
+        onSelect: { type: String, 'default': '', attrName: 'onSelect' }
       };
     }
   }, {
@@ -56760,7 +56767,8 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
           }
         },
         materialSrc: { type: String, 'default': '', attrName: 'material-src' },
-        src: { type: String, 'default': '', attrName: 'src' }
+        src: { type: String, 'default': '', attrName: 'src' },
+        onSelect: { type: String, 'default': '', attrName: 'onSelect' }
       };
     }
   }, {
@@ -56841,6 +56849,7 @@ var MetaItem = (function (_MRM$MetaComponent) {
       if (targetController.metaStyle.metaStyle["position"] === 'absolute') {
         targetController.setAbsolutePostion();
       }
+      targetController.metaObject.mesh.userData.dom = this.dom;
       var event = new CustomEvent('size-attributes-change', {
         'detail': {
           'controller': this.controller
@@ -56953,6 +56962,7 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
       }
       mesh.scale.x = this.computedProperties.width;
       mesh.scale.y = this.computedProperties.length;
+      mesh.userData.dom = this.dom;
     }
   }, {
     key: 'setAbsolutePostion',
@@ -57054,7 +57064,8 @@ var MetaTextController = (function (_MRM$MetaComponentController) {
           onChange: function onChange(value) {
             _this2.computedProperties.length = value;
           }
-        }
+        },
+        onSelect: { type: String, 'default': '', attrName: 'onSelect' }
       };
     }
   }, {
@@ -57208,6 +57219,7 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
       if (this.metaStyle.metaStyle["position"] === 'absolute') {
         this.setAbsolutePostion();
       }
+      this.metaObject.mesh.userData.dom = this.dom;
     }
   }, {
     key: "setAbsolutePostion",
@@ -57426,7 +57438,8 @@ var MetaTableController = (function (_MRM$MetaComponentController) {
           facesStartIndexes: [8],
           onChange: "updateFaceVisibility",
           querySelector: "meta-tsurface"
-        }
+        },
+        onSelect: { type: String, "default": '', attrName: 'onSelect' }
       };
     }
   }, {

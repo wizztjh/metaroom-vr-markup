@@ -40,6 +40,8 @@ class MetaVerseController extends MRM.MetaBaseController {
     mesh = new THREE.Mesh( geometry, material );
     group = new THREE.Group();
     group.add(mesh);
+    mesh.userData.dom = this.dom;
+
     return {
       mesh: mesh,
       group: group
@@ -198,12 +200,8 @@ class MetaVerseController extends MRM.MetaBaseController {
 
   updateMetaObject(){
     var src;
-    if(this.metaStyle.metaStyle.hasOwnProperty("skybox-texture")){
-      src = this.metaStyle.metaStyle['skybox-texture'];
-    }
 
-    var texture = THREE.ImageUtils.loadTexture(src);
-    this.metaObject.mesh.material.map = texture;
+    this.metaObject.mesh.userData.dom = this.dom;
   }
 
   attachMetaObject(targetController){

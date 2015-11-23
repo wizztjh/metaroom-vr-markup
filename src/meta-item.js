@@ -54,7 +54,8 @@ class MetaItemController extends MRM.MetaComponentController {
         }
       },
       materialSrc: {type: String, default: '', attrName: 'material-src'},
-      src: {type: String, default: '', attrName: 'src'}
+      src: {type: String, default: '', attrName: 'src'},
+      onSelect: {type: String, default: '', attrName: 'onSelect' }
     }
   }
 
@@ -309,6 +310,7 @@ class MetaItem extends MRM.MetaComponent {
     if(targetController.metaStyle.metaStyle["position"] === 'absolute'){
       targetController.setAbsolutePostion();
     }
+    targetController.metaObject.mesh.userData.dom = this.dom;
     var event = new CustomEvent('size-attributes-change', {
       'detail': {
         'controller': this.controller,

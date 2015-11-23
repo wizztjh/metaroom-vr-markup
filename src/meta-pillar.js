@@ -22,7 +22,8 @@ class MetaPillarController extends MRM.MetaComponentController{
         type: Number,
         default: 1,
         onChange: "updateMetaObject"
-      }
+      },
+      onSelect: {type: String, default: '', attrName: 'onSelect' }
     };
   }
 
@@ -100,6 +101,7 @@ class MetaPillarController extends MRM.MetaComponentController{
     if(eventToTriggerOnResize){
       this.dom.dispatchEvent(eventToTriggerOnResize);
     }
+    mesh.userData.dom = this.dom;
   }
 
   setAbsolutePostion(){

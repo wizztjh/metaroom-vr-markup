@@ -59,6 +59,7 @@ class MetaPictureController extends MRM.MetaComponentController {
         }
       },
       src: {type: String, default: '', attrName: 'src'},
+      onSelect: {type: String, default: '', attrName: 'onSelect' }
     }
   }
 
@@ -121,6 +122,7 @@ class MetaPictureController extends MRM.MetaComponentController {
     if(this.metaStyle.metaStyle["frame-width"] || this.metaStyle.metaStyle["frame-thickness"]){
       this.updateFrame();
     }
+    mesh.userData.dom = this.dom;
     mesh.scale.x = this.computedProperties.width;
     mesh.scale.y = this.computedProperties.length;
   }

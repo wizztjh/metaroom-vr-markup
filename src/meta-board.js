@@ -14,7 +14,8 @@ class MetaBoardController extends MRM.MetaComponentController {
   get propertiesSettings() {
     return {
       width: {type: Number, default: 1, attrName: 'width'},
-      length: {type: Number, default: 1, attrName: 'length'}
+      length: {type: Number, default: 1, attrName: 'length'},
+      onSelect: {type: String, default: '', attrName: 'onSelect' }
     }
   }
 
@@ -62,6 +63,7 @@ class MetaBoardController extends MRM.MetaComponentController {
       this.setAbsolutePostion();
     }
     var eventToTriggerOnResize = this.updateChildrenDisplayInline();
+    mesh.userData.dom = this.dom;
     if(eventToTriggerOnResize){
       this.dom.dispatchEvent(eventToTriggerOnResize);
     }

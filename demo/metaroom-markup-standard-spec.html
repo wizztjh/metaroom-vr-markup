@@ -2,6 +2,11 @@
 <html>
   <head>
     <script src="../bower_components/webcomponentsjs/webcomponents.js"></script>
+    <script>
+    function doSomething(){
+      console.log('doSomething triggered');
+    }
+    </script>
     <link rel="import" href="../dist/metaroom-markup.html">
   </head>
 
@@ -95,7 +100,7 @@
             <meta-text width='2' length='2'>Hello!</meta-text>
           </meta-board>
           <meta-text width='3' length='2' meta-style='position: absolute; bottom: 3; right: 0'>Hello, Test!</meta-text>
-          <meta-video src='img/sintel.ogv' meta-style='position:absolute; top: 4; left: 10; frame-width: 0.3; frame-color: #996633; frame-thickness: 0.5' width='15' length='8'></meta-video>
+          <meta-video src='img/sintel.ogv' meta-style='position:absolute; top: 4; left: 10; frame-width: 0.3; frame-color: #996633; frame-thickness: 0.5' width='15' length='8' onSelect="doSomething()"></meta-video>
           <meta-picture src='img/VRcollab.png' width='3' length='2'></meta-picture>
         </meta-wall>
         <meta-wall align='back' class='styled-wall'>

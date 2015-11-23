@@ -59,7 +59,8 @@ class MetaTextController extends MRM.MetaComponentController {
         onChange: (value)=>{
           this.computedProperties.length = value;
         }
-      }
+      },
+      onSelect: {type: String, default: '', attrName: 'onSelect' }
     }
   }
 
@@ -130,6 +131,7 @@ class MetaTextController extends MRM.MetaComponentController {
     }
     mesh.scale.x = this.computedProperties.width;
     mesh.scale.y = this.computedProperties.length;
+    mesh.userData.dom = this.dom;
   }
 
   setAbsolutePostion(){

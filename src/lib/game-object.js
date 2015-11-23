@@ -61,9 +61,10 @@ export default class GameObject{
 
     this.controls = new THREE.VRControls(this.camera);
 
-    var cursor = new THREE.Mesh(new THREE.RingGeometry(1, 2, 32), new THREE.MeshPhongMaterial({color: 0x9975b9, side: THREE.DoubleSide, transparent: true, opacity: 0.9}));
+    var cursor = new THREE.Mesh(new THREE.RingGeometry(1.5, 2, 32), new THREE.MeshPhongMaterial({color: 0x9975b9, side: THREE.DoubleSide, transparent: true, opacity: 0.9}));
     cursor.scale.x = cursor.scale.y = cursor.scale.z = 0.01;
     cursor.position.z = -0.3001;
+    this.cursor = cursor;
     this.camera.add(cursor);
 
     this.rayCaster = new THREE.Raycaster();
@@ -80,7 +81,7 @@ export default class GameObject{
     this.clock = new THREE.Clock(true)
     this.clock.start()
 
-    var INTERSECTED;
+    var INTERSECTED, TTL = 100;
 
     function animate() {
       var velocity = self.velocity;
@@ -127,45 +128,38 @@ export default class GameObject{
       self.rayCaster.setFromCamera( new THREE.Vector2(0, 0), self.camera );
       var intersects = self.rayCaster.intersectObjects( self.scene.children, true );
       if ( intersects.length > 0 ) {
-        if ( INTERSECTED != intersects[ 0 ].object ) {
-          if ( INTERSECTED ) {
-            if(INTERSECTED.colors){
-              var i = 0;
-              _.forEach(INTERSECTED.material.materials, (material)=> {
-                material.emissive.setHex(INTERSECTED.colors[i++]);
-              });
-            }
-            else {
-              INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+        //cursor marked object and INTERSECTED are different
+        if ( !(INTERSECTED) || (INTERSECTED.obj.uuid != intersects[ 0 ].object.uuid) ) {
+          INTERSECTED = {};
+          INTERSECTED.obj = intersects[ 0 ].object;
+          if(intersects[ 0 ].object.userData.dom){
+            INTERSECTED.dom = intersects[ 0 ].object.userData.dom;
+            INTERSECTED.onSelect = "";
+            INTERSECTED.triggered = false;
+            if(INTERSECTED.dom.controller.properties){
+              var onSelect = INTERSECTED.dom.controller.properties.onSelect || "";
+              onSelect = onSelect.trim();
+              if(/^(\w+)\s*\(\)$/.test(onSelect)){
+                INTERSECTED.onSelect = /^(\w+)\s*\(\)$/.exec(onSelect)[1];
+              }
             }
           }
-          INTERSECTED = intersects[ 0 ].object;
-          if(INTERSECTED.material.materials){
-            _.forEach(INTERSECTED.material.materials, (material)=>{
-              INTERSECTED.colors = INTERSECTED.colors || [];
-              INTERSECTED.colors.push(material.emissive.getHex());
-              material.emissive.setHex(0xff0000);
-            });
-          }else {
-            INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
-            INTERSECTED.material.emissive.setHex( 0xff0000 );
+          INTERSECTED.ttl = TTL;
+        }
+        //INTERSECTED and cursor marked object are same
+        else{
+          if(INTERSECTED.onSelect && !INTERSECTED.triggered){
+            INTERSECTED.ttl -= 1;
+            var p = INTERSECTED.ttl / TTL;
+            self.cursor.scale.set(p / 100, p / 100, p / 100);
+            if(INTERSECTED.ttl < 0){
+              self.cursor.scale.set(.01, .01, .01);
+              INTERSECTED.triggered = true;
+              window[INTERSECTED.onSelect]();
+            }
           }
         }
-      } else {
-        if ( INTERSECTED ){
-          if(INTERSECTED.colors){
-            var i = 0;
-            _.forEach(INTERSECTED.material.materials, (material)=> {
-              material.emissive.setHex(INTERSECTED.colors[i++]);
-            });
-          }
-          else {
-            INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
-          }
-        }
-        INTERSECTED = null;
       }
-
       self.manager.render(self.scene, self.camera);
 
       requestAnimationFrame(animate);
