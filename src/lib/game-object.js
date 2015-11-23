@@ -130,7 +130,9 @@ export default class GameObject{
       if ( intersects.length > 0 ) {
         //cursor marked object and INTERSECTED are different
         if ( !(INTERSECTED) || (INTERSECTED.obj.uuid != intersects[ 0 ].object.uuid) ) {
+          self.cursor.scale.set(0.01, 0.01, 0.01);
           INTERSECTED = {};
+          INTERSECTED.startTime = time;
           INTERSECTED.obj = intersects[ 0 ].object;
           if(intersects[ 0 ].object.userData.dom){
             INTERSECTED.dom = intersects[ 0 ].object.userData.dom;
