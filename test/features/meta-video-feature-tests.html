@@ -7,6 +7,11 @@
   <link rel="import" href="../../dist/metaroom-markup.html">
 
   <script src='../spec.js'></script>
+  <script>
+    function doSomething(){
+      console.log('doSomething triggered');
+    }
+  </script>
 </head>
 <body>
 
@@ -17,7 +22,7 @@
           <meta-video width='3' height='4' src='fixtures/ball.png' id='meta-video-on-wall'></meta-video>
 
           <meta-board width='3' length='5' id='main-meta-board'>
-            <meta-video width='3' meta-style='frame-width: 0.3' length='4' src='fixtures/ball.png' id='main-meta-video'></meta-video>
+            <meta-video width='3' meta-style='frame-width: 0.3' length='4' src='fixtures/ball.png' id='main-meta-video' onSelect='doSomething()'></meta-video>
           </meta-board>
 
         </meta-wall>

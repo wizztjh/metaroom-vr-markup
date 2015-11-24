@@ -310,7 +310,7 @@ class MetaItem extends MRM.MetaComponent {
     if(targetController.metaStyle.metaStyle["position"] === 'absolute'){
       targetController.setAbsolutePostion();
     }
-    targetController.metaObject.mesh.userData.dom = this.dom;
+    targetController.metaObject.mesh.userData.dom = this;
     var event = new CustomEvent('size-attributes-change', {
       'detail': {
         'controller': this.controller,

@@ -204,23 +204,19 @@ export default class GameObject{
 
       switch( event.keyCode ) {
 
-        case 38: // up
-          case 87: // w
+        case 87: // w
           self.moveForward = false;
         break;
 
-        case 37: // left
-          case 65: // a
+        case 65: // a
           self.moveLeft = false;
         break;
 
-        case 40: // down
-          case 83: // s
+        case 83: // s
           self.moveBackward = false;
         break;
 
-        case 39: // right
-          case 68: // d
+        case 68: // d
           self.moveRight = false;
         break;
 
@@ -229,6 +225,7 @@ export default class GameObject{
     };
 
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
+    window.addEventListener('click', this.onClick.bind(this), false);
     document.addEventListener( 'keydown', onKeyDown, false );
     document.addEventListener( 'keyup', onKeyUp, false );
   }
@@ -237,6 +234,18 @@ export default class GameObject{
     this.camera.aspect = this.getWidth() / this.getHeight()
     this.camera.updateProjectionMatrix();
     this.effect.setSize( this.getWidth(), this.getHeight() );
+  }
+
+  onClick(){
+    var manager = this.manager;
+    manager.getDeviceByType_(HMDVRDevice).then(function(hmd) {
+      if(hmd){
+        manager.toggleVRMode();
+      }else {
+        if(!document.webkitFullscreenElement && !document.mozFullScreenElement)
+        manager.enterImmersive();
+      }
+    });
   }
 
   getWidth() {
