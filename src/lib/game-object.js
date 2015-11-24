@@ -81,7 +81,7 @@ export default class GameObject{
     this.clock = new THREE.Clock(true)
     this.clock.start()
 
-    var INTERSECTED, TTL = 100;
+    var TTL = 100;
 
     function animate() {
       var velocity = self.velocity;
@@ -129,6 +129,7 @@ export default class GameObject{
       var intersects = self.rayCaster.intersectObjects( self.scene.children, true );
       if ( intersects.length > 0 ) {
         //cursor marked object and INTERSECTED are different
+        var INTERSECTED = self.INTERSECTED;
         if ( !(INTERSECTED) || (INTERSECTED.obj.uuid != intersects[ 0 ].object.uuid) ) {
           self.cursor.scale.set(0.01, 0.01, 0.01);
           INTERSECTED = {};
@@ -142,6 +143,7 @@ export default class GameObject{
               INTERSECTED.onSelect = INTERSECTED.dom.controller.properties.onSelect || "";
             }
           }
+          self.INTERSECTED = INTERSECTED;
           INTERSECTED.ttl = TTL;
         }
         //INTERSECTED and cursor marked object are same
@@ -222,6 +224,7 @@ export default class GameObject{
 
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
     window.addEventListener('click', this.onClick.bind(this), false);
+    window.addEventListener('touchend', this.onTouch.bind(this), false);
     document.addEventListener( 'keydown', onKeyDown, false );
     document.addEventListener( 'keyup', onKeyUp, false );
   }
@@ -239,9 +242,26 @@ export default class GameObject{
         manager.toggleVRMode();
       }else {
         if(!document.webkitFullscreenElement && !document.mozFullScreenElement)
-        manager.enterImmersive();
+          manager.enterImmersive();
+        else {
+          if(this.INTERSECTED && this.INTERSECTED.onSelect){
+            this.cursor.scale.set(.01, .01, .01);
+            this.INTERSECTED.triggered = true;
+            eval(this.INTERSECTED.onSelect);
+          }
+        }
       }
-    });
+    }.bind(this));
+  }
+
+  onTouch(e){
+    e.preventDefault();
+    console.log('onTouch triggered');
+    if(this.INTERSECTED && this.INTERSECTED.onSelect){
+      this.cursor.scale.set(.01, .01, .01);
+      this.INTERSECTED.triggered = true;
+      eval(this.INTERSECTED.onSelect);
+    }
   }
 
   getWidth() {

@@ -53227,8 +53227,7 @@ var GameObject = (function () {
     this.clock = new THREE.Clock(true);
     this.clock.start();
 
-    var INTERSECTED,
-        TTL = 100;
+    var TTL = 100;
 
     function animate() {
       var velocity = self.velocity;
@@ -53276,6 +53275,7 @@ var GameObject = (function () {
       var intersects = self.rayCaster.intersectObjects(self.scene.children, true);
       if (intersects.length > 0) {
         //cursor marked object and INTERSECTED are different
+        var INTERSECTED = self.INTERSECTED;
         if (!INTERSECTED || INTERSECTED.obj.uuid != intersects[0].object.uuid) {
           self.cursor.scale.set(0.01, 0.01, 0.01);
           INTERSECTED = {};
@@ -53289,6 +53289,7 @@ var GameObject = (function () {
               INTERSECTED.onSelect = INTERSECTED.dom.controller.properties.onSelect || "";
             }
           }
+          self.INTERSECTED = INTERSECTED;
           INTERSECTED.ttl = TTL;
         }
         //INTERSECTED and cursor marked object are same
@@ -53375,6 +53376,7 @@ var GameObject = (function () {
 
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
     window.addEventListener('click', this.onClick.bind(this), false);
+    window.addEventListener('touchend', this.onTouch.bind(this), false);
     document.addEventListener('keydown', onKeyDown, false);
     document.addEventListener('keyup', onKeyUp, false);
   }
@@ -53390,13 +53392,30 @@ var GameObject = (function () {
     key: "onClick",
     value: function onClick() {
       var manager = this.manager;
-      manager.getDeviceByType_(HMDVRDevice).then(function (hmd) {
+      manager.getDeviceByType_(HMDVRDevice).then((function (hmd) {
         if (hmd) {
           manager.toggleVRMode();
         } else {
-          if (!document.webkitFullscreenElement && !document.mozFullScreenElement) manager.enterImmersive();
+          if (!document.webkitFullscreenElement && !document.mozFullScreenElement) manager.enterImmersive();else {
+            if (this.INTERSECTED && this.INTERSECTED.onSelect) {
+              this.cursor.scale.set(.01, .01, .01);
+              this.INTERSECTED.triggered = true;
+              eval(this.INTERSECTED.onSelect);
+            }
+          }
         }
-      });
+      }).bind(this));
+    }
+  }, {
+    key: "onTouch",
+    value: function onTouch(e) {
+      e.preventDefault();
+      console.log('onTouch triggered');
+      if (this.INTERSECTED && this.INTERSECTED.onSelect) {
+        this.cursor.scale.set(.01, .01, .01);
+        this.INTERSECTED.triggered = true;
+        eval(this.INTERSECTED.onSelect);
+      }
     }
   }, {
     key: "getWidth",
@@ -56612,7 +56631,7 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
 
       function objmtlLoaderCallback(object) {
         scope.clearGroup();
-        scope.metaObject.mesh = object.children[1];
+        scope.metaObject.mesh = object;
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
         scope.dom.dispatchEvent(loadCompleteEvent);
@@ -56843,11 +56862,19 @@ var MetaItem = (function (_MRM$MetaComponent) {
   }, {
     key: 'itemLoadComplete',
     value: function itemLoadComplete(e) {
+      var _this4 = this;
+
       var targetController = e.detail.controller;
       if (targetController.metaStyle.metaStyle["position"] === 'absolute') {
         targetController.setAbsolutePostion();
       }
-      targetController.metaObject.mesh.userData.dom = this;
+      if (targetController.metaObject.mesh instanceof THREE.Group) {
+        _.forEach(targetController.metaObject.mesh.children, function (mesh) {
+          mesh.userData.dom = _this4;
+        });
+      } else {
+        targetController.metaObject.mesh.userData.dom = this;
+      }
       var event = new CustomEvent('size-attributes-change', {
         'detail': {
           'controller': this.controller

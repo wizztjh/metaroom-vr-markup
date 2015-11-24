@@ -167,7 +167,7 @@ class MetaItemController extends MRM.MetaComponentController {
 
     function objmtlLoaderCallback(object){
       scope.clearGroup();
-      scope.metaObject.mesh = object.children[1];
+      scope.metaObject.mesh = object;
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
       scope.dom.dispatchEvent(loadCompleteEvent);
@@ -310,7 +310,13 @@ class MetaItem extends MRM.MetaComponent {
     if(targetController.metaStyle.metaStyle["position"] === 'absolute'){
       targetController.setAbsolutePostion();
     }
-    targetController.metaObject.mesh.userData.dom = this;
+    if(targetController.metaObject.mesh instanceof THREE.Group){
+      _.forEach(targetController.metaObject.mesh.children, (mesh) => {
+        mesh.userData.dom = this;
+      });
+    }else{
+      targetController.metaObject.mesh.userData.dom = this;
+    }
     var event = new CustomEvent('size-attributes-change', {
       'detail': {
         'controller': this.controller,
