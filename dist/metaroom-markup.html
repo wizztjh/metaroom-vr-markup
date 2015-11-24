@@ -53286,11 +53286,7 @@ var GameObject = (function () {
             INTERSECTED.onSelect = "";
             INTERSECTED.triggered = false;
             if (INTERSECTED.dom.controller.properties) {
-              var onSelect = INTERSECTED.dom.controller.properties.onSelect || "";
-              onSelect = onSelect.trim();
-              if (/^(\w+)\s*\(\)$/.test(onSelect)) {
-                INTERSECTED.onSelect = /^(\w+)\s*\(\)$/.exec(onSelect)[1];
-              }
+              INTERSECTED.onSelect = INTERSECTED.dom.controller.properties.onSelect || "";
             }
           }
           INTERSECTED.ttl = TTL;
@@ -53304,7 +53300,7 @@ var GameObject = (function () {
               if (INTERSECTED.ttl < 0) {
                 self.cursor.scale.set(.01, .01, .01);
                 INTERSECTED.triggered = true;
-                window[INTERSECTED.onSelect]();
+                eval(INTERSECTED.onSelect);
               }
             }
           }
@@ -56607,7 +56603,7 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
             scope.metaObject.mesh = new THREE.Mesh(geometry, material);
           });
         } else {
-          scope.metaObject.mesh = new THREE.Mesh(geometry);
+          scope.metaObject.mesh = new THREE.Mesh(geometry, new THREE.MeshPhongMaterial());
         }
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
@@ -56616,7 +56612,7 @@ var MetaItemController = (function (_MRM$MetaComponentController) {
 
       function objmtlLoaderCallback(object) {
         scope.clearGroup();
-        scope.metaObject.mesh = object;
+        scope.metaObject.mesh = object.children[1];
         scope.scaleMetaObject();
         scope.metaObject.group.add(scope.metaObject.mesh);
         scope.dom.dispatchEvent(loadCompleteEvent);

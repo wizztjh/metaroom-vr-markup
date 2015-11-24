@@ -139,11 +139,7 @@ export default class GameObject{
             INTERSECTED.onSelect = "";
             INTERSECTED.triggered = false;
             if(INTERSECTED.dom.controller.properties){
-              var onSelect = INTERSECTED.dom.controller.properties.onSelect || "";
-              onSelect = onSelect.trim();
-              if(/^(\w+)\s*\(\)$/.test(onSelect)){
-                INTERSECTED.onSelect = /^(\w+)\s*\(\)$/.exec(onSelect)[1];
-              }
+              INTERSECTED.onSelect = INTERSECTED.dom.controller.properties.onSelect || "";
             }
           }
           INTERSECTED.ttl = TTL;
@@ -157,7 +153,7 @@ export default class GameObject{
             if(INTERSECTED.ttl < 0){
               self.cursor.scale.set(.01, .01, .01);
               INTERSECTED.triggered = true;
-              window[INTERSECTED.onSelect]();
+              eval(INTERSECTED.onSelect);
             }
           }
         }

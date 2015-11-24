@@ -158,7 +158,7 @@ class MetaItemController extends MRM.MetaComponentController {
           scope.metaObject.mesh = new THREE.Mesh(geometry, material);
         });
       }else{
-        scope.metaObject.mesh = new THREE.Mesh( geometry );
+        scope.metaObject.mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial() );
       }
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
@@ -167,7 +167,7 @@ class MetaItemController extends MRM.MetaComponentController {
 
     function objmtlLoaderCallback(object){
       scope.clearGroup();
-      scope.metaObject.mesh = object;
+      scope.metaObject.mesh = object.children[1];
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
       scope.dom.dispatchEvent(loadCompleteEvent);
