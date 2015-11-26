@@ -18,12 +18,11 @@
   <div id='fixture'>
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
-        <meta-wall align='left' id='main-meta-wall'>
-          <meta-video width='3' height='4' src='fixtures/ball.png' id='meta-video-on-wall'></meta-video>
-
+        <meta-wall align='front' id='main-meta-wall'>
           <meta-board width='3' length='5' id='main-meta-board'>
             <meta-video width='3' meta-style='frame-width: 0.3' length='4' src='fixtures/ball.png' id='main-meta-video' onSelect='doSomething()'></meta-video>
           </meta-board>
+          <meta-video width='3' length='4' src='fixtures/ball.png' id='meta-video-on-wall'></meta-video>
 
         </meta-wall>
       </meta-room>
@@ -58,6 +57,21 @@
             jlet('metaVideo', function(){ return document.querySelector('#meta-video-on-wall')});
           });
           shouldBehaveLikeA['Plane Adding MetaTag']('metaVideo', 'metaWall');
+        });
+
+        describe('when Raycaster intersects with video', function(){
+          beforeEach(function(){
+            var scene = J.metaVerse.controller.gameObject.scene;
+            var videoM = J.metaVideo.controller.metaObject.mesh;
+            var videoG = J.metaVideo.controller.metaObject.group;
+            THREE.SceneUtils.detach(videoM, videoG, scene);
+            J.metaVideo.controller.metaObject.mesh.position.set(1, 5, -3);
+            J.metaVerse.controller.gameObject.setIntersected();
+          });
+
+          it('INTERSECTED in gameObject is meta-video', function(){
+            expect(J.metaVerse.controller.gameObject.INTERSECTED.dom.controller.tagName).to.equal(J.metaVideo.controller.tagName);
+          });
         });
       });
 

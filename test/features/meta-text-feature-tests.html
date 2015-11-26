@@ -13,12 +13,12 @@
   <div id='fixture'>
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
-        <meta-wall align='left' id='main-meta-wall'>
-          <meta-text width='3' length='1' id='meta-text-on-wall'>Hello there!</meta-text>
+        <meta-wall align='front' id='main-meta-wall'>
           <meta-board  width='3' length='5' id='main-meta-board'>
             <meta-picture src='fixtures/ball.png' id='main-meta-picture'></meta-picture>
             <meta-text width='3' length='1' id='main-meta-text'>Hello there!</meta-text>
           </meta-board>
+          <meta-text width='3' length='1' id='meta-text-on-wall'>Hello there!</meta-text>
         </meta-wall>
       </meta-room>
     </meta-verse>
@@ -49,6 +49,21 @@
             jlet('metaText', function(){ return document.querySelector('#meta-text-on-wall')});
           });
           shouldBehaveLikeA['Plane Adding MetaTag']('metaText', 'metaWall');
+        });
+
+        describe('position set on the cursor', function(){
+          beforeEach(function(){
+            var scene = J.metaVerse.controller.gameObject.scene;
+            var textMesh = J.metaTextMesh;
+            var textGroup = J.metaText.controller.metaObject.group;
+            THREE.SceneUtils.detach(textMesh, textGroup, scene);
+            J.metaText.controller.metaObject.mesh.position.set(0, 5, -3);
+            J.metaVerse.controller.gameObject.setIntersected();
+          });
+
+          it('intersects to the Raycaster', function(){
+            expect(J.metaVerse.controller.gameObject.INTERSECTED.dom.controller.tagName).to.equal(J.metaText.controller.tagName);
+          });
         });
       });
 
