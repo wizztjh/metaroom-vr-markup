@@ -13,8 +13,9 @@
   <div id='fixture'>
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
-        <meta-wall align='left' id='main-meta-wall'>
-          <meta-board src='fixtures/ball.jpeg' x='3' y='3' width='3' length='5' id='main-meta-board'></meta-board>
+        <meta-wall align='front' id='main-meta-wall'>
+          <meta-board width='10' length='10' id='main-meta-board'>
+          </meta-board>
         </meta-wall>
       </meta-room>
     </meta-verse>
@@ -32,7 +33,23 @@
       });
 
       describe("when initilize", function(){
-        shouldBehaveLikeA['MetaObject that scales']('metaBoardMesh', {x: 3, y: 5});
+        shouldBehaveLikeA['MetaObject that scales']('metaBoardMesh', {x: 10, y: 10});
+
+        describe('when Raycaster intersects with board', function(){
+          beforeEach(function(){
+            var scene = J.metaVerse.controller.gameObject.scene;
+            var boardM = J.metaBoard.controller.metaObject.mesh;
+            var boardG = J.metaBoard.controller.metaObject.group;
+            THREE.SceneUtils.detach(boardM, boardG, scene);
+            J.metaBoard.controller.metaObject.mesh.material.color.setRGB(1,0,0);
+            J.metaBoard.controller.metaObject.mesh.position.set(5, 5, -3);
+            J.metaVerse.controller.gameObject.setIntersected();
+          });
+
+          it('INTERSECTED in gameObject is meta-wall', function(){
+            expect(J.metaVerse.controller.gameObject.INTERSECTED.dom.controller.tagName).to.equal(J.metaBoard.controller.tagName);
+          });
+        });
       });
 
       describe("when it is added within meta-wall", function(){

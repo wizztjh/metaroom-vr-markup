@@ -57,7 +57,6 @@ class MetaTableController extends MRM.MetaComponentController{
     var group = new THREE.Group();
     group.add( mesh );
 
-
     return {
       group: group,
       mesh: mesh
@@ -182,7 +181,8 @@ class MetaTableController extends MRM.MetaComponentController{
         facesStartIndexes: [8],
         onChange: "updateFaceVisibility",
         querySelector: "meta-tsurface"
-      }
+      },
+      onSelect: {type: String, default: '', attrName: 'onSelect' }
     }
   }
 
@@ -195,7 +195,6 @@ class MetaTableController extends MRM.MetaComponentController{
   }
 
   resetComputedProperties(){
-    _.forEach(this.computedPropertiesS)
     this.computedPropertiesKey.forEach((key) => {
       this.computedProperties[key] = this.properties[key];
     });
@@ -216,6 +215,7 @@ class MetaTableController extends MRM.MetaComponentController{
     if(this.metaStyle.metaStyle["position"] === 'absolute'){
       this.setAbsolutePostion();
     }
+    this.metaObject.mesh.userData.dom = this.dom;
   }
 
   setAbsolutePostion(){

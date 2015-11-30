@@ -54,7 +54,8 @@ class MetaItemController extends MRM.MetaComponentController {
         }
       },
       materialSrc: {type: String, default: '', attrName: 'material-src'},
-      src: {type: String, default: '', attrName: 'src'}
+      src: {type: String, default: '', attrName: 'src'},
+      onSelect: {type: String, default: '', attrName: 'onSelect' }
     }
   }
 
@@ -117,6 +118,12 @@ class MetaItemController extends MRM.MetaComponentController {
     if(!this.properties.src){
       return;
     }
+    var loadCompleteEvent = new CustomEvent('item-load-complete', {
+      bubbles: false,
+      'detail': {
+        'controller': scope
+      }
+    });
     var url = this.properties.src;
     var loader = THREE.Loader.Handlers.get(url);
     this.metaObject.group.position.z = this.properties.height / 2;
@@ -129,19 +136,6 @@ class MetaItemController extends MRM.MetaComponentController {
       scope.metaObject.mesh = collada.scene;
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
-      var event = new CustomEvent('size-attributes-change', {
-        'detail': {
-          'controller': scope,
-        },
-        bubbles: true
-      });
-      scope.dom.dispatchEvent(event);
-      var loadCompleteEvent = new CustomEvent('item-load-complete', {
-        bubbles: false,
-        'detail': {
-          'controller': scope
-        }
-      });
       scope.dom.dispatchEvent(loadCompleteEvent);
     }
 
@@ -150,19 +144,6 @@ class MetaItemController extends MRM.MetaComponentController {
       scope.metaObject.mesh = object;
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
-      var event = new CustomEvent('size-attributes-change', {
-        'detail': {
-          'controller': scope,
-        },
-        bubbles: true
-      });
-      scope.dom.dispatchEvent(event);
-      var loadCompleteEvent = new CustomEvent('item-load-complete', {
-        bubbles: false,
-        'detail': {
-          'controller': scope
-        }
-      });
       scope.dom.dispatchEvent(loadCompleteEvent);
     }
 
@@ -177,23 +158,10 @@ class MetaItemController extends MRM.MetaComponentController {
           scope.metaObject.mesh = new THREE.Mesh(geometry, material);
         });
       }else{
-        scope.metaObject.mesh = new THREE.Mesh( geometry );
+        scope.metaObject.mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial() );
       }
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
-      var event = new CustomEvent('size-attributes-change', {
-        'detail': {
-          'controller': scope,
-        },
-        bubbles: true
-      });
-      scope.dom.dispatchEvent(event);
-      var loadCompleteEvent = new CustomEvent('item-load-complete', {
-        bubbles: false,
-        'detail': {
-          'controller': scope
-        }
-      });
       scope.dom.dispatchEvent(loadCompleteEvent);
     }
 
@@ -202,19 +170,6 @@ class MetaItemController extends MRM.MetaComponentController {
       scope.metaObject.mesh = object;
       scope.scaleMetaObject();
       scope.metaObject.group.add( scope.metaObject.mesh );
-      var event = new CustomEvent('size-attributes-change', {
-        'detail': {
-          'controller': scope,
-        },
-        bubbles: true
-      });
-      scope.dom.dispatchEvent(event);
-      var loadCompleteEvent = new CustomEvent('item-load-complete', {
-        bubbles: false,
-        'detail': {
-          'controller': scope
-        }
-      });
       scope.dom.dispatchEvent(loadCompleteEvent);
     }
 
@@ -355,6 +310,20 @@ class MetaItem extends MRM.MetaComponent {
     if(targetController.metaStyle.metaStyle["position"] === 'absolute'){
       targetController.setAbsolutePostion();
     }
+    if(targetController.metaObject.mesh instanceof THREE.Group){
+      _.forEach(targetController.metaObject.mesh.children, (mesh) => {
+        mesh.userData.dom = this;
+      });
+    }else{
+      targetController.metaObject.mesh.userData.dom = this;
+    }
+    var event = new CustomEvent('size-attributes-change', {
+      'detail': {
+        'controller': this.controller,
+      },
+      bubbles: true
+    });
+    dispatchEvent(event);
   }
 }
 

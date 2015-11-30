@@ -58,6 +58,7 @@ class MetaVideoController extends MRM.MetaComponentController {
         }
       },
       src: {type: String, default: '', attrName: 'src'},
+      onSelect: {type: String, default: '', attrName: 'onSelect' }
     }
   }
 
@@ -100,7 +101,7 @@ class MetaVideoController extends MRM.MetaComponentController {
     videoTexture.needsUpdate = true
 
     var geometry = new THREE.PlaneGeometry(1,1,1,1);
-    var material = new THREE.MeshBasicMaterial({
+    var material = new THREE.MeshPhongMaterial({
       map: videoTexture,
       color: 0x333333,
       side: THREE.DoubleSide
@@ -128,6 +129,7 @@ class MetaVideoController extends MRM.MetaComponentController {
     if(this.metaStyle.metaStyle["frame-width"]){
       this.updateFrame();
     }
+    mesh.userData.dom = this.dom;
     mesh.scale.x = this.computedProperties.width;
     mesh.scale.y = this.computedProperties.length;
   }

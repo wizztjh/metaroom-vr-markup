@@ -61,6 +61,12 @@ export default class GameObject{
 
     this.controls = new THREE.VRControls(this.camera);
 
+    var cursor = new THREE.Mesh(new THREE.RingGeometry(1, 1.2, 32), new THREE.MeshPhongMaterial({color: 0x9975b9, side: THREE.DoubleSide, transparent: true, opacity: 0.9}));
+    cursor.scale.x = cursor.scale.y = cursor.scale.z = 0.01;
+    cursor.position.z = -0.3001;
+    this.cursor = cursor;
+    this.camera.add(cursor);
+
     this.dollyCam = new THREE.PerspectiveCamera();
     this.dollyCam.add(this.camera);
     this.scene.add(this.dollyCam);
@@ -109,9 +115,14 @@ export default class GameObject{
       self.dollyCam.translateX( velocity.x * delta );
       self.dollyCam.translateZ( velocity.z * delta );
 
+      // console.log(velocity.x, velocity.z);
+
       self.controls.update();
       // Render the scene through the manager.
       self.camera.position.y = 5;
+
+      self.setIntersected();
+
       self.manager.render(self.scene, self.camera);
 
       requestAnimationFrame(animate);
@@ -131,22 +142,18 @@ export default class GameObject{
 
       switch ( event.keyCode ) {
 
-        case 38: // up
-          case 87: // w
+        case 87: // w
           self.moveForward = true;
         break;
 
-        case 37: // left
-          case 65: // a
+        case 65: // a
           self.moveLeft = true; break;
 
-        case 40: // down
-          case 83: // s
+        case 83: // s
           self.moveBackward = true;
         break;
 
-        case 39: // right
-          case 68: // d
+        case 68: // d
           self.moveRight = true;
         break;
 
@@ -158,23 +165,19 @@ export default class GameObject{
 
       switch( event.keyCode ) {
 
-        case 38: // up
-          case 87: // w
+        case 87: // w
           self.moveForward = false;
         break;
 
-        case 37: // left
-          case 65: // a
+        case 65: // a
           self.moveLeft = false;
         break;
 
-        case 40: // down
-          case 83: // s
+        case 83: // s
           self.moveBackward = false;
         break;
 
-        case 39: // right
-          case 68: // d
+        case 68: // d
           self.moveRight = false;
         break;
 
@@ -183,14 +186,84 @@ export default class GameObject{
     };
 
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
+    window.addEventListener('click', this.onClick.bind(this), false);
+    window.addEventListener('touchend', this.onTouch.bind(this), false);
     document.addEventListener( 'keydown', onKeyDown, false );
     document.addEventListener( 'keyup', onKeyUp, false );
+  }
+
+  setIntersected(){
+    var self = this, TTL = 100;
+    var rayCaster = new THREE.Raycaster();
+    rayCaster.setFromCamera( new THREE.Vector2(0, 0), self.camera );
+    var intersects = rayCaster.intersectObjects( self.scene.children, true );
+    if ( intersects.length > 0 ) {
+      //cursor marked object and INTERSECTED are different
+      var INTERSECTED = self.INTERSECTED;
+      if ( !(INTERSECTED) || (INTERSECTED.obj.uuid != intersects[ 0 ].object.uuid) ) {
+        self.cursor.scale.set(0.01, 0.01, 0.01);
+        INTERSECTED = {};
+        INTERSECTED.startTime = performance.now();
+        INTERSECTED.obj = intersects[ 0 ].object;
+        if(intersects[ 0 ].object.userData.dom){
+          INTERSECTED.dom = intersects[ 0 ].object.userData.dom;
+          INTERSECTED.onSelect = "";
+          INTERSECTED.triggered = false;
+          if(INTERSECTED.dom.controller.properties){
+            INTERSECTED.onSelect = INTERSECTED.dom.controller.properties.onSelect || "";
+          }
+        }
+        self.INTERSECTED = INTERSECTED;
+        INTERSECTED.ttl = TTL;
+      }
+      //INTERSECTED and cursor marked object are same
+      else{
+        if(INTERSECTED.onSelect && !INTERSECTED.triggered){
+          INTERSECTED.ttl -= 1;
+          var p = INTERSECTED.ttl / TTL;
+          self.cursor.scale.set(p / 100, p / 100, p / 100);
+          if(INTERSECTED.ttl < 0){
+            self.cursor.scale.set(.01, .01, .01);
+            INTERSECTED.triggered = true;
+            eval(INTERSECTED.onSelect);
+          }
+        }
+      }
+    }
   }
 
   onWindowResize(){
     this.camera.aspect = this.getWidth() / this.getHeight()
     this.camera.updateProjectionMatrix();
     this.effect.setSize( this.getWidth(), this.getHeight() );
+  }
+
+  onClick(){
+    var manager = this.manager;
+    manager.getDeviceByType_(HMDVRDevice).then(function(hmd) {
+      if(hmd){
+        manager.toggleVRMode();
+      }else {
+        if(!document.webkitFullscreenElement && !document.mozFullScreenElement)
+          manager.enterImmersive();
+        else {
+          if(this.INTERSECTED && this.INTERSECTED.onSelect){
+            this.cursor.scale.set(.01, .01, .01);
+            this.INTERSECTED.triggered = true;
+            eval(this.INTERSECTED.onSelect);
+          }
+        }
+      }
+    }.bind(this));
+  }
+
+  onTouch(e){
+    e.preventDefault();
+    if(this.INTERSECTED && this.INTERSECTED.onSelect){
+      this.cursor.scale.set(.01, .01, .01);
+      this.INTERSECTED.triggered = true;
+      eval(this.INTERSECTED.onSelect);
+    }
   }
 
   getWidth() {

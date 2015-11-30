@@ -11,7 +11,7 @@
 <body>
 
   <div id='fixture'>
-    <meta-verse id="meta-verse">
+    <meta-verse id="meta-verse" meta-style="material-texture: fixtures/ball.png">
       <meta-style>
         #main-meta-wall {
           material-color: red;
@@ -46,6 +46,9 @@
       //   });
       // });
 
+      it('sets the material texture in metaStyle', function(){
+        expect(J.metaVerse.controller.metaStyle.metaStyle["material-texture"]).to.equal("fixtures/ball.png");
+      });
     });
   </script>
 </body>

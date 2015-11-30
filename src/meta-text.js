@@ -59,7 +59,8 @@ class MetaTextController extends MRM.MetaComponentController {
         onChange: (value)=>{
           this.computedProperties.length = value;
         }
-      }
+      },
+      onSelect: {type: String, default: '', attrName: 'onSelect' }
     }
   }
 
@@ -98,7 +99,7 @@ class MetaTextController extends MRM.MetaComponentController {
     var texture = new THREE.Texture(canvas1);
     texture.needsUpdate = true;
     var geometry = new THREE.PlaneGeometry(planeWidth, planeLength,1,1);
-    var material = new THREE.MeshBasicMaterial({
+    var material = new THREE.MeshPhongMaterial({
       map: texture,
       color: 0x333333,
       side: THREE.DoubleSide
@@ -130,6 +131,7 @@ class MetaTextController extends MRM.MetaComponentController {
     }
     mesh.scale.x = this.computedProperties.width;
     mesh.scale.y = this.computedProperties.length;
+    mesh.userData.dom = this.dom;
   }
 
   setAbsolutePostion(){

@@ -67,12 +67,12 @@ export default class MetaStyle {
   set ["tbottom-padding-top"](tbottomPaddingTop) {
     var mesh = this.controller.metaObject.mesh;
     var computedProperties = this.controller.computedProperties;
+    this.metaStyle["tbottom-padding-top"] = Number(tbottomPaddingTop);
     if (mesh) {
       var geometry = mesh.geometry
       if(mesh.geometry.update){
-        mesh.geometry.update(computedProperties.width, computedProperties.height, computedProperties.length, geometry.tbottomThickness, geometry.tsurfaceThickness, Number(tbottomPaddingTop), this.metaStyle['tbottom-padding-bottom'] || 0);
+        this.controller.updateMetaObject();
       }
-      this.metaStyle["tbottom-padding-top"] = Number(tbottomPaddingTop);
     }
     return Number(tbottomPaddingTop);
   }
@@ -317,15 +317,6 @@ export default class MetaStyle {
 
   get ["rotate-z"]() {
     return this.metaStyle["rotate-z"];
-  }
-
-  set ["skybox-texture"](file) {
-    this.metaStyle["skybox-texture"] = (file);
-    return file;
-  }
-
-  get ["skybox-texture"]() {
-    return this.metaStyle["skybox-texture"];
   }
 
   set ["margin"](length) {

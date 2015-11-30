@@ -151,6 +151,39 @@
         });
       });
 
+      describe('table without width, length but item with width and length', function(){
+        beforeEach(function(){
+          J.metaFloor.innerHTML = "<meta-table id='meta-table-on-floor'>" +
+            "<meta-tsurface id='meta-tsurface'>" +
+              "<meta-item width='3' length='3' height='2' material-src='fixtures/model/male02.mtl' src='fixtures/model/male02.obj' id='meta-item-on-table'></meta-item>" +
+            "</meta-tsurface></meta-table>";
+          jlet('metaTable', function(){ return document.querySelector('#meta-table-on-floor')});
+          jlet('metaItemOnTable', function(){ return document.querySelector('#meta-item-on-table')});
+        });
+        it('updates the size of the table with item width and length', function(){
+          expect(J.metaTable.controller.computedProperties.width).to.equal(3);
+          expect(J.metaTable.controller.computedProperties.length).to.equal(3);
+        });
+      });
+
+      describe('table without width, length but item with width and length and position absolute', function(){
+        beforeEach(function(){
+          J.metaFloor.innerHTML = "<meta-item width='3' length='3' height='2' material-src='fixtures/model/male02.mtl' src='fixtures/model/male02.obj' id='meta-item-on-table'></meta-item>" +
+            "<meta-table id='meta-table-on-floor'>" +
+            "<meta-tsurface id='meta-tsurface'>" +
+              "<meta-item width='3' length='3' height='2' material-src='fixtures/model/male02.mtl' src='fixtures/model/male02.obj' id='meta-item-on-table' meta-style='position:absolute'></meta-item>" +
+            "</meta-tsurface></meta-table>";
+          jlet('metaTable', function(){ return document.querySelector('#meta-table-on-floor')});
+          jlet('metaItemOnTable', function(){ return document.querySelector('#meta-item-on-table')});
+        });
+        it('updates the size of the table with item width and length', function(){
+          expect(J.metaTable.controller.computedProperties.width).to.equal(3);
+          expect(J.metaTable.controller.computedProperties.length).to.equal(3);
+          expect(J.metaTable.controller.metaObject.group.position.x).to.equal(-0.5);
+          expect(J.metaTable.controller.metaObject.group.position.y).to.equal(3.5);
+        });
+      });
+
       shouldBehaveLikeA["Removeable MetaObject"]('metaItem', 'metaFloor');
     });
   </script>

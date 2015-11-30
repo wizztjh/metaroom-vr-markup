@@ -31,7 +31,8 @@ class MetaWallController extends MRM.MetaBaseWallController{
         type: Number,
         default: 1,
         onChange: "updateMetaObject"
-      }
+      },
+      onSelect: {type: String, default: '', attrName: 'onSelect' }
     };
   }
 
@@ -130,6 +131,7 @@ class MetaWallController extends MRM.MetaBaseWallController{
     if(eventToTriggerOnResize){
       this.dom.dispatchEvent(eventToTriggerOnResize);
     }
+    mesh.userData.dom = this.dom;
   }
 
 }

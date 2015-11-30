@@ -14,6 +14,7 @@
     <meta-verse id="meta-verse">
       <meta-room width='10' height='10' length='10' id='main-meta-room'>
         <meta-wall align='left' id='main-meta-wall'></meta-wall>
+        <meta-wall align='front' id='raycast-meta-wall'></meta-wall>
       </meta-room>
     </meta-verse>
   </div>
@@ -112,6 +113,21 @@
           });
         });
 
+        describe('when Raycaster intersects with wall', function(){
+          beforeEach(function(){
+            jlet('metaWall', function(){ return document.querySelector('#raycast-meta-wall')});
+            var scene = J.metaVerse.controller.gameObject.scene;
+            var wallM = J.metaWall.controller.metaObject.mesh;
+            var wallG = J.metaWall.controller.metaObject.group;
+            THREE.SceneUtils.detach(wallM, wallG, scene);
+            J.metaWall.controller.metaObject.mesh.position.set(1, 5, -3);
+            J.metaVerse.controller.gameObject.setIntersected();
+          });
+
+          it('INTERSECTED in gameObject is meta-wall', function(){
+            expect(J.metaVerse.controller.gameObject.INTERSECTED.dom.controller.tagName).to.equal(J.metaWall.controller.tagName);
+          });
+        });
       });
 
     });
