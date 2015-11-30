@@ -53207,7 +53207,7 @@ var GameObject = (function () {
 
     this.controls = new THREE.VRControls(this.camera);
 
-    var cursor = new THREE.Mesh(new THREE.RingGeometry(1, 1.5, 32), new THREE.MeshPhongMaterial({ color: 0x9975b9, side: THREE.DoubleSide, transparent: true, opacity: 0.9 }));
+    var cursor = new THREE.Mesh(new THREE.RingGeometry(1, 1.2, 32), new THREE.MeshPhongMaterial({ color: 0x9975b9, side: THREE.DoubleSide, transparent: true, opacity: 0.9 }));
     cursor.scale.x = cursor.scale.y = cursor.scale.z = 0.01;
     cursor.position.z = -0.3001;
     this.cursor = cursor;
