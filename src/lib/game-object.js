@@ -17,8 +17,8 @@ export default class GameObject{
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
     this.renderer.domElement.id = 'hpml-webgl-canvas'
-    this.renderer.shadowMapEnabled = true;
-    this.renderer.shadowMapType = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     this.scene = new THREE.Scene();
     this.scene.fog = new THREE.FogExp2( 0xffff99, 0 );
