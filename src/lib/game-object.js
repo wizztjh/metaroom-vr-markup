@@ -13,7 +13,11 @@ export default class GameObject{
 
     this.metaObjects = new Map();
 
-    this.renderer = new THREE.WebGLRenderer({ antialias: false });
+    if(window.preserveDrawBuffer){
+      this.renderer = new THREE.WebGLRenderer({ antialias: false, preserveDrawingBuffer: true });
+    }else {
+      this.renderer = new THREE.WebGLRenderer({ antialias: false });
+    }
     this.renderer.setPixelRatio(window.devicePixelRatio);
 
     this.renderer.domElement.id = 'hpml-webgl-canvas'
