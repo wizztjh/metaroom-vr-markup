@@ -190,7 +190,7 @@ export default class GameObject{
     };
 
     window.addEventListener('resize', this.onWindowResize.bind(this), false);
-    window.addEventListener('click', this.onClick.bind(this), false);
+    // window.addEventListener('click', this.onClick.bind(this), false);
     window.addEventListener('touchend', this.onTouch.bind(this), false);
     document.addEventListener( 'keydown', onKeyDown, false );
     document.addEventListener( 'keyup', onKeyUp, false );
